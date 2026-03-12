@@ -2,7 +2,7 @@ import { pgTable, text, timestamp, pgEnum } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
-export const roleEnum = pgEnum("role", ["farmer", "warehouse_op", "checker", "lender", "admin"]);
+export const roleEnum = pgEnum("role", ["farmer", "trader", "collateral_manager", "processor", "warehouse_op", "checker", "lender", "admin"]);
 export const kycStatusEnum = pgEnum("kyc_status", ["pending", "approved", "rejected"]);
 export const kycTypeEnum = pgEnum("kyc_type", ["individual", "company", "cooperative"]);
 export const idTypeEnum = pgEnum("id_type", ["national_id", "passport", "driving_license"]);

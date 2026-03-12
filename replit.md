@@ -64,7 +64,9 @@ Every package extends `tsconfig.base.json` which sets `composite: true`. The roo
 
 ## DB Schema Tables
 
-- `users` — farmers, warehouse ops, admins, checkers
+- `users` — all platform users; roles: farmer, trader, collateral_manager, processor, warehouse_op, checker, lender, admin
+- `organizations` — cooperatives, processors, lenders, trader associations (multi-tenancy scope)
+- `kyc_records` — KYC document submissions linked to users
 - `warehouses` — storage facilities with capacity tracking
 - `intakes` — commodity intake pipeline (5 stages + eWRS registry columns)
 - `inspections` — quality inspection records with grading params and risk flags
@@ -73,6 +75,19 @@ Every package extends `tsconfig.base.json` which sets `composite: true`. The roo
 - `loans` — collateralized lending with LTV thresholds
 - `marketplace_listings` — commodity trade listings
 - `activity_log` — platform audit trail
+
+## User Roles & RBAC
+
+| Role | Label | Key Permissions |
+|---|---|---|
+| `farmer` | Farmer / Borrower | loan:create, inventory:view, marketplace:list |
+| `trader` | Trader | marketplace:trade, contracts:forward |
+| `collateral_manager` | Collateral Manager | receipts:manage, inspections:approve, tokens:lock |
+| `processor` | Processor | marketplace:purchase, contracts:manage, payments:view |
+| `warehouse_op` | Warehouse Operator | inventory:manage, receipts:issue, ewrs:submit |
+| `checker` | Checker / Auditor | inventory:verify, inspections:conduct, kyc:review |
+| `lender` | Lender / Institution | loans:monitor, risk:dashboard |
+| `admin` | Platform Admin | *:all |
 
 ## Packages
 

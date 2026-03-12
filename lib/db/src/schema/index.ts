@@ -1,4 +1,5 @@
 export * from "./users";
+export * from "./organizations";
 export * from "./inventory";
 export * from "./inspection";
 export * from "./receipts";
