@@ -91,6 +91,8 @@ router.post("/", async (req, res) => {
     if (body.damageLevel === "severe") riskFlags.push("Damage Level: Severe — Reject");
     if (body.foreignMatterPercent && Number(body.foreignMatterPercent) > 3) riskFlags.push("Foreign Matter > 3% — Downgrade Required");
     if (body.pestDamagePercent && Number(body.pestDamagePercent) > 2) riskFlags.push("Pest Damage > 2% — Fumigation Required");
+    if (body.discoloration) riskFlags.push("Discoloration Present — Grade Review Required");
+    if (body.moldPresent) riskFlags.push("Mold Detected — Storage Risk");
 
     const [inspection] = await db.insert(inspectionsTable).values({
       ...body,

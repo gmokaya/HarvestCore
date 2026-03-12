@@ -1,0 +1,254 @@
+C. Inspection & Quality Verification Module
+Purpose
+
+The Inspection & Quality Verification Module ensures that commodities stored in warehouses meet defined quality, safety, and grading standards before a Digital Warehouse Receipt (DWR) can be issued.
+
+This module provides:
+
+commodity grading and certification
+
+inspection traceability
+
+quality compliance verification
+
+risk assessment for financing
+
+data required for tokenized warehouse receipts
+
+The module must support multiple inspection events, since commodities may be inspected:
+
+during intake
+
+during storage
+
+before delivery
+
+during collateral verification
+
+1. Inspection Workflow
+Commodity Delivered to Warehouse
+        ↓
+Initial Inspection
+        ↓
+Quality Tests Conducted
+        ↓
+Inspection Report Generated
+        ↓
+Inspection Approved
+        ↓
+Digital Warehouse Receipt Issued
+2. Inspection Data Captured
+Basic Inspection Data
+
+Inspection ID
+
+Commodity Type
+
+Warehouse ID
+
+Warehouse Receipt ID (if available)
+
+Inspection Officer ID
+
+Inspection Date
+
+Inspection Type
+
+Intake inspection
+
+Periodic inspection
+
+Pre-dispatch inspection
+
+Collateral verification inspection
+
+3. Quality Parameters Captured
+
+For agricultural commodities the system must capture multiple grading indicators.
+
+Moisture & Physical Quality
+
+Moisture Content (%)
+
+Broken Grain Percentage
+
+Foreign Matter (%)
+
+Pest Damage (%)
+
+Mold / Aflatoxin Presence
+
+Discoloration
+
+Commodity Grade
+
+Based on defined standards:
+
+Example for maize:
+
+Grade A
+
+Grade B
+
+Grade C
+
+Reject
+
+Damage Assessment
+
+Physical damage
+
+Insect infestation
+
+Storage damage
+
+Handling damage
+
+Damage level classification:
+
+None
+
+Minor
+
+Moderate
+
+Severe
+
+Weight & Packaging Verification
+
+Net Weight
+
+Gross Weight
+
+Bag Count
+
+Packaging Type
+
+Bags
+
+Bulk
+
+Pallets
+
+Storage Conditions
+
+Warehouse Temperature
+
+Humidity Level
+
+Storage Method
+
+Stack Position
+
+These help detect storage risk that could affect collateral value.
+
+4. Certification & Compliance
+
+Inspection module must record certifications.
+
+Examples:
+
+Export Grade Certification
+
+Organic Certification
+
+Phytosanitary Certification
+
+Warehouse Operator Certification
+
+Fields:
+
+Certification Type
+
+Certification Authority
+
+Certificate Number
+
+Validity Date
+
+5. Inspector Verification
+
+Every inspection must be linked to an authorized inspector.
+
+Fields include:
+
+Inspector ID
+
+Inspector Name
+
+Organization
+
+License Number
+
+Digital Signature
+
+Example:
+
+Inspection Officer: CM-003
+Inspector Name: John K. Mwangi
+Organization: Kitale Warehouse Inspection Unit
+License: INS-8821
+6. Inspection Example Record
+Inspection ID: INS-2026-0031
+Commodity: White Maize
+Warehouse: WH-KTL-001
+
+Moisture: 12%
+Foreign Matter: 1.2%
+Broken Grain: 2%
+
+Grade: Grade A
+Damage Level: None
+
+Packaging: 100kg Bags
+Bag Count: 500
+
+Inspection Officer: CM-003
+Inspection Date: 13 July 2026
+Certification: Export Grade
+7. Risk Flags for Lending
+
+Inspection module must generate risk flags.
+
+Example:
+
+Moisture > 14% → High Storage Risk
+Aflatoxin Detected → Financing Not Allowed
+Damage Level Severe → Reject
+
+These flags feed directly into the Loan Risk Engine.
+
+8. Inspection Media Evidence
+
+To ensure transparency, inspections must support:
+
+Photo uploads
+
+Video documentation
+
+Lab test results
+
+Certificate attachments
+
+Example:
+
+Inspection_Photos/
+Lab_Test_Report.pdf
+Certification_Document.pdf
+9. Inspection Report Output
+
+The module produces a Digital Inspection Report.
+
+Example:
+
+Inspection Report ID: INS-2026-0031
+Commodity: White Maize
+Warehouse: WH-KTL-001
+Grade: Grade A
+Moisture: 12%
+Damage Level: None
+Certified: Yes
+Inspection Officer: CM-003
+Inspection Date: 13 July 2026
+
+This report becomes linked to the warehouse receipt.

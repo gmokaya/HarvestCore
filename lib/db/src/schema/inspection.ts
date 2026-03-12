@@ -46,6 +46,7 @@ export const inspectionsTable = pgTable("inspections", {
   pestDamagePercent: numeric("pest_damage_percent", { precision: 5, scale: 2 }),
   moldPresent: boolean("mold_present").notNull().default(false),
   aflatoxinDetected: boolean("aflatoxin_detected").notNull().default(false),
+  discoloration: boolean("discoloration").notNull().default(false),
 
   grade: text("grade"),
   damageLevel: inspectionDamageLevelEnum("damage_level").notNull().default("none"),
