@@ -196,4 +196,98 @@ const Label = React.forwardRef<HTMLLabelElement, React.LabelHTMLAttributes<HTMLL
 ))
 Label.displayName = "Label"
 
-export { Button, Card, CardHeader, CardTitle, CardContent, Badge, Table, TableHeader, TableBody, TableRow, TableHead, TableCell, Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogClose, Input, Label }
+// --- TEXTAREA ---
+const Textarea = React.forwardRef<HTMLTextAreaElement, React.TextareaHTMLAttributes<HTMLTextAreaElement>>(({ className, ...props }, ref) => (
+  <textarea
+    ref={ref}
+    className={cn(
+      "flex min-h-[80px] w-full rounded-md border border-input bg-background/50 px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-primary disabled:cursor-not-allowed disabled:opacity-50 transition-all resize-none",
+      className
+    )}
+    {...props}
+  />
+))
+Textarea.displayName = "Textarea"
+
+// --- SELECT ---
+interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
+  placeholder?: string;
+}
+const Select = React.forwardRef<HTMLSelectElement, SelectProps>(({ className, children, placeholder, ...props }, ref) => (
+  <select
+    ref={ref}
+    className={cn(
+      "flex h-10 w-full rounded-md border border-input bg-background/50 px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-primary disabled:cursor-not-allowed disabled:opacity-50 transition-all appearance-none cursor-pointer",
+      className
+    )}
+    {...props}
+  >
+    {placeholder && <option value="" disabled>{placeholder}</option>}
+    {children}
+  </select>
+))
+Select.displayName = "Select"
+
+const SelectItem = ({ value, children }: { value: string; children: React.ReactNode }) => (
+  <option value={value}>{children}</option>
+)
+
+// --- TABS ---
+interface TabsContextValue { activeTab: string; setActiveTab: (v: string) => void }
+const TabsContext = React.createContext<TabsContextValue>({ activeTab: "", setActiveTab: () => {} })
+
+interface TabsProps { defaultValue: string; children: React.ReactNode; className?: string }
+const Tabs = ({ defaultValue, children, className }: TabsProps) => {
+  const [activeTab, setActiveTab] = React.useState(defaultValue)
+  return (
+    <TabsContext.Provider value={{ activeTab, setActiveTab }}>
+      <div className={cn("w-full", className)}>{children}</div>
+    </TabsContext.Provider>
+  )
+}
+
+const TabsList = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(({ className, ...props }, ref) => (
+  <div ref={ref} className={cn("inline-flex h-10 items-center justify-start rounded-lg bg-secondary/50 p-1 text-muted-foreground border border-border/50 gap-1", className)} {...props} />
+))
+TabsList.displayName = "TabsList"
+
+interface TabsTriggerProps extends React.ButtonHTMLAttributes<HTMLButtonElement> { value: string }
+const TabsTrigger = React.forwardRef<HTMLButtonElement, TabsTriggerProps>(({ className, value, children, ...props }, ref) => {
+  const { activeTab, setActiveTab } = React.useContext(TabsContext)
+  const isActive = activeTab === value
+  return (
+    <button
+      ref={ref}
+      onClick={() => setActiveTab(value)}
+      className={cn(
+        "inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+        isActive ? "bg-background text-foreground shadow-sm border border-border/50" : "hover:text-foreground hover:bg-secondary",
+        className
+      )}
+      {...props}
+    >
+      {children}
+    </button>
+  )
+})
+TabsTrigger.displayName = "TabsTrigger"
+
+interface TabsContentProps extends React.HTMLAttributes<HTMLDivElement> { value: string }
+const TabsContent = ({ value, children, className, ...props }: TabsContentProps) => {
+  const { activeTab } = React.useContext(TabsContext)
+  if (activeTab !== value) return null
+  return <div className={cn("mt-4", className)} {...props}>{children}</div>
+}
+
+// --- PROGRESS ---
+interface ProgressProps extends React.HTMLAttributes<HTMLDivElement> { value: number }
+const Progress = ({ value, className, ...props }: ProgressProps) => (
+  <div className={cn("relative h-2 w-full overflow-hidden rounded-full bg-secondary/60", className)} {...props}>
+    <div
+      className="h-full rounded-full bg-primary transition-all duration-300"
+      style={{ width: `${Math.max(0, Math.min(100, value))}%` }}
+    />
+  </div>
+)
+
+export { Button, Card, CardHeader, CardTitle, CardContent, Badge, Table, TableHeader, TableBody, TableRow, TableHead, TableCell, Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogClose, Input, Label, Textarea, Select, SelectItem, Tabs, TabsList, TabsTrigger, TabsContent, Progress }
