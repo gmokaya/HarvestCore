@@ -1,0 +1,311 @@
+To meet your requirement, the **Commodity Intake Module** should support **interoperability with external warehouse systems and a Central Warehouse Receipt Registry**. This allows TokenHarvest to **retrieve verified receipts instead of issuing them directly**, which is important for **regulatory alignment and trust with lenders**.
+
+Below is a **revised design of the Commodity Intake Module with Registry Integration**.
+
+---
+
+# B. Commodity Intake Module (Registry-Integrated)
+
+## Purpose
+
+The **Commodity Intake Module** records commodities when they enter storage and enables **integration with warehouse operator systems and the central warehouse receipt registry**.
+
+Instead of issuing receipts directly, the module can **retrieve verified receipts issued by warehouse operators and registered in the central registry**.
+
+This ensures:
+
+* interoperability with warehouse operator systems
+* regulatory alignment with warehouse receipt frameworks
+* standardized receipt verification
+* reduced fraud and duplication
+
+---
+
+# 1. Integration Architecture
+
+```text
+Warehouse Operator System
+        │
+        │ API Transmission
+        ▼
+Central Warehouse Receipt Registry
+        │
+        │ API Query
+        ▼
+TokenHarvest Collateral Engine
+        │
+        ▼
+Tokenized Warehouse Receipt
+```
+
+---
+
+# 2. Commodity Intake Workflow
+
+### Step 1 — Commodity Arrival
+
+Commodity is delivered to a **registered warehouse**.
+
+The warehouse operator records:
+
+* commodity type
+* quantity
+* supplier/farmer
+* packaging type
+* storage details
+
+---
+
+### Step 2 — Warehouse Issues Receipt
+
+The warehouse system generates a **Digital Warehouse Receipt (DWR)**.
+
+Example:
+
+```
+Receipt ID: WR-KTL-00582
+Commodity: White Maize
+Quantity: 50 Tons
+Warehouse: WH-KTL-001
+Owner: FRM-0092
+Date Stored: 12 July 2026
+```
+
+---
+
+### Step 3 — Transmission to Central Registry
+
+The warehouse operator system sends the receipt to the **Central Registry**.
+
+Example API transmission:
+
+```json
+POST /registry/receipts
+
+{
+  "receipt_id": "WR-KTL-00582",
+  "warehouse_id": "WH-KTL-001",
+  "commodity": "White Maize",
+  "quantity": 50,
+  "unit": "tons",
+  "farmer_id": "FRM-0092",
+  "packaging": "bags",
+  "date_received": "2026-07-12"
+}
+```
+
+The registry becomes the **trusted source of truth**.
+
+---
+
+# 3. Retrieval by TokenHarvest Collateral Engine
+
+TokenHarvest does **not issue the receipt**.
+
+Instead it **retrieves the receipt from the registry**.
+
+Example API query:
+
+```json
+GET /registry/receipts/WR-KTL-00582
+```
+
+Response:
+
+```json
+{
+  "receipt_id": "WR-KTL-00582",
+  "warehouse_id": "WH-KTL-001",
+  "commodity": "White Maize",
+  "quantity": 50,
+  "unit": "tons",
+  "farmer_id": "FRM-0092",
+  "packaging": "bags",
+  "date_received": "2026-07-12",
+  "status": "active"
+}
+```
+
+---
+
+# 4. Commodity Intake Data Captured
+
+When retrieved from the registry, the **Collateral Engine stores the following intake data**.
+
+### Required Fields
+
+* **Warehouse ID**
+* **Warehouse Receipt ID**
+* **Commodity Type**
+* **Quantity**
+* **Unit of Measure**
+* **Packaging Type**
+* **Supplier / Farmer ID**
+* **Date Received**
+
+---
+
+# 5. Example Intake Record
+
+```
+Warehouse Receipt ID: WR-KTL-00582
+Commodity: White Maize
+Quantity: 50 Tons
+Packaging: Bags
+Farmer ID: FRM-0092
+Warehouse: WH-KTL-001
+Date Stored: 12 July 2026
+Registry Status: Verified
+```
+
+---
+
+# 6. Collateral Engine Actions After Retrieval
+
+Once the receipt is retrieved and validated:
+
+### 1️⃣ Receipt Validation
+
+System verifies:
+
+* warehouse certification
+* receipt authenticity
+* duplicate receipts
+
+---
+
+### 2️⃣ Inventory Record Creation
+
+A collateral record is created internally.
+
+```
+Inventory ID: INV-00321
+Receipt ID: WR-KTL-00582
+Commodity: White Maize
+Quantity: 50 Tons
+Owner: FRM-0092
+Warehouse: WH-KTL-001
+```
+
+---
+
+### 3️⃣ Tokenization
+
+The receipt is converted into a **Tokenized Warehouse Receipt**.
+
+Example:
+
+```
+Token ID: TH-WR-00582
+Blockchain: IOTA
+Commodity: White Maize
+Quantity: 50 Tons
+Warehouse: WH-KTL-001
+Owner: FRM-0092
+Status: Active
+```
+
+---
+
+# 7. API Integration Requirements
+
+### Registry APIs Needed
+
+Retrieve receipt:
+
+```
+GET /registry/receipts/{receipt_id}
+```
+
+Retrieve receipts by farmer:
+
+```
+GET /registry/farmers/{farmer_id}/receipts
+```
+
+Verify receipt:
+
+```
+GET /registry/receipts/{receipt_id}/verify
+```
+
+---
+
+# 8. Security Controls
+
+### Registry Verification
+
+The system must verify:
+
+* receipt signature
+* issuing warehouse ID
+* registry status
+
+---
+
+### Duplicate Prevention
+
+Before tokenization:
+
+```
+IF receipt_id exists
+REJECT tokenization
+```
+
+---
+
+### Warehouse Authorization
+
+Only **approved warehouses** can transmit receipts.
+
+---
+
+# 9. Integration Modes
+
+The module should support **three integration modes**.
+
+### 1️⃣ Direct API Integration
+
+Warehouse systems send receipts automatically.
+
+Best for:
+
+* large warehouses
+* modern WMS systems
+
+---
+
+### 2️⃣ Registry Pull Model
+
+TokenHarvest queries the registry periodically.
+
+Best for:
+
+* centralized warehouse receipt systems
+
+---
+
+### 3️⃣ Manual Upload
+
+Warehouse operator uploads receipt document.
+
+Best for:
+
+* smaller warehouses
+
+---
+
+# 10. Strategic Benefit
+
+This architecture allows TokenHarvest to operate as a **digital collateral infrastructure layer** rather than replacing warehouse operators.
+
+Advantages:
+
+* compatible with national warehouse receipt systems
+* trusted by banks and lenders
+* scalable across multiple countries
+* supports tokenized commodity finance
+
+---
+
+If you want, I can next design the **TokenHarvest Warehouse Receipt Registry Adapter**, which is the **middleware that connects TokenHarvest to any national warehouse registry (Kenya, Uganda, Zambia, etc.)**. This will make your platform **pan-African compatible**, which is a very powerful capability for TokenHarvest.

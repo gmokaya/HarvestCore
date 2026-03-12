@@ -12,6 +12,7 @@ import { cn, formatWeight } from "@/lib/utils"
 import {
   Scale, Plus, CheckCircle2, XCircle, Droplets, Tag, ClipboardList,
   Warehouse, ChevronRight, AlertCircle, Link2, Leaf, Hash,
+  Globe, RefreshCw, Upload, Download, ShieldCheck, Clock, AlertTriangle, Send,
 } from "lucide-react"
 
 const COMMODITIES = ["Maize", "Coffee", "Wheat", "Rice", "Sorghum", "Beans", "Tea", "Cotton", "Sesame", "Millet"]
@@ -74,7 +75,6 @@ export default function Inventory() {
   const approveIntake = useApproveIntake()
   const rejectIntake = useRejectIntake()
 
-  const [activeTab, setActiveTab] = useState("pipeline")
   const [showNewIntake, setShowNewIntake] = useState(false)
   const [gradeDialog, setGradeDialog] = useState<string | null>(null)
   const [weighDialog, setWeighDialog] = useState<string | null>(null)
@@ -89,6 +89,15 @@ export default function Inventory() {
   const [rejectReason, setRejectReason] = useState("")
 
   const [submitting, setSubmitting] = useState(false)
+
+  const [registryQueue, setRegistryQueue] = useState<any[]>([])
+  const [registryStats, setRegistryStats] = useState<any>(null)
+  const [registryLoading, setRegistryLoading] = useState(false)
+  const [selectedIntakes, setSelectedIntakes] = useState<Set<string>>(new Set())
+  const [pulledRecords, setPulledRecords] = useState<any[]>([])
+  const [syncing, setSyncing] = useState<string | null>(null)
+  const [pullLoading, setPullLoading] = useState(false)
+  const [submitPayload, setSubmitPayload] = useState<any>(null)
 
   const intakes = data?.intakes ?? []
   const warehouses = warehouseData?.warehouses ?? []
@@ -105,6 +114,98 @@ export default function Inventory() {
     })
     if (!r.ok) throw new Error(await r.text())
     return r.json()
+  }
+
+  const loadRegistryData = async () => {
+    setRegistryLoading(true)
+    try {
+      const [queue, stats] = await Promise.all([
+        callApi("/ewrs/queue", "GET"),
+        callApi("/ewrs/stats", "GET"),
+      ])
+      setRegistryQueue(queue.intakes ?? [])
+      setRegistryStats(stats)
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setRegistryLoading(false)
+    }
+  }
+
+  const handleSubmitToRegistry = async (intakeId: string) => {
+    try {
+      const result = await callApi(`/ewrs/submit/${intakeId}`, "POST")
+      setSubmitPayload(result)
+      await loadRegistryData()
+      refetch()
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  const handleSubmitBatch = async () => {
+    if (selectedIntakes.size === 0) return
+    setSubmitting(true)
+    try {
+      await callApi("/ewrs/submit-batch", "POST", { intakeIds: Array.from(selectedIntakes) })
+      setSelectedIntakes(new Set())
+      setTimeout(async () => { await loadRegistryData(); refetch() }, 4500)
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  const handleSync = async (intakeId: string) => {
+    setSyncing(intakeId)
+    try {
+      await callApi(`/ewrs/sync/${intakeId}`, "POST")
+      await loadRegistryData()
+      refetch()
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setSyncing(null)
+    }
+  }
+
+  const handlePullFromRegistry = async () => {
+    setPullLoading(true)
+    try {
+      const result = await callApi("/ewrs/pull", "POST")
+      setPulledRecords(result.records ?? [])
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setPullLoading(false)
+    }
+  }
+
+  const toggleSelectIntake = (id: string) => {
+    setSelectedIntakes(prev => {
+      const next = new Set(prev)
+      next.has(id) ? next.delete(id) : next.add(id)
+      return next
+    })
+  }
+
+  const ewrsStatusConfig: Record<string, { label: string; variant: any; icon: any }> = {
+    not_submitted: { label: "Not Submitted", variant: "outline",     icon: Upload },
+    pending:       { label: "Pending",       variant: "warning",     icon: Clock },
+    verified:      { label: "Verified",      variant: "success",     icon: ShieldCheck },
+    rejected:      { label: "Rejected",      variant: "destructive", icon: XCircle },
+    sync_error:    { label: "Sync Error",    variant: "destructive", icon: AlertTriangle },
+  }
+
+  const EwrsBadge = ({ status }: { status: string }) => {
+    const cfg = ewrsStatusConfig[status] ?? ewrsStatusConfig.not_submitted
+    const Icon = cfg.icon
+    return (
+      <Badge variant={cfg.variant} className="text-xs gap-1">
+        <Icon className="w-3 h-3" />{cfg.label}
+      </Badge>
+    )
   }
 
   const handleNewIntake = async (e: React.FormEvent) => {
@@ -228,6 +329,9 @@ export default function Inventory() {
           </TabsTrigger>
           <TabsTrigger value="warehouses">
             <Warehouse className="w-4 h-4 mr-2" /> Warehouses ({warehouses.length})
+          </TabsTrigger>
+          <TabsTrigger value="registry" onClick={loadRegistryData}>
+            <Globe className="w-4 h-4 mr-2" /> Registry Sync
           </TabsTrigger>
         </TabsList>
 
@@ -420,6 +524,228 @@ export default function Inventory() {
             ))}
           </div>
         </TabsContent>
+
+        {/* ─── REGISTRY SYNC TAB ─── */}
+        <TabsContent value="registry">
+          <div className="space-y-5">
+
+            {/* Stats row */}
+            {registryStats && (
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div className="rounded-xl border border-border/50 bg-card/60 px-4 py-3">
+                  <p className="text-xs text-muted-foreground">Anchored (Eligible)</p>
+                  <p className="text-2xl font-bold text-foreground mt-1">{registryStats.eligibleForSubmission}</p>
+                </div>
+                <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 px-4 py-3">
+                  <p className="text-xs text-emerald-400/70">Registry Verified</p>
+                  <p className="text-2xl font-bold text-emerald-400 mt-1">{registryStats.verified}</p>
+                </div>
+                <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 px-4 py-3">
+                  <p className="text-xs text-amber-400/70">Pending Confirmation</p>
+                  <p className="text-2xl font-bold text-amber-400 mt-1">{registryStats.pending}</p>
+                </div>
+                <div className="rounded-xl border border-red-500/20 bg-red-500/5 px-4 py-3">
+                  <p className="text-xs text-red-400/70">Sync Errors</p>
+                  <p className="text-2xl font-bold text-red-400 mt-1">{registryStats.syncErrors}</p>
+                </div>
+              </div>
+            )}
+
+            {/* Submission queue */}
+            <Card>
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
+                      <Send className="w-4 h-4 text-blue-400" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-base">WRSC Submission Queue</CardTitle>
+                      <p className="text-xs text-muted-foreground mt-0.5">IOTA-anchored intakes ready for Kenyan Warehouse Receipt System Council</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    {selectedIntakes.size > 0 && (
+                      <Button size="sm" onClick={handleSubmitBatch} disabled={submitting} className="bg-blue-600 hover:bg-blue-500">
+                        <Upload className="w-3.5 h-3.5 mr-1.5" />
+                        {submitting ? "Submitting..." : `Submit ${selectedIntakes.size} Selected`}
+                      </Button>
+                    )}
+                    <Button size="sm" variant="outline" onClick={loadRegistryData} disabled={registryLoading}>
+                      <RefreshCw className={cn("w-3.5 h-3.5 mr-1.5", registryLoading && "animate-spin")} />
+                      Refresh
+                    </Button>
+                  </div>
+                </div>
+              </CardHeader>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-8" />
+                    <TableHead>Commodity</TableHead>
+                    <TableHead>Farmer</TableHead>
+                    <TableHead>GRN</TableHead>
+                    <TableHead>Registry ID</TableHead>
+                    <TableHead>WRSC Status</TableHead>
+                    <TableHead>Submitted</TableHead>
+                    <TableHead className="text-right">Action</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {registryLoading ? (
+                    <TableRow>
+                      <TableCell colSpan={8} className="text-center py-10 text-muted-foreground">
+                        <RefreshCw className="w-5 h-5 animate-spin mx-auto mb-2" />
+                        Fetching registry queue...
+                      </TableCell>
+                    </TableRow>
+                  ) : registryQueue.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={8} className="text-center py-12">
+                        <Globe className="w-8 h-8 mx-auto mb-2 text-muted-foreground/30" />
+                        <p className="text-muted-foreground text-sm">No anchored intakes yet.</p>
+                        <p className="text-muted-foreground/60 text-xs mt-1">Move intakes through the pipeline to the Anchored stage to enable registry submission.</p>
+                      </TableCell>
+                    </TableRow>
+                  ) : registryQueue.map((intake) => (
+                    <TableRow key={intake.id}>
+                      <TableCell>
+                        {intake.ewrsStatus !== "verified" && (
+                          <input
+                            type="checkbox"
+                            className="w-4 h-4 accent-primary cursor-pointer"
+                            checked={selectedIntakes.has(intake.id)}
+                            onChange={() => toggleSelectIntake(intake.id)}
+                          />
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <Leaf className="w-4 h-4 text-emerald-500" />
+                          <div>
+                            <span className="font-medium text-sm">{intake.commodity}</span>
+                            <span className="text-muted-foreground text-xs ml-1">{intake.grade && `Grade ${intake.grade}`}</span>
+                            <p className="text-xs text-muted-foreground">{formatWeight(intake.weightKg)}</p>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-sm">{intake.farmerName}</TableCell>
+                      <TableCell className="font-mono text-xs text-blue-400">{intake.grnNumber ?? "—"}</TableCell>
+                      <TableCell>
+                        {intake.ewrsRegistryId
+                          ? <span className="font-mono text-xs text-violet-400">{intake.ewrsRegistryId}</span>
+                          : <span className="text-muted-foreground/40 text-xs">—</span>}
+                      </TableCell>
+                      <TableCell>
+                        <EwrsBadge status={intake.ewrsStatus ?? "not_submitted"} />
+                      </TableCell>
+                      <TableCell className="text-xs text-muted-foreground">
+                        {intake.ewrsSubmittedAt
+                          ? new Date(intake.ewrsSubmittedAt).toLocaleDateString("en-KE", { day: "numeric", month: "short" })
+                          : "—"}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-1.5">
+                          {(intake.ewrsStatus === "not_submitted" || intake.ewrsStatus == null) && (
+                            <Button size="sm" variant="outline" className="text-blue-400 border-blue-500/20 hover:bg-blue-500/10 text-xs" onClick={() => handleSubmitToRegistry(intake.id)}>
+                              <Upload className="w-3 h-3 mr-1" /> Submit
+                            </Button>
+                          )}
+                          {intake.ewrsStatus === "pending" && (
+                            <Button size="sm" variant="outline" className="text-amber-400 border-amber-500/20 hover:bg-amber-500/10 text-xs" onClick={() => handleSync(intake.id)} disabled={syncing === intake.id}>
+                              <RefreshCw className={cn("w-3 h-3 mr-1", syncing === intake.id && "animate-spin")} /> Re-check
+                            </Button>
+                          )}
+                          {intake.ewrsStatus === "sync_error" && (
+                            <Button size="sm" variant="outline" className="text-red-400 border-red-500/20 hover:bg-red-500/10 text-xs" onClick={() => handleSubmitToRegistry(intake.id)}>
+                              <RefreshCw className="w-3 h-3 mr-1" /> Retry
+                            </Button>
+                          )}
+                          {intake.ewrsStatus === "verified" && (
+                            <Badge variant="success" className="text-xs">
+                              <ShieldCheck className="w-3 h-3 mr-1" /> Confirmed
+                            </Badge>
+                          )}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </Card>
+
+            {/* Pull from external registry */}
+            <Card>
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-violet-500/10 border border-violet-500/20 flex items-center justify-center">
+                      <Download className="w-4 h-4 text-violet-400" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-base">Pull from External Registry</CardTitle>
+                      <p className="text-xs text-muted-foreground mt-0.5">Import verified receipts submitted by warehouse operators directly to WRSC</p>
+                    </div>
+                  </div>
+                  <Button size="sm" variant="outline" onClick={handlePullFromRegistry} disabled={pullLoading} className="text-violet-400 border-violet-500/20 hover:bg-violet-500/10">
+                    <Download className={cn("w-3.5 h-3.5 mr-1.5", pullLoading && "animate-bounce")} />
+                    {pullLoading ? "Fetching..." : "Pull from WRSC"}
+                  </Button>
+                </div>
+              </CardHeader>
+              {pulledRecords.length > 0 && (
+                <CardContent className="pt-0">
+                  <div className="space-y-3">
+                    {pulledRecords.map((record, i) => (
+                      <div key={i} className="rounded-xl border border-violet-500/20 bg-violet-500/5 p-4">
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 flex-1">
+                            <div>
+                              <p className="text-xs text-muted-foreground">External ID</p>
+                              <p className="font-mono text-xs text-violet-400 mt-0.5">{record.externalId}</p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-muted-foreground">Commodity</p>
+                              <p className="text-sm font-medium mt-0.5">{record.commodity} <span className="text-muted-foreground text-xs">({record.variety})</span></p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-muted-foreground">Weight / Grade</p>
+                              <p className="text-sm mt-0.5">{record.weightKg.toLocaleString()} kg — Grade {record.grade}</p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-muted-foreground">GRN</p>
+                              <p className="font-mono text-xs text-blue-400 mt-0.5">{record.grnNumber}</p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-muted-foreground">Warehouse</p>
+                              <p className="text-xs mt-0.5">{record.warehouseName}</p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-muted-foreground">Farmer / Operator</p>
+                              <p className="text-xs mt-0.5">{record.farmerName}</p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-muted-foreground">Source</p>
+                              <p className="text-xs mt-0.5">{record.source}</p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-muted-foreground">Registry Status</p>
+                              <Badge variant="success" className="text-xs mt-0.5"><ShieldCheck className="w-3 h-3 mr-1" />{record.status}</Badge>
+                            </div>
+                          </div>
+                          <Button size="sm" variant="outline" className="text-emerald-400 border-emerald-500/20 hover:bg-emerald-500/10 text-xs shrink-0">
+                            <CheckCircle2 className="w-3 h-3 mr-1" /> Import
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              )}
+            </Card>
+          </div>
+        </TabsContent>
+
       </Tabs>
 
       {/* ─── NEW INTAKE DIALOG ─── */}

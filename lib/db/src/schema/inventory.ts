@@ -5,6 +5,7 @@ import { usersTable } from "./users";
 
 export const intakeStatusEnum = pgEnum("intake_status", ["pending", "graded", "weighed", "verified", "anchored", "rejected"]);
 export const gradeEnum = pgEnum("grade", ["A", "B", "C", "D"]);
+export const ewrsStatusEnum = pgEnum("ewrs_status", ["not_submitted", "pending", "verified", "rejected", "sync_error"]);
 
 export const warehousesTable = pgTable("warehouses", {
   id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
@@ -27,6 +28,10 @@ export const intakesTable = pgTable("intakes", {
   grade: gradeEnum("grade"),
   grnNumber: text("grn_number"),
   ewrsRegistryId: text("ewrs_registry_id"),
+  ewrsStatus: ewrsStatusEnum("ewrs_status").notNull().default("not_submitted"),
+  ewrsSubmittedAt: timestamp("ewrs_submitted_at"),
+  ewrsSyncedAt: timestamp("ewrs_synced_at"),
+  ewrsPayload: text("ewrs_payload"),
   iotaHash: text("iota_hash"),
   status: intakeStatusEnum("status").notNull().default("pending"),
   checkerNotes: text("checker_notes"),

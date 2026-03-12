@@ -8,6 +8,7 @@ import loansRouter from "./loans";
 import marketplaceRouter from "./marketplace";
 import settlementRouter from "./settlement";
 import dashboardRouter from "./dashboard";
+import ewrsRouter from "./ewrs";
 
 const router: IRouter = Router();
 
@@ -20,5 +21,6 @@ router.use("/loans", loansRouter);
 router.use("/marketplace", marketplaceRouter);
 router.use("/settlement", settlementRouter);
 router.use("/dashboard", dashboardRouter);
+router.use("/ewrs", ewrsRouter);
 
 export default router;
