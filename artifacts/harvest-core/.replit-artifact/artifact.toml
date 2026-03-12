@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "HarvestCore"
+version = "1.0.0"
+id = "artifacts/harvest-core"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+localPort = 22235
+name = "web"
+paths = ["/"]
+
+[services.development]
+run = "pnpm --filter @workspace/harvest-core run dev"
+
+[services.env]
+PORT = "22235"
+BASE_PATH = "/"
+
+[services.production]
+build = ["pnpm", "--filter", "@workspace/harvest-core", "run", "build"]
+publicDir = "artifacts/harvest-core/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"

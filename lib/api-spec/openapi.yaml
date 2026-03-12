@@ -1,22 +1,37 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: HarvestCore API - Commodity-backed tokenization and lending platform
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: auth
+    description: Authentication and identity
+  - name: users
+    description: User management and KYC
+  - name: inventory
+    description: Inventory and logistics
+  - name: tokens
+    description: Tokenization and blockchain
+  - name: loans
+    description: Credit and lending
+  - name: marketplace
+    description: Trade and marketplace
+  - name: settlement
+    description: Settlement and liquidation
+  - name: dashboard
+    description: Dashboard and analytics
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +39,943 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  # ── AUTH ─────────────────────────────────────────────────
+  /auth/me:
+    get:
+      operationId: getMe
+      tags: [auth]
+      summary: Get current user
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: Unauthenticated
+
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResponse"
+
+  # ── USERS / KYC ──────────────────────────────────────────
+  /users:
+    get:
+      operationId: listUsers
+      tags: [users]
+      summary: List users
+      parameters:
+        - name: role
+          in: query
+          schema:
+            type: string
+            enum: [farmer, warehouse_op, checker, lender, admin]
+        - name: kycStatus
+          in: query
+          schema:
+            type: string
+            enum: [pending, approved, rejected]
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        "200":
+          description: List of users
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserListResponse"
+    post:
+      operationId: createUser
+      tags: [users]
+      summary: Create a user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateUserRequest"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+
+  /users/{userId}:
+    get:
+      operationId: getUser
+      tags: [users]
+      summary: Get user by ID
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: User
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+    patch:
+      operationId: updateUser
+      tags: [users]
+      summary: Update user
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateUserRequest"
+      responses:
+        "200":
+          description: Updated user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+
+  /users/{userId}/kyc:
+    post:
+      operationId: submitKyc
+      tags: [users]
+      summary: Submit KYC documents
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/KycSubmitRequest"
+      responses:
+        "200":
+          description: KYC submitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/KycRecord"
+    get:
+      operationId: getKyc
+      tags: [users]
+      summary: Get KYC record for user
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: KYC record
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/KycRecord"
+
+  /users/{userId}/kyc/approve:
+    post:
+      operationId: approveKyc
+      tags: [users]
+      summary: Approve KYC (Admin only)
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: KYC approved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/KycRecord"
+
+  /users/{userId}/kyc/reject:
+    post:
+      operationId: rejectKyc
+      tags: [users]
+      summary: Reject KYC (Admin only)
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason:
+                  type: string
+              required: [reason]
+      responses:
+        "200":
+          description: KYC rejected
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/KycRecord"
+
+  # ── INVENTORY / LOGISTICS ──────────────────────────────────
+  /inventory/intakes:
+    get:
+      operationId: listIntakes
+      tags: [inventory]
+      summary: List all intake records
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, graded, weighed, verified, anchored, rejected]
+        - name: warehouseId
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        "200":
+          description: List of intakes
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IntakeListResponse"
+    post:
+      operationId: createIntake
+      tags: [inventory]
+      summary: Create a new intake record
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateIntakeRequest"
+      responses:
+        "201":
+          description: Intake created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IntakeRecord"
+
+  /inventory/intakes/{intakeId}:
+    get:
+      operationId: getIntake
+      tags: [inventory]
+      summary: Get intake record
+      parameters:
+        - name: intakeId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Intake record
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IntakeRecord"
+    patch:
+      operationId: updateIntake
+      tags: [inventory]
+      summary: Update intake (grade/weight)
+      parameters:
+        - name: intakeId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateIntakeRequest"
+      responses:
+        "200":
+          description: Updated intake
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IntakeRecord"
+
+  /inventory/intakes/{intakeId}/approve:
+    post:
+      operationId: approveIntake
+      tags: [inventory]
+      summary: Checker approves intake (Maker-Checker)
+      parameters:
+        - name: intakeId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Intake approved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IntakeRecord"
+
+  /inventory/intakes/{intakeId}/reject:
+    post:
+      operationId: rejectIntake
+      tags: [inventory]
+      summary: Checker rejects intake
+      parameters:
+        - name: intakeId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason:
+                  type: string
+              required: [reason]
+      responses:
+        "200":
+          description: Intake rejected
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IntakeRecord"
+
+  /inventory/warehouses:
+    get:
+      operationId: listWarehouses
+      tags: [inventory]
+      summary: List warehouses
+      responses:
+        "200":
+          description: List of warehouses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WarehouseListResponse"
+
+  # ── TOKENS ────────────────────────────────────────────────
+  /tokens:
+    get:
+      operationId: listTokens
+      tags: [tokens]
+      summary: List tokens
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [free, pledged, financed, locked, in_liquidation, released]
+        - name: ownerId
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        "200":
+          description: List of tokens
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TokenListResponse"
+
+  /tokens/{tokenId}:
+    get:
+      operationId: getToken
+      tags: [tokens]
+      summary: Get token by ID
+      parameters:
+        - name: tokenId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Token detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Token"
+
+  /tokens/{tokenId}/mint:
+    post:
+      operationId: mintToken
+      tags: [tokens]
+      summary: Mint NFT for verified intake
+      parameters:
+        - name: tokenId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Token minted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Token"
+
+  /tokens/{tokenId}/transfer:
+    post:
+      operationId: transferToken
+      tags: [tokens]
+      summary: Transfer token to new owner (Free only)
+      parameters:
+        - name: tokenId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                toUserId:
+                  type: string
+              required: [toUserId]
+      responses:
+        "200":
+          description: Transfer successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Token"
+
+  # ── LOANS ──────────────────────────────────────────────────
+  /loans:
+    get:
+      operationId: listLoans
+      tags: [loans]
+      summary: List loans
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, approved, active, repaid, defaulted, in_liquidation]
+        - name: borrowerId
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        "200":
+          description: Loans list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoanListResponse"
+    post:
+      operationId: createLoanRequest
+      tags: [loans]
+      summary: Submit a loan request
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateLoanRequest"
+      responses:
+        "201":
+          description: Loan request created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Loan"
+
+  /loans/{loanId}:
+    get:
+      operationId: getLoan
+      tags: [loans]
+      summary: Get loan details
+      parameters:
+        - name: loanId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Loan detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Loan"
+
+  /loans/{loanId}/approve:
+    post:
+      operationId: approveLoan
+      tags: [loans]
+      summary: Approve loan (Lender)
+      parameters:
+        - name: loanId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ApproveLoanRequest"
+      responses:
+        "200":
+          description: Loan approved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Loan"
+
+  /loans/{loanId}/reject:
+    post:
+      operationId: rejectLoan
+      tags: [loans]
+      summary: Reject loan
+      parameters:
+        - name: loanId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason:
+                  type: string
+              required: [reason]
+      responses:
+        "200":
+          description: Loan rejected
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Loan"
+
+  /loans/{loanId}/repay:
+    post:
+      operationId: repayLoan
+      tags: [loans]
+      summary: Record a repayment
+      parameters:
+        - name: loanId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RepaymentRequest"
+      responses:
+        "200":
+          description: Repayment recorded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Loan"
+
+  /loans/{loanId}/ltv:
+    get:
+      operationId: getLoanLtv
+      tags: [loans]
+      summary: Get current LTV for a loan
+      parameters:
+        - name: loanId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: LTV details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LtvReport"
+
+  /loans/{loanId}/risk:
+    get:
+      operationId: getLoanRisk
+      tags: [loans]
+      summary: Get risk profile for borrower
+      parameters:
+        - name: loanId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Risk profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RiskProfile"
+
+  # ── MARKETPLACE ────────────────────────────────────────────
+  /marketplace/listings:
+    get:
+      operationId: listMarketplaceListings
+      tags: [marketplace]
+      summary: List commodity listings
+      parameters:
+        - name: commodity
+          in: query
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, sold, cancelled, expired]
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        "200":
+          description: Listings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListingListResponse"
+    post:
+      operationId: createListing
+      tags: [marketplace]
+      summary: Create a commodity listing
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateListingRequest"
+      responses:
+        "201":
+          description: Listing created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Listing"
+
+  /marketplace/listings/{listingId}:
+    get:
+      operationId: getListing
+      tags: [marketplace]
+      summary: Get listing detail
+      parameters:
+        - name: listingId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Listing
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Listing"
+
+  /marketplace/listings/{listingId}/bids:
+    get:
+      operationId: listBids
+      tags: [marketplace]
+      summary: Get bids on a listing
+      parameters:
+        - name: listingId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Bids
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BidListResponse"
+    post:
+      operationId: placeBid
+      tags: [marketplace]
+      summary: Place a bid
+      parameters:
+        - name: listingId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PlaceBidRequest"
+      responses:
+        "201":
+          description: Bid placed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Bid"
+
+  /marketplace/financing-requests:
+    get:
+      operationId: listFinancingRequests
+      tags: [marketplace]
+      summary: List financing requests
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [open, funded, closed]
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        "200":
+          description: Financing requests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FinancingRequestListResponse"
+
+  /marketplace/prices:
+    get:
+      operationId: getMarketPrices
+      tags: [marketplace]
+      summary: Get real-time commodity prices
+      responses:
+        "200":
+          description: Market prices
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MarketPricesResponse"
+
+  # ── SETTLEMENT ─────────────────────────────────────────────
+  /settlement/defaulted-loans:
+    get:
+      operationId: listDefaultedLoans
+      tags: [settlement]
+      summary: List defaulted/at-risk loans
+      parameters:
+        - name: stage
+          in: query
+          schema:
+            type: string
+            enum: [at_risk, grace_period, notice_sent, for_sale, settled]
+      responses:
+        "200":
+          description: Defaulted loans
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DefaultedLoanListResponse"
+
+  /settlement/{loanId}/initiate:
+    post:
+      operationId: initiateSettlement
+      tags: [settlement]
+      summary: Initiate liquidation process
+      parameters:
+        - name: loanId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Settlement initiated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SettlementRecord"
+
+  /settlement/{loanId}/waterfall:
+    get:
+      operationId: getWaterfallCalculation
+      tags: [settlement]
+      summary: Calculate settlement waterfall distribution
+      parameters:
+        - name: loanId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: salePrice
+          in: query
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Waterfall breakdown
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WaterfallBreakdown"
+
+  /settlement/{loanId}/finalize:
+    post:
+      operationId: finalizeSettlement
+      tags: [settlement]
+      summary: Finalize settlement after sale
+      parameters:
+        - name: loanId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FinalizeSettlementRequest"
+      responses:
+        "200":
+          description: Settlement finalized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SettlementRecord"
+
+  # ── DASHBOARD ──────────────────────────────────────────────
+  /dashboard/stats:
+    get:
+      operationId: getDashboardStats
+      tags: [dashboard]
+      summary: Get dashboard overview statistics
+      responses:
+        "200":
+          description: Dashboard statistics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardStats"
+
+  /dashboard/activity:
+    get:
+      operationId: getRecentActivity
+      tags: [dashboard]
+      summary: Get recent platform activity
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        "200":
+          description: Activity feed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ActivityFeedResponse"
+
 components:
   schemas:
     HealthStatus:
@@ -31,6 +983,847 @@ components:
       properties:
         status:
           type: string
-      required:
-        - status
+      required: [status]
 
+    # ── AUTH ─────────────────────────────────────────────────
+    LoginRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+      required: [email, password]
+
+    LoginResponse:
+      type: object
+      properties:
+        user:
+          $ref: "#/components/schemas/User"
+        token:
+          type: string
+      required: [user, token]
+
+    # ── USER ─────────────────────────────────────────────────
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+        name:
+          type: string
+        role:
+          type: string
+          enum: [farmer, warehouse_op, checker, lender, admin]
+        orgId:
+          type: string
+          nullable: true
+        kycStatus:
+          type: string
+          enum: [pending, approved, rejected]
+        phone:
+          type: string
+          nullable: true
+        walletAddress:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, email, name, role, kycStatus, createdAt]
+
+    UserListResponse:
+      type: object
+      properties:
+        users:
+          type: array
+          items:
+            $ref: "#/components/schemas/User"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+      required: [users, total, page, limit]
+
+    CreateUserRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        name:
+          type: string
+        role:
+          type: string
+          enum: [farmer, warehouse_op, checker, lender, admin]
+        password:
+          type: string
+        phone:
+          type: string
+        orgId:
+          type: string
+      required: [email, name, role, password]
+
+    UpdateUserRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        phone:
+          type: string
+        walletAddress:
+          type: string
+        orgId:
+          type: string
+
+    KycSubmitRequest:
+      type: object
+      properties:
+        kycType:
+          type: string
+          enum: [individual, company, cooperative]
+        idNumber:
+          type: string
+        idType:
+          type: string
+          enum: [national_id, passport, driving_license]
+        businessName:
+          type: string
+          nullable: true
+        kraPin:
+          type: string
+          nullable: true
+        documentUrls:
+          type: array
+          items:
+            type: string
+      required: [kycType, idNumber, idType]
+
+    KycRecord:
+      type: object
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+        kycType:
+          type: string
+          enum: [individual, company, cooperative]
+        idNumber:
+          type: string
+        idType:
+          type: string
+        businessName:
+          type: string
+          nullable: true
+        kraPin:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum: [pending, approved, rejected]
+        rejectionReason:
+          type: string
+          nullable: true
+        documentUrls:
+          type: array
+          items:
+            type: string
+        submittedAt:
+          type: string
+          format: date-time
+        reviewedAt:
+          type: string
+          format: date-time
+          nullable: true
+      required: [id, userId, kycType, idNumber, idType, status, documentUrls, submittedAt]
+
+    # ── INVENTORY ────────────────────────────────────────────
+    Warehouse:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        location:
+          type: string
+        capacity:
+          type: number
+        currentStock:
+          type: number
+        operatorId:
+          type: string
+      required: [id, name, location, capacity, currentStock, operatorId]
+
+    WarehouseListResponse:
+      type: object
+      properties:
+        warehouses:
+          type: array
+          items:
+            $ref: "#/components/schemas/Warehouse"
+      required: [warehouses]
+
+    IntakeRecord:
+      type: object
+      properties:
+        id:
+          type: string
+        farmerId:
+          type: string
+        farmerName:
+          type: string
+        warehouseId:
+          type: string
+        warehouseName:
+          type: string
+        commodity:
+          type: string
+        variety:
+          type: string
+          nullable: true
+        weightKg:
+          type: number
+        moisturePercent:
+          type: number
+        grade:
+          type: string
+          enum: [A, B, C, D]
+          nullable: true
+        grnNumber:
+          type: string
+          nullable: true
+        ewrsRegistryId:
+          type: string
+          nullable: true
+        iotaHash:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum: [pending, graded, weighed, verified, anchored, rejected]
+        checkerNotes:
+          type: string
+          nullable: true
+        checkedBy:
+          type: string
+          nullable: true
+        tokenId:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required: [id, farmerId, farmerName, warehouseId, warehouseName, commodity, weightKg, moisturePercent, status, createdAt, updatedAt]
+
+    IntakeListResponse:
+      type: object
+      properties:
+        intakes:
+          type: array
+          items:
+            $ref: "#/components/schemas/IntakeRecord"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+      required: [intakes, total, page, limit]
+
+    CreateIntakeRequest:
+      type: object
+      properties:
+        farmerId:
+          type: string
+        warehouseId:
+          type: string
+        commodity:
+          type: string
+        variety:
+          type: string
+        weightKg:
+          type: number
+        moisturePercent:
+          type: number
+      required: [farmerId, warehouseId, commodity, weightKg, moisturePercent]
+
+    UpdateIntakeRequest:
+      type: object
+      properties:
+        grade:
+          type: string
+          enum: [A, B, C, D]
+        weightKg:
+          type: number
+        moisturePercent:
+          type: number
+        grnNumber:
+          type: string
+        checkerNotes:
+          type: string
+
+    # ── TOKENS ────────────────────────────────────────────────
+    Token:
+      type: object
+      properties:
+        id:
+          type: string
+        intakeId:
+          type: string
+        ownerId:
+          type: string
+        ownerName:
+          type: string
+        commodity:
+          type: string
+        weightKg:
+          type: number
+        grade:
+          type: string
+        warehouseId:
+          type: string
+        warehouseName:
+          type: string
+        tokenState:
+          type: string
+          enum: [free, pledged, financed, locked, in_liquidation, released]
+        nftTokenId:
+          type: string
+          nullable: true
+        contractAddress:
+          type: string
+          nullable: true
+        txHash:
+          type: string
+          nullable: true
+        metadataUri:
+          type: string
+          nullable: true
+        fairMarketValue:
+          type: number
+          nullable: true
+        mintedAt:
+          type: string
+          format: date-time
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, intakeId, ownerId, ownerName, commodity, weightKg, grade, warehouseId, warehouseName, tokenState, createdAt]
+
+    TokenListResponse:
+      type: object
+      properties:
+        tokens:
+          type: array
+          items:
+            $ref: "#/components/schemas/Token"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+      required: [tokens, total, page, limit]
+
+    # ── LOANS ──────────────────────────────────────────────────
+    Loan:
+      type: object
+      properties:
+        id:
+          type: string
+        borrowerId:
+          type: string
+        borrowerName:
+          type: string
+        lenderId:
+          type: string
+          nullable: true
+        lenderName:
+          type: string
+          nullable: true
+        tokenId:
+          type: string
+        commodity:
+          type: string
+        principalAmount:
+          type: number
+        interestRate:
+          type: number
+        tenureDays:
+          type: integer
+        ltv:
+          type: number
+          nullable: true
+        status:
+          type: string
+          enum: [pending, approved, active, repaid, defaulted, in_liquidation]
+        riskScore:
+          type: string
+          enum: [low, medium, high]
+          nullable: true
+        disbursedAt:
+          type: string
+          format: date-time
+          nullable: true
+        dueDate:
+          type: string
+          format: date-time
+          nullable: true
+        repaidAt:
+          type: string
+          format: date-time
+          nullable: true
+        outstandingBalance:
+          type: number
+          nullable: true
+        rejectionReason:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, borrowerId, borrowerName, tokenId, commodity, principalAmount, interestRate, tenureDays, status, createdAt]
+
+    LoanListResponse:
+      type: object
+      properties:
+        loans:
+          type: array
+          items:
+            $ref: "#/components/schemas/Loan"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+      required: [loans, total, page, limit]
+
+    CreateLoanRequest:
+      type: object
+      properties:
+        tokenId:
+          type: string
+        principalAmount:
+          type: number
+        tenureDays:
+          type: integer
+        purpose:
+          type: string
+      required: [tokenId, principalAmount, tenureDays]
+
+    ApproveLoanRequest:
+      type: object
+      properties:
+        interestRate:
+          type: number
+        conditions:
+          type: string
+      required: [interestRate]
+
+    RepaymentRequest:
+      type: object
+      properties:
+        amount:
+          type: number
+        paymentMethod:
+          type: string
+          enum: [mpesa, bank_transfer, stablecoin, pesalink]
+        transactionRef:
+          type: string
+      required: [amount, paymentMethod]
+
+    LtvReport:
+      type: object
+      properties:
+        loanId:
+          type: string
+        currentLtv:
+          type: number
+        outstandingBalance:
+          type: number
+        collateralValue:
+          type: number
+        ltvStatus:
+          type: string
+          enum: [healthy, monitoring, margin_call, liquidation]
+        commodityPrice:
+          type: number
+        priceLastUpdated:
+          type: string
+          format: date-time
+      required: [loanId, currentLtv, outstandingBalance, collateralValue, ltvStatus, commodityPrice, priceLastUpdated]
+
+    RiskProfile:
+      type: object
+      properties:
+        userId:
+          type: string
+        riskScore:
+          type: string
+          enum: [low, medium, high]
+        creditScore:
+          type: integer
+        dscr:
+          type: number
+        isOnNegativeList:
+          type: boolean
+        repaymentHistory:
+          type: string
+          enum: [excellent, good, fair, poor]
+        assessedAt:
+          type: string
+          format: date-time
+      required: [userId, riskScore, creditScore, dscr, isOnNegativeList, repaymentHistory, assessedAt]
+
+    # ── MARKETPLACE ────────────────────────────────────────────
+    Listing:
+      type: object
+      properties:
+        id:
+          type: string
+        tokenId:
+          type: string
+        sellerId:
+          type: string
+        sellerName:
+          type: string
+        commodity:
+          type: string
+        weightKg:
+          type: number
+        grade:
+          type: string
+        askingPrice:
+          type: number
+        currentBidPrice:
+          type: number
+          nullable: true
+        listingType:
+          type: string
+          enum: [fixed, auction]
+        status:
+          type: string
+          enum: [active, sold, cancelled, expired]
+        bidsCount:
+          type: integer
+        expiresAt:
+          type: string
+          format: date-time
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, tokenId, sellerId, sellerName, commodity, weightKg, grade, askingPrice, listingType, status, bidsCount, createdAt]
+
+    ListingListResponse:
+      type: object
+      properties:
+        listings:
+          type: array
+          items:
+            $ref: "#/components/schemas/Listing"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+      required: [listings, total, page, limit]
+
+    CreateListingRequest:
+      type: object
+      properties:
+        tokenId:
+          type: string
+        askingPrice:
+          type: number
+        listingType:
+          type: string
+          enum: [fixed, auction]
+        expiresInDays:
+          type: integer
+      required: [tokenId, askingPrice, listingType]
+
+    Bid:
+      type: object
+      properties:
+        id:
+          type: string
+        listingId:
+          type: string
+        bidderId:
+          type: string
+        bidderName:
+          type: string
+        amount:
+          type: number
+        status:
+          type: string
+          enum: [active, accepted, rejected, outbid]
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, listingId, bidderId, bidderName, amount, status, createdAt]
+
+    BidListResponse:
+      type: object
+      properties:
+        bids:
+          type: array
+          items:
+            $ref: "#/components/schemas/Bid"
+      required: [bids]
+
+    PlaceBidRequest:
+      type: object
+      properties:
+        amount:
+          type: number
+      required: [amount]
+
+    FinancingRequest:
+      type: object
+      properties:
+        id:
+          type: string
+        farmerId:
+          type: string
+        farmerName:
+          type: string
+        tokenId:
+          type: string
+        commodity:
+          type: string
+        requestedAmount:
+          type: number
+        maxInterestRate:
+          type: number
+        tenureDays:
+          type: integer
+        status:
+          type: string
+          enum: [open, funded, closed]
+        offersCount:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, farmerId, farmerName, tokenId, commodity, requestedAmount, maxInterestRate, tenureDays, status, offersCount, createdAt]
+
+    FinancingRequestListResponse:
+      type: object
+      properties:
+        requests:
+          type: array
+          items:
+            $ref: "#/components/schemas/FinancingRequest"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+      required: [requests, total, page, limit]
+
+    CommodityPrice:
+      type: object
+      properties:
+        commodity:
+          type: string
+        pricePerKg:
+          type: number
+        currency:
+          type: string
+        change24h:
+          type: number
+        changePercent24h:
+          type: number
+        volume24h:
+          type: number
+        lastUpdated:
+          type: string
+          format: date-time
+      required: [commodity, pricePerKg, currency, change24h, changePercent24h, volume24h, lastUpdated]
+
+    MarketPricesResponse:
+      type: object
+      properties:
+        prices:
+          type: array
+          items:
+            $ref: "#/components/schemas/CommodityPrice"
+        updatedAt:
+          type: string
+          format: date-time
+      required: [prices, updatedAt]
+
+    # ── SETTLEMENT ─────────────────────────────────────────────
+    DefaultedLoan:
+      type: object
+      properties:
+        id:
+          type: string
+        loanId:
+          type: string
+        borrowerName:
+          type: string
+        commodity:
+          type: string
+        outstandingBalance:
+          type: number
+        collateralValue:
+          type: number
+        currentLtv:
+          type: number
+        daysOverdue:
+          type: integer
+        stage:
+          type: string
+          enum: [at_risk, grace_period, notice_sent, for_sale, settled]
+        gracePeriodEndsAt:
+          type: string
+          format: date-time
+          nullable: true
+        noticeSentAt:
+          type: string
+          format: date-time
+          nullable: true
+      required: [id, loanId, borrowerName, commodity, outstandingBalance, collateralValue, currentLtv, daysOverdue, stage]
+
+    DefaultedLoanListResponse:
+      type: object
+      properties:
+        loans:
+          type: array
+          items:
+            $ref: "#/components/schemas/DefaultedLoan"
+        total:
+          type: integer
+      required: [loans, total]
+
+    WaterfallBreakdown:
+      type: object
+      properties:
+        salePrice:
+          type: number
+        lenderRecovery:
+          type: number
+        warehouseCharges:
+          type: number
+        operationalFees:
+          type: number
+        borrowerResidue:
+          type: number
+        totalDistributed:
+          type: number
+        shortfall:
+          type: number
+      required: [salePrice, lenderRecovery, warehouseCharges, operationalFees, borrowerResidue, totalDistributed, shortfall]
+
+    SettlementRecord:
+      type: object
+      properties:
+        id:
+          type: string
+        loanId:
+          type: string
+        stage:
+          type: string
+          enum: [at_risk, grace_period, notice_sent, for_sale, settled]
+        salePrice:
+          type: number
+          nullable: true
+        waterfall:
+          $ref: "#/components/schemas/WaterfallBreakdown"
+          nullable: true
+        settlementTxHash:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required: [id, loanId, stage, createdAt, updatedAt]
+
+    FinalizeSettlementRequest:
+      type: object
+      properties:
+        salePrice:
+          type: number
+        buyerId:
+          type: string
+        paymentMethod:
+          type: string
+          enum: [mpesa, bank_transfer, stablecoin, pesalink, swift]
+        transactionRef:
+          type: string
+      required: [salePrice, buyerId, paymentMethod, transactionRef]
+
+    # ── DASHBOARD ──────────────────────────────────────────────
+    DashboardStats:
+      type: object
+      properties:
+        totalTokens:
+          type: integer
+        activeLoans:
+          type: integer
+        totalLoanValue:
+          type: number
+        activeListings:
+          type: integer
+        totalFarmers:
+          type: integer
+        totalWarehouses:
+          type: integer
+        atRiskLoans:
+          type: integer
+        pendingKyc:
+          type: integer
+        pendingIntakes:
+          type: integer
+        totalVolumeTraded:
+          type: number
+      required: [totalTokens, activeLoans, totalLoanValue, activeListings, totalFarmers, totalWarehouses, atRiskLoans, pendingKyc, pendingIntakes, totalVolumeTraded]
+
+    ActivityItem:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+          enum: [intake_created, token_minted, loan_approved, loan_repaid, listing_created, bid_placed, settlement_initiated, kyc_approved]
+        description:
+          type: string
+        actorName:
+          type: string
+        entityId:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, type, description, actorName, createdAt]
+
+    ActivityFeedResponse:
+      type: object
+      properties:
+        activities:
+          type: array
+          items:
+            $ref: "#/components/schemas/ActivityItem"
+      required: [activities]

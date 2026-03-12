@@ -1,0 +1,13 @@
+packages:
+  "recharts": "For rendering LTV gauges and dashboard financial charts"
+  "date-fns": "For human-readable date and time formatting"
+  "clsx": "Utility for constructing className strings conditionally"
+  "tailwind-merge": "Utility function to efficiently merge Tailwind CSS classes"
+  "lucide-react": "Beautiful consistent icons for the UI"
+  "@radix-ui/react-dialog": "Accessible modal dialogs for critical actions"
+  "@radix-ui/react-slot": "For composable button components"
+
+notes:
+  - "Using generated hooks directly from @workspace/api-client-react"
+  - "Assuming admin access for demo purposes, bypassing strict auth walls to show all UI"
+  - "Theme is dark-mode default enterprise fintech with emerald/amber accents"
