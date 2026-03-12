@@ -843,6 +843,7 @@ export default function InspectionPage() {
   const qc = useQueryClient();
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("all");
+  const [activeType, setActiveType] = useState("all");
   const [showNew, setShowNew] = useState(false);
   const [reportInspection, setReportInspection] = useState<any | null>(null);
 
@@ -875,7 +876,9 @@ export default function InspectionPage() {
 
   const inspections: any[] = data?.inspections ?? [];
   const stats = data?.stats ?? {};
-  const filtered = activeTab === "all" ? inspections : inspections.filter((i) => i.status === activeTab);
+  const filtered = inspections
+    .filter((i) => activeTab === "all" || i.status === activeTab)
+    .filter((i) => activeType === "all" || i.inspectionType === activeType);
 
   const warehouses = warehousesData?.warehouses ?? [];
   const inspectors = usersData?.users ?? [];
@@ -916,7 +919,8 @@ export default function InspectionPage() {
 
       {/* Table */}
       <Card className="bg-card border-border/50">
-        <CardHeader className="pb-0 px-6 pt-4">
+        <CardHeader className="pb-0 px-6 pt-4 space-y-3">
+          {/* Status filter */}
           <div className="flex items-center gap-2">
             {["all", "approved", "pending", "rejected"].map((tab) => (
               <button
@@ -927,9 +931,46 @@ export default function InspectionPage() {
                   activeTab === tab ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground hover:bg-secondary"
                 )}
               >
-                {tab === "all" ? `All (${inspections.length})` : tab.charAt(0).toUpperCase() + tab.slice(1)}
+                {tab === "all"
+                  ? `All (${inspections.length})`
+                  : `${tab.charAt(0).toUpperCase() + tab.slice(1)} (${inspections.filter((i) => i.status === tab).length})`}
               </button>
             ))}
+          </div>
+          {/* Inspection type filter */}
+          <div className="flex items-center gap-2 border-t border-border/30 pt-3">
+            <span className="text-xs text-muted-foreground mr-1">Type:</span>
+            {[
+              { key: "all", label: "All Types" },
+              { key: "intake", label: "Intake" },
+              { key: "periodic", label: "Periodic" },
+              { key: "pre_dispatch", label: "Pre-Dispatch" },
+              { key: "collateral_verification", label: "Collateral Verify" },
+            ].map(({ key, label }) => {
+              const count = key === "all" ? null : inspections.filter((i) => i.inspectionType === key).length;
+              return (
+                <button
+                  key={key}
+                  onClick={() => { setActiveType(key); setExpandedId(null); }}
+                  className={cn(
+                    "px-3 py-1 rounded-md text-xs font-medium transition-colors flex items-center gap-1.5",
+                    activeType === key
+                      ? "bg-secondary text-foreground"
+                      : "text-muted-foreground hover:text-foreground hover:bg-secondary/60"
+                  )}
+                >
+                  {label}
+                  {count !== null && (
+                    <span className={cn(
+                      "inline-flex items-center justify-center w-4 h-4 rounded-full text-[10px] font-bold",
+                      activeType === key ? "bg-primary/20 text-primary" : "bg-secondary text-muted-foreground"
+                    )}>
+                      {count}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
           </div>
         </CardHeader>
         <CardContent className="p-0 pt-4">
