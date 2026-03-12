@@ -48,6 +48,32 @@ Every package extends `tsconfig.base.json` which sets `composite: true`. The roo
 - `pnpm run build` — runs `typecheck` first, then recursively runs `build` in all packages that define it
 - `pnpm run typecheck` — runs `tsc --build --emitDeclarationOnly` using project references
 
+## HarvestCore Platform Pages & Routes
+
+| Route | Page | Description |
+|---|---|---|
+| `/` | Dashboard | KPIs, activity feed |
+| `/users` | Identity & KYC | Farmer/user management |
+| `/inventory` | Inventory & Logistics | 5-stage intake pipeline, warehouses, eWRS registry sync |
+| `/inspection` | Inspection & Quality | Commodity grading, quality params, risk flags, approve/reject |
+| `/receipts` | Digital Warehouse Receipts | DWR lifecycle, collateral locking, tokenization |
+| `/tokens` | Tokens | NFT state machine (free→pledged→financed→locked→liquidation) |
+| `/loans` | Credit & Loans | LTV monitoring, collateral engine |
+| `/marketplace` | Marketplace | Commodity listings, trade |
+| `/settlement` | Settlement & Liquidation | Settlement processing |
+
+## DB Schema Tables
+
+- `users` — farmers, warehouse ops, admins, checkers
+- `warehouses` — storage facilities with capacity tracking
+- `intakes` — commodity intake pipeline (5 stages + eWRS registry columns)
+- `inspections` — quality inspection records with grading params and risk flags
+- `warehouse_receipts` — Digital Warehouse Receipts (DWR) with lifecycle status
+- `tokens` — NFT-backed commodity tokens
+- `loans` — collateralized lending with LTV thresholds
+- `marketplace_listings` — commodity trade listings
+- `activity_log` — platform audit trail
+
 ## Packages
 
 ### `artifacts/api-server` (`@workspace/api-server`)

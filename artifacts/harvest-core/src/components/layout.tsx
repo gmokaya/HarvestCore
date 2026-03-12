@@ -9,17 +9,36 @@ import {
   Store, 
   Scale,
   LogOut,
-  Bell
+  Bell,
+  ClipboardCheck,
+  FileCheck2,
 } from "lucide-react"
 
-const navItems = [
-  { href: "/", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/users", label: "Identity & KYC", icon: Users },
-  { href: "/inventory", label: "Inventory", icon: Warehouse },
-  { href: "/tokens", label: "Tokens", icon: Coins },
-  { href: "/loans", label: "Credit & Loans", icon: Banknote },
-  { href: "/marketplace", label: "Marketplace", icon: Store },
-  { href: "/settlement", label: "Settlement", icon: Scale },
+const navGroups = [
+  {
+    label: "Platform Modules",
+    items: [
+      { href: "/", label: "Dashboard", icon: LayoutDashboard },
+      { href: "/users", label: "Identity & KYC", icon: Users },
+    ],
+  },
+  {
+    label: "Commodity Operations",
+    items: [
+      { href: "/inventory", label: "Inventory & Logistics", icon: Warehouse },
+      { href: "/inspection", label: "Inspection & Quality", icon: ClipboardCheck },
+      { href: "/receipts", label: "Warehouse Receipts", icon: FileCheck2 },
+    ],
+  },
+  {
+    label: "Finance & Trade",
+    items: [
+      { href: "/tokens", label: "Tokens", icon: Coins },
+      { href: "/loans", label: "Credit & Loans", icon: Banknote },
+      { href: "/marketplace", label: "Marketplace", icon: Store },
+      { href: "/settlement", label: "Settlement", icon: Scale },
+    ],
+  },
 ]
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
@@ -40,26 +59,32 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           </div>
         </div>
 
-        <div className="flex-1 py-6 px-4 space-y-1 overflow-y-auto">
-          <div className="mb-4 px-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Platform Modules</div>
-          {navItems.map((item) => {
-            const isActive = location === item.href || (item.href !== "/" && location.startsWith(item.href))
-            return (
-              <Link 
-                key={item.href} 
-                href={item.href}
-                className={cn(
-                  "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group",
-                  isActive 
-                    ? "bg-primary/10 text-primary" 
-                    : "text-muted-foreground hover:bg-secondary hover:text-foreground"
-                )}
-              >
-                <item.icon className={cn("w-5 h-5 transition-transform group-hover:scale-110", isActive ? "text-primary" : "text-muted-foreground")} />
-                {item.label}
-              </Link>
-            )
-          })}
+        <div className="flex-1 py-4 px-4 space-y-5 overflow-y-auto">
+          {navGroups.map((group) => (
+            <div key={group.label}>
+              <div className="mb-2 px-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">{group.label}</div>
+              <div className="space-y-0.5">
+                {group.items.map((item) => {
+                  const isActive = location === item.href || (item.href !== "/" && location.startsWith(item.href))
+                  return (
+                    <Link 
+                      key={item.href} 
+                      href={item.href}
+                      className={cn(
+                        "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 group",
+                        isActive 
+                          ? "bg-primary/10 text-primary" 
+                          : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                      )}
+                    >
+                      <item.icon className={cn("w-4 h-4 transition-transform group-hover:scale-110", isActive ? "text-primary" : "text-muted-foreground")} />
+                      {item.label}
+                    </Link>
+                  )
+                })}
+              </div>
+            </div>
+          ))}
         </div>
 
         <div className="p-4 border-t border-border/50">

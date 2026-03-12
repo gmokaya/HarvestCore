@@ -9,6 +9,8 @@ import NotFound from "@/pages/not-found";
 import Dashboard from "@/pages/dashboard";
 import Users from "@/pages/users";
 import Inventory from "@/pages/inventory";
+import Inspection from "@/pages/inspection";
+import Receipts from "@/pages/receipts";
 import Tokens from "@/pages/tokens";
 import Loans from "@/pages/loans";
 import Marketplace from "@/pages/marketplace";
@@ -30,6 +32,8 @@ function Router() {
         <Route path="/" component={Dashboard} />
         <Route path="/users" component={Users} />
         <Route path="/inventory" component={Inventory} />
+        <Route path="/inspection" component={Inspection} />
+        <Route path="/receipts" component={Receipts} />
         <Route path="/tokens" component={Tokens} />
         <Route path="/loans" component={Loans} />
         <Route path="/marketplace" component={Marketplace} />
