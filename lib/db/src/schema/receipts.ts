@@ -50,9 +50,25 @@ export const warehouseReceiptsTable = pgTable("warehouse_receipts", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
+export const dwrAuditLogTable = pgTable("dwr_audit_log", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  receiptId: text("receipt_id").notNull().references(() => warehouseReceiptsTable.id),
+  receiptNumber: text("receipt_number").notNull(),
+  action: text("action").notNull(),
+  fromOwnerId: text("from_owner_id"),
+  fromOwnerName: text("from_owner_name"),
+  toOwnerId: text("to_owner_id"),
+  toOwnerName: text("to_owner_name"),
+  performedBy: text("performed_by").notNull().default("system"),
+  metadata: text("metadata"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 export const insertReceiptSchema = createInsertSchema(warehouseReceiptsTable).omit({
   id: true, createdAt: true, updatedAt: true,
 });
 
 export type WarehouseReceipt = typeof warehouseReceiptsTable.$inferSelect;
 export type InsertWarehouseReceipt = z.infer<typeof insertReceiptSchema>;
+export type DwrAuditLog = typeof dwrAuditLogTable.$inferSelect;

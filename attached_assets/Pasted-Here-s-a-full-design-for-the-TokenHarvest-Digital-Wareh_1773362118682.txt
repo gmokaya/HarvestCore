@@ -1,0 +1,190 @@
+Here’s a **full design for the TokenHarvest Digital Warehouse Receipt (DWR) Module**, built to work with the **Inspection & Quality Module**, **Collateral Engine**, and **Loan Engine**, and fully integrated with **mobile/web apps and blockchain tokenization**.
+
+---
+
+# TokenHarvest Digital Warehouse Receipt (DWR) Module
+
+## **Purpose**
+
+* Digitally represent **stored commodities** as **verifiable, tradable assets**.
+* Serve as **collateral for financing** through the Loan Engine.
+* Enable **tracking, transfer, and tokenization** of warehouse receipts.
+* Ensure **compliance with warehouse receipt regulations** in East Africa.
+
+---
+
+## **1. Actors & Roles**
+
+| Role                     | Responsibility                                           |
+| ------------------------ | -------------------------------------------------------- |
+| Warehouse Operator       | Issues and updates warehouse receipts                    |
+| Borrower / Farmer        | Owns the receipt and can use it for financing or trading |
+| Inspection Officer       | Validates commodity before DWR issuance                  |
+| Collateral Manager       | Confirms DWR can be used as loan collateral              |
+| Lender / Finance Officer | Uses DWR for loan approval                               |
+| System / Blockchain      | Ensures immutability and traceability                    |
+
+---
+
+## **2. Workflow Overview**
+
+```text id="dwr_flow"
+Commodity Inspected → Inspection Approved → DWR Issued → Tokenized → Collateralized for Loan → Trading / Settlement
+```
+
+### Steps:
+
+1. **Link to Commodity**
+
+   * DWR is issued for a **specific commodity batch**.
+   * Requires **inspection approval**.
+
+2. **Generate Digital Warehouse Receipt**
+
+   * Receipt contains verified **commodity details, owner, warehouse, and inspection reference**.
+
+3. **Tokenization**
+
+   * Receipt is converted into a **blockchain token** for **finance and trading purposes**.
+
+4. **Integration with Loan Engine**
+
+   * Receipt can be used as **collateral** for borrowing.
+
+5. **Integration with Trading Engine**
+
+   * Receipts can be **listed, traded, or sold** in marketplace.
+
+---
+
+## **3. Data Captured in DWR**
+
+| Field                | Description                               | Example      |
+| -------------------- | ----------------------------------------- | ------------ |
+| Receipt ID           | Unique warehouse receipt identifier       | WR-2026-0042 |
+| Commodity Type       | Maize, Beans, Coffee, etc.                | White Maize  |
+| Quantity             | Amount stored                             | 50 Tons      |
+| Packaging            | Bags or bulk                              | 100 kg Bags  |
+| Warehouse ID         | Storage location                          | WH-KTL-001   |
+| Owner ID             | Farmer/Trader ID                          | FRM-0092     |
+| Inspection Report ID | Links to inspection data                  | INS-2026-014 |
+| Date Issued          | When receipt is created                   | 12 July 2026 |
+| Expiry Date          | Optional, depending on warehouse contract | 12 Jan 2027  |
+| Token ID             | Blockchain token reference                | TH-WR-0042   |
+| Status               | Active / Locked / Settled                 | Active       |
+
+---
+
+## **4. Module Features**
+
+### A. Receipt Issuance
+
+* Automated once inspection is approved.
+* Validates **commodity, quantity, and owner**.
+* Generates **unique digital ID and QR/barcode** for verification.
+
+### B. Tokenization
+
+* Creates **token on blockchain (IOTA/BNC hybrid)**.
+* Enables:
+
+  * Collateralization for loans
+  * Transfer to buyers
+  * Automated settlement
+* Statuses:
+
+  * Active (available)
+  * Collateral Locked (used for financing)
+  * Settled / Transferred (sold or returned)
+
+### C. Transfer & Trading
+
+* Enables **ownership transfer** without physically moving commodity.
+* Integrates with **Marketplace / Futures / Forward Contracts**.
+* Can generate **bulk transaction batches** for buyers.
+
+### D. Audit & Reporting
+
+* Every action on DWR is logged in **immutable ledger**: issuance, transfers, collateralization.
+* Reports available:
+
+  * Owned receipts per borrower
+  * Total commodities in warehouse
+  * Receipts locked as collateral
+
+---
+
+## **5. API Endpoints**
+
+| Endpoint                   | Purpose                                               |
+| -------------------------- | ----------------------------------------------------- |
+| `POST /dwr/issue`          | Issue a new warehouse receipt                         |
+| `GET /dwr/{receipt_id}`    | Retrieve receipt details                              |
+| `POST /dwr/tokenize`       | Tokenize receipt on blockchain                        |
+| `POST /dwr/transfer`       | Transfer ownership to another user                    |
+| `GET /dwr/owner/{user_id}` | List receipts for a specific borrower                 |
+| `GET /dwr/status/{status}` | Filter receipts by status (Active / Locked / Settled) |
+
+---
+
+## **6. Security & Validation**
+
+* Only **authorized warehouse operators** can issue DWRs.
+* DWR creation requires **inspection approval**.
+* Receipt linked to **verified owner ID**.
+* Immutable logging ensures **audit trail**.
+* Locked tokens prevent **double financing**.
+
+---
+
+## **7. Mobile & Web UI**
+
+**Mobile App (Borrower / Farmer View)**
+
+* Dashboard: list all owned DWRs
+* QR/Barcode verification for warehouse inspection
+* Option to use DWR as collateral for loans
+* Transfer / sale of receipts
+
+**Web App (Warehouse Operator View)**
+
+* Create / issue DWRs
+* Link DWRs to inspection reports
+* Track DWR status and tokenization
+* Bulk issuance & export reports
+
+---
+
+## **8. Example Digital Warehouse Receipt**
+
+```json
+{
+  "receipt_id": "WR-2026-0042",
+  "commodity_type": "White Maize",
+  "quantity": 50,
+  "packaging": "100kg Bags",
+  "warehouse_id": "WH-KTL-001",
+  "owner_id": "FRM-0092",
+  "inspection_report_id": "INS-2026-014",
+  "date_issued": "2026-07-12",
+  "expiry_date": "2027-01-12",
+  "token_id": "TH-WR-0042",
+  "status": "Active"
+}
+```
+
+---
+
+## **9. Strategic Benefits**
+
+1. **Finance-Ready:** Only verified commodities enter loan workflow.
+2. **Tradable:** Enables marketplace listing and futures/forward contract integration.
+3. **Auditable:** Blockchain ensures immutable ownership records.
+4. **Scalable:** Supports multiple commodities, warehouses, and borrowers.
+5. **Integration Ready:** Fully compatible with **Collateral Engine, Loan Engine, Inspection Module**, and **Trading Module**.
+
+---
+
+If you want, I can **draw a full diagram showing the DWR module integration with the Inspection Module, Collateral Engine, Tokenization Layer, Loan Engine, and Trading Engine**, so you get a **developer-ready architecture map**.
+
+Do you want me to draw that diagram?
