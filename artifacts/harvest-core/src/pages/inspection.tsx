@@ -1068,7 +1068,6 @@ export default function InspectionPage() {
       <div className="flex items-center gap-1 bg-secondary/40 border border-border/50 rounded-lg p-1">
         {[
           { key: "inspections", label: "Inspections", icon: ClipboardList },
-          { key: "new", label: "New Inspection", icon: Plus },
           { key: "certifications", label: "Certifications & Compliance", icon: Award },
           { key: "inspectors", label: "Inspector Registry", icon: BadgeCheck },
           { key: "risk", label: "Risk Engine", icon: TriangleAlert },
