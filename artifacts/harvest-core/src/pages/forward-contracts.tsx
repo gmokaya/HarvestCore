@@ -636,33 +636,6 @@ export default function ForwardContracts() {
                               Apply
                             </button>
                           </div>
-                          {/* Breakdown row */}
-                          <div className="flex items-center gap-3 pt-1.5 border-t border-amber-200 flex-wrap">
-                            <span className="text-[10px] text-amber-700 font-medium">Model factors:</span>
-                            <span className={cn("text-[10px] px-1.5 py-0.5 rounded", aiForecast.breakdown.trendContrib >= 0 ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800")}>
-                              3yr trend {aiForecast.breakdown.trendContrib >= 0 ? "+" : ""}{aiForecast.breakdown.trendContrib}% · {aiForecast.breakdown.trendLabel} ({aiForecast.breakdown.cagr3yr}% CAGR)
-                            </span>
-                            <span className={cn("text-[10px] px-1.5 py-0.5 rounded", aiForecast.breakdown.seasonContrib >= 0 ? "bg-orange-100 text-orange-800" : "bg-blue-100 text-blue-800")}>
-                              Seasonal {aiForecast.breakdown.seasonContrib >= 0 ? "+" : ""}{aiForecast.breakdown.seasonContrib.toFixed(1)}%
-                            </span>
-                            <span className={cn("text-[10px] px-1.5 py-0.5 rounded", aiForecast.breakdown.momentumContrib >= 0 ? "bg-purple-100 text-purple-800" : "bg-slate-100 text-slate-700")}>
-                              Momentum {aiForecast.breakdown.momentumContrib >= 0 ? "+" : ""}{aiForecast.breakdown.momentumContrib.toFixed(1)}%
-                            </span>
-                          </div>
-                          {/* Market note */}
-                          {aiForecast.breakdown.marketNote && (
-                            <div className="text-[10px] text-amber-700 italic">
-                              ⚡ {aiForecast.breakdown.marketNote}
-                            </div>
-                          )}
-                          {/* 3-yr price history */}
-                          <div className="flex items-center gap-3 text-[10px] text-amber-600">
-                            <span>24mo ago: KES {aiForecast.breakdown.priceHistory.p24mo.toLocaleString()}</span>
-                            <ArrowRight className="w-2.5 h-2.5" />
-                            <span>12mo ago: KES {aiForecast.breakdown.priceHistory.p12mo.toLocaleString()}</span>
-                            <ArrowRight className="w-2.5 h-2.5" />
-                            <span className="font-medium">Today: KES {aiForecast.breakdown.priceHistory.current.toLocaleString()}</span>
-                          </div>
                         </div>
                       ) : null}
                     </div>

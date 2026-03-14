@@ -190,18 +190,22 @@ const CAGR_3YR: Record<string, number> = {
 // Based on Kenya's two agricultural seasons:
 //   Long Rains (LR): planting Mar-Apr, harvest Jul-Aug
 //   Short Rains (SR): planting Oct-Nov, harvest Dec-Jan
+// Seasonal indices represent the price level RELATIVE TO the annual average
+// for that year — harvest months must clearly pull price BELOW annual average
+// even after trend growth, giving a true within-year seasonal shape.
+// Kenya LR: plant Mar-Apr, harvest Jul-Aug; SR: plant Oct-Nov, harvest Dec-Jan
 const SEASONAL_INDEX: Record<string, number[]> = {
   //          Jan    Feb    Mar    Apr    May    Jun    Jul    Aug    Sep    Oct    Nov    Dec
-  Maize:   [0.93,  0.96,  1.02,  1.08,  1.13,  1.11,  0.97,  0.89,  0.92,  1.06,  1.09,  0.96],
-  Coffee:  [1.04,  1.06,  1.02,  0.98,  0.95,  0.97,  1.05,  1.08,  1.07,  0.96,  0.91,  0.93],
-  Wheat:   [1.06,  1.09,  1.11,  1.08,  1.04,  0.98,  0.88,  0.87,  0.92,  0.97,  1.01,  1.05],
-  Rice:    [0.98,  0.99,  1.01,  1.02,  1.04,  1.05,  1.02,  0.99,  0.97,  0.96,  0.98,  0.99],
-  Sorghum: [1.04,  1.06,  1.07,  1.05,  1.02,  0.99,  0.97,  0.94,  0.91,  0.88,  0.92,  1.00],
-  Beans:   [0.91,  0.95,  1.04,  1.10,  1.14,  1.12,  1.00,  0.88,  0.90,  1.07,  1.10,  0.93],
-  Tea:     [0.97,  0.95,  0.93,  0.92,  0.96,  1.01,  1.05,  1.07,  1.06,  1.03,  0.99,  0.98],
-  Cotton:  [1.02,  1.04,  1.05,  1.03,  1.01,  0.99,  0.94,  0.90,  0.91,  0.96,  1.00,  1.03],
-  Sesame:  [1.05,  1.07,  1.06,  1.04,  1.02,  0.99,  0.97,  0.95,  0.94,  0.92,  0.94,  1.00],
-  Millet:  [1.03,  1.05,  1.06,  1.04,  1.01,  0.98,  0.96,  0.94,  0.93,  0.91,  0.95,  1.00],
+  Maize:   [0.88,  0.91,  1.04,  1.12,  1.20,  1.16,  0.92,  0.79,  0.86,  1.10,  1.16,  0.90],
+  Coffee:  [1.07,  1.10,  1.05,  0.98,  0.93,  0.96,  1.10,  1.13,  1.11,  0.90,  0.83,  0.85],
+  Wheat:   [1.10,  1.14,  1.17,  1.12,  1.07,  0.98,  0.78,  0.77,  0.86,  0.96,  1.02,  1.07],
+  Rice:    [0.97,  0.98,  1.01,  1.03,  1.07,  1.09,  1.04,  0.98,  0.95,  0.93,  0.96,  0.98],
+  Sorghum: [1.06,  1.10,  1.11,  1.08,  1.04,  0.98,  0.95,  0.90,  0.84,  0.79,  0.88,  1.00],
+  Beans:   [0.87,  0.91,  1.06,  1.14,  1.20,  1.16,  0.98,  0.82,  0.86,  1.10,  1.16,  0.88],
+  Tea:     [0.96,  0.94,  0.91,  0.90,  0.96,  1.03,  1.09,  1.12,  1.10,  1.05,  0.98,  0.96],
+  Cotton:  [1.04,  1.07,  1.08,  1.05,  1.02,  0.99,  0.89,  0.82,  0.84,  0.94,  1.00,  1.05],
+  Sesame:  [1.08,  1.11,  1.09,  1.06,  1.03,  0.98,  0.94,  0.91,  0.88,  0.83,  0.88,  0.98],
+  Millet:  [1.06,  1.09,  1.10,  1.07,  1.03,  0.97,  0.93,  0.88,  0.86,  0.82,  0.90,  1.00],
 };
 
 // Supply pressure: months after harvest flush (excess supply dampens price)
