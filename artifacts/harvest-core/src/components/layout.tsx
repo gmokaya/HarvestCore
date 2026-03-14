@@ -49,7 +49,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       {/* Sidebar — brand dark */}
       <aside className="w-60 flex-shrink-0 hidden md:flex flex-col" style={{ backgroundColor: "#0A2A2A" }}>
         {/* Logo */}
-        <div className="px-5 py-4 border-b border-white/10">
+        <div className="px-5 py-4 border-b border-white/10 text-center">
           <span
             style={{
               fontFamily: "'Belleza', serif",
