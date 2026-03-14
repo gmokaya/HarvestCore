@@ -23,6 +23,7 @@ const formatInspection = (row: any, inspector: any, warehouse: any, intake: any)
   intakeCommodity: intake?.commodity ?? null,
   riskFlags: row.riskFlags ? JSON.parse(row.riskFlags) : [],
   certifications: row.certifications ? JSON.parse(row.certifications) : [],
+  mediaEvidence: row.mediaEvidence ? JSON.parse(row.mediaEvidence) : [],
 });
 
 router.get("/", async (_req, res) => {
@@ -98,9 +99,24 @@ router.post("/", async (req, res) => {
       ...body,
       riskFlags: JSON.stringify(riskFlags),
       certifications: JSON.stringify(body.certifications ?? []),
+      mediaEvidence: JSON.stringify(body.mediaEvidence ?? []),
     }).returning();
 
-    res.status(201).json({ ...inspection, riskFlags, certifications: body.certifications ?? [] });
+    res.status(201).json({ ...inspection, riskFlags, certifications: body.certifications ?? [], mediaEvidence: body.mediaEvidence ?? [] });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.patch("/:id/media", async (req, res) => {
+  try {
+    const { items } = req.body;
+    if (!Array.isArray(items)) { res.status(400).json({ error: "items must be an array" }); return; }
+    const [updated] = await db.update(inspectionsTable)
+      .set({ mediaEvidence: JSON.stringify(items), updatedAt: new Date() })
+      .where(eq(inspectionsTable.id, req.params.id)).returning();
+    if (!updated) { res.status(404).json({ error: "Inspection not found" }); return; }
+    res.json({ mediaEvidence: items });
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }

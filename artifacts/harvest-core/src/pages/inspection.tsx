@@ -1,4 +1,4 @@
-import { useState, Fragment } from "react";
+import { useState, Fragment, useRef, useEffect, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Card, CardContent, CardHeader, CardTitle,
@@ -86,25 +86,131 @@ function RiskFlagRow({ flags }: { flags: string[] }) {
   );
 }
 
-function MediaEvidenceSection() {
-  const slots = [
-    { icon: Camera, label: "Inspection Photos", color: "text-blue-400", bg: "bg-blue-500/5 border-blue-500/20" },
-    { icon: FlaskConical, label: "Lab Test Report", color: "text-purple-400", bg: "bg-purple-500/5 border-purple-500/20" },
-    { icon: Award, label: "Certification Docs", color: "text-yellow-400", bg: "bg-yellow-500/5 border-yellow-500/20" },
-    { icon: FileText, label: "Attachments", color: "text-muted-foreground", bg: "bg-secondary border-border/50" },
-  ];
+type MediaCategory = "photos" | "lab_report" | "certifications" | "attachments";
+interface MediaItem {
+  category: MediaCategory;
+  name: string;
+  dataUrl: string;
+  size: number;
+  mimeType: string;
+  uploadedAt: string;
+}
+const MEDIA_SLOTS: { category: MediaCategory; icon: any; label: string; accept: string; color: string; bg: string }[] = [
+  { category: "photos",        icon: Camera,       label: "Inspection Photos",  accept: "image/*",                 color: "text-blue-400",         bg: "bg-blue-500/5 border-blue-500/20" },
+  { category: "lab_report",    icon: FlaskConical, label: "Lab Test Report",    accept: ".pdf,.doc,.docx,image/*", color: "text-purple-400",       bg: "bg-purple-500/5 border-purple-500/20" },
+  { category: "certifications",icon: Award,        label: "Certification Docs", accept: ".pdf,.doc,.docx,image/*", color: "text-yellow-400",       bg: "bg-yellow-500/5 border-yellow-500/20" },
+  { category: "attachments",   icon: FileText,     label: "Attachments",        accept: "*",                       color: "text-muted-foreground", bg: "bg-secondary border-border/50" },
+];
+
+function MediaEvidenceSection({
+  inspectionId,
+  initialMedia = [],
+  onChange,
+}: {
+  inspectionId?: string | null;
+  initialMedia?: MediaItem[];
+  onChange?: (items: MediaItem[]) => void;
+}) {
+  const qc = useQueryClient();
+  const [items, setItems] = useState<MediaItem[]>(initialMedia);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [error, setError] = useState("");
+  const inputRefs = useRef<Record<string, HTMLInputElement | null>>({});
+
+  useEffect(() => { setItems(initialMedia); }, [initialMedia.length]);
+
+  const handleFile = useCallback((e: React.ChangeEvent<HTMLInputElement>, category: MediaCategory) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) { setError("File too large — max 5 MB per file"); e.target.value = ""; return; }
+    setError("");
+    const reader = new FileReader();
+    reader.onload = () => {
+      const item: MediaItem = { category, name: file.name, dataUrl: reader.result as string, size: file.size, mimeType: file.type, uploadedAt: new Date().toISOString() };
+      setItems(prev => { const next = [...prev, item]; onChange?.(next); return next; });
+      setSaved(false);
+    };
+    reader.readAsDataURL(file);
+    e.target.value = "";
+  }, [onChange]);
+
+  const removeItem = (category: MediaCategory, name: string, uploadedAt: string) => {
+    setItems(prev => { const next = prev.filter(i => !(i.category === category && i.name === name && i.uploadedAt === uploadedAt)); onChange?.(next); return next; });
+    setSaved(false);
+  };
+
+  const handleSave = async () => {
+    if (!inspectionId) return;
+    setSaving(true); setError("");
+    try {
+      const r = await api(`/inspections/${inspectionId}/media`, { method: "PATCH", body: JSON.stringify({ items }) });
+      if (r.error) { setError(r.error); } else { setSaved(true); qc.invalidateQueries({ queryKey: ["inspections"] }); setTimeout(() => setSaved(false), 3000); }
+    } catch (e: any) { setError(e.message); }
+    finally { setSaving(false); }
+  };
+
   return (
     <div>
-      <p className="text-xs text-muted-foreground mb-2 flex items-center gap-1.5"><Camera className="w-3.5 h-3.5" /> Media Evidence</p>
-      <div className="grid grid-cols-4 gap-2">
-        {slots.map(({ icon: Icon, label, color, bg }) => (
-          <button key={label} className={cn("flex flex-col items-center gap-2 p-3 rounded-lg border border-dashed text-center hover:opacity-80 transition-colors", bg)}>
-            <Icon className={cn("w-5 h-5", color)} />
-            <span className="text-xs text-muted-foreground leading-tight">{label}</span>
-            <span className={cn("text-xs font-medium", color)}>+ Upload</span>
+      <div className="flex items-center justify-between mb-2">
+        <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+          <Camera className="w-3.5 h-3.5" /> Media Evidence
+          <span className="ml-1 px-1.5 py-0.5 rounded-full bg-secondary text-[10px] font-medium">{items.length} file{items.length !== 1 ? "s" : ""}</span>
+        </p>
+        {inspectionId && (
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={saving}
+            className={cn("text-xs px-2.5 py-1 rounded-md border transition-colors", saved ? "bg-green-500/10 border-green-500/30 text-green-400" : "border-primary/30 text-primary hover:bg-primary/10 disabled:opacity-40")}
+          >
+            {saving ? "Saving…" : saved ? "✓ Saved" : "Save Evidence"}
           </button>
-        ))}
+        )}
       </div>
+      <div className="grid grid-cols-2 gap-2">
+        {MEDIA_SLOTS.map(({ category, icon: Icon, label, accept, color, bg }) => {
+          const catItems = items.filter(i => i.category === category);
+          return (
+            <div key={category} className={cn("rounded-lg border border-dashed p-3 space-y-2", bg)}>
+              <input
+                type="file"
+                accept={accept}
+                className="hidden"
+                ref={el => { inputRefs.current[category] = el; }}
+                onChange={e => handleFile(e, category)}
+              />
+              <button
+                type="button"
+                className="w-full flex items-center gap-2 hover:opacity-80 transition-opacity"
+                onClick={() => inputRefs.current[category]?.click()}
+              >
+                <Icon className={cn("w-4 h-4 flex-shrink-0", color)} />
+                <span className="text-xs text-muted-foreground flex-1 text-left leading-tight">{label}</span>
+                <span className={cn("text-xs font-semibold flex-shrink-0", color)}>+ Add</span>
+              </button>
+              {catItems.length > 0 && (
+                <div className="space-y-1 border-t border-white/5 pt-2">
+                  {catItems.map(item => (
+                    <div key={`${item.name}-${item.uploadedAt}`} className="flex items-center gap-1.5 bg-card/60 rounded px-1.5 py-1">
+                      {item.mimeType.startsWith("image/") ? (
+                        <img src={item.dataUrl} alt={item.name} className="w-7 h-7 rounded object-cover flex-shrink-0 border border-white/10" />
+                      ) : (
+                        <FileText className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                      )}
+                      <span className="text-[10px] text-muted-foreground truncate flex-1 min-w-0">{item.name}</span>
+                      <button type="button" onClick={() => removeItem(item.category, item.name, item.uploadedAt)} className="text-muted-foreground hover:text-red-400 transition-colors flex-shrink-0">
+                        <Trash2 className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      {error && <p className="text-xs text-red-400 mt-1.5 flex items-center gap-1"><AlertTriangle className="w-3 h-3" />{error}</p>}
     </div>
   );
 }
@@ -221,7 +327,7 @@ function DetailPanel({ inspection }: { inspection: any }) {
           <RiskFlagRow flags={inspection.riskFlags} />
         </div>
       )}
-      <MediaEvidenceSection />
+      <MediaEvidenceSection inspectionId={inspection.id} initialMedia={inspection.mediaEvidence ?? []} />
       {inspection.notes && (
         <p className="text-xs text-muted-foreground italic border-t border-border/30 pt-3">{inspection.notes}</p>
       )}
@@ -404,6 +510,7 @@ function NewInspectionTab({ warehouses, inspectors, onSuccess }: {
     licenseNumber: "", organization: "", notes: "",
   });
   const [certs, setCerts] = useState<CertEntry[]>([]);
+  const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
 
@@ -425,6 +532,7 @@ function NewInspectionTab({ warehouses, inspectors, onSuccess }: {
     { label: "Quality", icon: FlaskConical },
     { label: "Weight & Storage", icon: Scale },
     { label: "Certifications", icon: Award },
+    { label: "Media Evidence", icon: Camera },
   ];
 
   function handleSubmit() {
@@ -444,6 +552,7 @@ function NewInspectionTab({ warehouses, inspectors, onSuccess }: {
       temperatureCelsius: form.temperatureCelsius || null,
       humidityPercent: form.humidityPercent || null,
       certifications: certs,
+      mediaEvidence: mediaItems,
       inspectionDate: new Date().toISOString(),
     });
   }
@@ -669,6 +778,20 @@ function NewInspectionTab({ warehouses, inspectors, onSuccess }: {
                     </div>
                   ))}
                 </div>
+              )}
+            </div>
+          )}
+
+          {/* Step 4: Media Evidence */}
+          {step === 4 && (
+            <div className="space-y-4">
+              <h3 className="font-semibold text-foreground flex items-center gap-2"><Camera className="w-4 h-4 text-primary" /> Media Evidence</h3>
+              <p className="text-xs text-muted-foreground">Attach inspection photos, lab test reports, certification documents, and any additional files. Max 5 MB per file.</p>
+              <MediaEvidenceSection onChange={setMediaItems} initialMedia={mediaItems} />
+              {mediaItems.length > 0 && (
+                <p className="text-xs text-green-400 flex items-center gap-1.5">
+                  <CheckCircle2 className="w-3.5 h-3.5" /> {mediaItems.length} file{mediaItems.length !== 1 ? "s" : ""} ready to submit with this inspection
+                </p>
               )}
             </div>
           )}

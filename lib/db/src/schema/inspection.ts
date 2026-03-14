@@ -66,6 +66,7 @@ export const inspectionsTable = pgTable("inspections", {
   licenseNumber: text("license_number"),
   organization: text("organization"),
   riskFlags: text("risk_flags"),
+  mediaEvidence: text("media_evidence"),
 
   notes: text("notes"),
   status: inspectionStatusEnum("status").notNull().default("pending"),
