@@ -79,8 +79,8 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       <aside className="w-60 flex-shrink-0 hidden md:flex flex-col" style={{ backgroundColor: "#0A2A2A" }}>
         {/* Logo — home button */}
         <Link href="/">
-          <div className="px-5 py-4 border-b border-white/10 cursor-pointer">
-            <div style={{ display: "inline-flex", flexDirection: "column" }}>
+          <div className="px-5 py-4 border-b border-white/10 cursor-pointer flex justify-end">
+            <div style={{ display: "inline-flex", flexDirection: "column", alignItems: "flex-end" }}>
               <span style={{ fontFamily: "'Belleza', serif", fontSize: "28px", lineHeight: 1.2, color: "rgba(255,255,255,0.92)", letterSpacing: "0.01em" }}>
                 TokenHarvest
               </span>
