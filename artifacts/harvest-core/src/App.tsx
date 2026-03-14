@@ -4,7 +4,9 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AppLayout } from "@/components/layout";
 import { AuthProvider, useAuth } from "@/contexts/auth";
+import { canAccess } from "@/lib/permissions";
 import LoginPage from "@/pages/login";
+import AccessDenied from "@/pages/access-denied";
 import NotFound from "@/pages/not-found";
 
 // Pages
@@ -30,22 +32,30 @@ const queryClient = new QueryClient({
   },
 });
 
+/** Wraps a page component — shows access denied screen if role lacks permission */
+function Guard({ path, component: Page }: { path: string; component: React.ComponentType }) {
+  const { user } = useAuth();
+  if (!user) return null;
+  if (!canAccess(user.role, path)) return <AccessDenied />;
+  return <Page />;
+}
+
 function AuthenticatedApp() {
   return (
     <AppLayout>
       <Switch>
-        <Route path="/" component={Dashboard} />
-        <Route path="/users" component={Users} />
-        <Route path="/inventory" component={Inventory} />
-        <Route path="/inspection" component={Inspection} />
-        <Route path="/receipts" component={Receipts} />
-        <Route path="/tokens" component={Tokens} />
-        <Route path="/loans" component={Loans} />
-        <Route path="/forward-contracts" component={ForwardContracts} />
-        <Route path="/marketplace" component={Marketplace} />
-        <Route path="/wallet" component={WalletPage} />
-        <Route path="/finance-hub" component={FinanceHub} />
-        <Route path="/settlement" component={Settlement} />
+        <Route path="/"                  component={Dashboard} />
+        <Route path="/users">            {() => <Guard path="/users"             component={Users} />}           </Route>
+        <Route path="/inventory">        {() => <Guard path="/inventory"         component={Inventory} />}       </Route>
+        <Route path="/inspection">       {() => <Guard path="/inspection"        component={Inspection} />}      </Route>
+        <Route path="/receipts">         {() => <Guard path="/receipts"          component={Receipts} />}        </Route>
+        <Route path="/tokens">           {() => <Guard path="/tokens"            component={Tokens} />}          </Route>
+        <Route path="/loans">            {() => <Guard path="/loans"             component={Loans} />}           </Route>
+        <Route path="/forward-contracts">{() => <Guard path="/forward-contracts" component={ForwardContracts} />}</Route>
+        <Route path="/marketplace">      {() => <Guard path="/marketplace"       component={Marketplace} />}     </Route>
+        <Route path="/wallet">           {() => <Guard path="/wallet"            component={WalletPage} />}      </Route>
+        <Route path="/finance-hub">      {() => <Guard path="/finance-hub"       component={FinanceHub} />}      </Route>
+        <Route path="/settlement">       {() => <Guard path="/settlement"        component={Settlement} />}      </Route>
         <Route component={NotFound} />
       </Switch>
     </AppLayout>

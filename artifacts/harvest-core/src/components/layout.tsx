@@ -1,6 +1,7 @@
 import { Link, useLocation } from "wouter"
 import { cn } from "@/lib/utils"
 import { useAuth } from "@/contexts/auth"
+import { canAccess } from "@/lib/permissions"
 import { 
   LayoutDashboard, 
   Users, 
@@ -18,50 +19,59 @@ import {
   Layers,
 } from "lucide-react"
 
-const navGroups = [
+const NAV_GROUPS = [
   {
     label: "Platform Modules",
     items: [
-      { href: "/", label: "Dashboard", icon: LayoutDashboard },
+      { href: "/",      label: "Dashboard",      icon: LayoutDashboard },
       { href: "/users", label: "Identity & KYC", icon: Users },
     ],
   },
   {
     label: "Commodity Operations",
     items: [
-      { href: "/inventory", label: "Inventory & Logistics", icon: Warehouse },
-      { href: "/inspection", label: "Inspection & Quality", icon: ClipboardCheck },
-      { href: "/receipts", label: "Warehouse Receipts", icon: FileCheck2 },
+      { href: "/inventory",   label: "Inventory & Logistics", icon: Warehouse },
+      { href: "/inspection",  label: "Inspection & Quality",  icon: ClipboardCheck },
+      { href: "/receipts",    label: "Warehouse Receipts",    icon: FileCheck2 },
     ],
   },
   {
     label: "Finance & Trade",
     items: [
-      { href: "/tokens", label: "Tokens", icon: Coins },
-      { href: "/loans", label: "Credit & Loans", icon: Banknote },
-      { href: "/forward-contracts", label: "Forward Contracts", icon: FileSignature },
-      { href: "/wallet", label: "Wallet & Payments", icon: Wallet },
-      { href: "/finance-hub", label: "Finance Engine", icon: Layers },
-      { href: "/marketplace", label: "Marketplace", icon: Store },
-      { href: "/settlement", label: "Settlement", icon: Scale },
+      { href: "/tokens",            label: "Tokens",             icon: Coins },
+      { href: "/loans",             label: "Credit & Loans",     icon: Banknote },
+      { href: "/forward-contracts", label: "Forward Contracts",  icon: FileSignature },
+      { href: "/wallet",            label: "Wallet & Payments",  icon: Wallet },
+      { href: "/finance-hub",       label: "Finance Engine",     icon: Layers },
+      { href: "/marketplace",       label: "Marketplace",        icon: Store },
+      { href: "/settlement",        label: "Settlement",         icon: Scale },
     ],
   },
 ]
 
 const ROLE_SHORT: Record<string, string> = {
-  admin: "System Administrator",
-  farmer: "Farmer / Borrower",
-  trader: "Commodity Trader",
+  admin:              "System Administrator",
+  farmer:             "Farmer / Borrower",
+  trader:             "Commodity Trader",
   collateral_manager: "Collateral Manager",
-  processor: "Processor",
-  warehouse_op: "Warehouse Operator",
-  checker: "Checker / Auditor",
-  lender: "Lender",
+  processor:          "Processor",
+  warehouse_op:       "Warehouse Operator",
+  checker:            "Checker / Auditor",
+  lender:             "Lender",
 }
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation()
   const { user, logout } = useAuth()
+  const role = user?.role ?? ""
+
+  // Filter nav items to only those the current role can access
+  const visibleGroups = NAV_GROUPS
+    .map((group) => ({
+      ...group,
+      items: group.items.filter((item) => canAccess(role, item.href)),
+    }))
+    .filter((group) => group.items.length > 0)
 
   return (
     <div className="flex min-h-screen w-full bg-background">
@@ -84,7 +94,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
 
         {/* Navigation */}
         <div className="flex-1 py-5 px-3 space-y-6 overflow-y-auto">
-          {navGroups.map((group) => (
+          {visibleGroups.map((group) => (
             <div key={group.label}>
               <div className="mb-1.5 px-2 text-[10px] font-semibold text-white/35 uppercase tracking-widest">
                 {group.label}
