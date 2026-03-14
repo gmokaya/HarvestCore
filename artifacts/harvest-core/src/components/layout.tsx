@@ -13,7 +13,6 @@ import {
   FileCheck2,
   Warehouse,
 } from "lucide-react"
-import logoIcon from "@assets/image_1773476795625.png"
 
 const navGroups = [
   {
@@ -50,12 +49,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       {/* Sidebar — brand dark */}
       <aside className="w-60 flex-shrink-0 hidden md:flex flex-col" style={{ backgroundColor: "#0A2A2A" }}>
         {/* Logo */}
-        <div className="flex items-center gap-3 px-5 py-4 border-b border-white/10">
-          <img
-            src={logoIcon}
-            alt="TokenHarvest icon"
-            className="w-9 h-9 rounded-xl object-cover flex-shrink-0"
-          />
+        <div className="px-5 py-4 border-b border-white/10">
           <span
             style={{
               fontFamily: "'Belleza', serif",
@@ -118,8 +112,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Top header */}
         <header className="h-14 flex-shrink-0 border-b border-border bg-background flex items-center justify-between px-6 sticky top-0 z-10">
-          <div className="flex items-center gap-2 md:hidden">
-            <img src={logoIcon} alt="TokenHarvest icon" className="w-7 h-7 rounded-lg object-cover" />
+          <div className="flex items-center md:hidden">
             <span style={{ fontFamily: "'Belleza', serif", fontSize: "18px", lineHeight: 1.4, color: "inherit" }}>
               TokenHarvest
             </span>
