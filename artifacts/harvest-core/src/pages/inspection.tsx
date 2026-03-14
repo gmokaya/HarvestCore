@@ -1035,7 +1035,7 @@ export default function InspectionPage() {
       {/* Page header */}
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-display font-bold tracking-tight text-foreground">Inspection & Quality</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Inspection & Quality</h1>
           <p className="text-sm text-muted-foreground mt-1">Commodity grading, quality verification, and risk assessment</p>
         </div>
         <Button onClick={() => setActiveMainTab("new")} className="gap-2">

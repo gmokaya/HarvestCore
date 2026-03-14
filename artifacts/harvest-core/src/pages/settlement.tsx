@@ -29,8 +29,8 @@ export default function Settlement() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-destructive">Settlement & Liquidation</h1>
-          <p className="text-muted-foreground mt-1">Default watchdog and asset liquidation waterfall</p>
+          <h1 className="text-3xl font-bold tracking-tight">Settlement & Liquidation</h1>
+          <p className="text-sm text-muted-foreground mt-1">Default watchdog and asset liquidation waterfall</p>
         </div>
       </div>
 

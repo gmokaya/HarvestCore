@@ -685,7 +685,7 @@ export default function ReceiptsPage() {
       {/* Header */}
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-display font-bold tracking-tight text-foreground">Digital Warehouse Receipts</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Digital Warehouse Receipts</h1>
           <p className="text-sm text-muted-foreground mt-1">
             Verifiable proof of commodity ownership, quality, and storage — the collateral instrument
           </p>

@@ -251,7 +251,7 @@ export default function UsersPage() {
     <div className="space-y-6">
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-display font-bold tracking-tight text-foreground">Identity & Governance</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Identity & Governance</h1>
           <p className="text-sm text-muted-foreground mt-1">Users, organizations, KYC verification, and role-based access control</p>
         </div>
         <Button className="gap-2">
