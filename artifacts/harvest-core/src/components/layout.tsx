@@ -77,17 +77,19 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     <div className="flex min-h-screen w-full bg-background">
       {/* Sidebar — brand dark */}
       <aside className="w-60 flex-shrink-0 hidden md:flex flex-col" style={{ backgroundColor: "#0A2A2A" }}>
-        {/* Logo */}
-        <div className="px-5 py-4 border-b border-white/10">
-          <div style={{ display: "inline-flex", flexDirection: "column" }}>
-            <span style={{ fontFamily: "'Belleza', serif", fontSize: "28px", lineHeight: 1.2, color: "rgba(255,255,255,0.92)", letterSpacing: "0.01em" }}>
-              TokenHarvest
-            </span>
-            <span style={{ fontFamily: "'Josefin Sans', 'Futura', 'Century Gothic', sans-serif", fontSize: "9px", letterSpacing: "0.196em", color: "rgba(199,215,218,0.65)", textTransform: "uppercase", textAlign: "right", marginTop: "2px" }}>
-              TRADE FINANCE
-            </span>
+        {/* Logo — home button */}
+        <Link href="/">
+          <div className="px-5 py-4 border-b border-white/10 cursor-pointer">
+            <div style={{ display: "inline-flex", flexDirection: "column" }}>
+              <span style={{ fontFamily: "'Belleza', serif", fontSize: "28px", lineHeight: 1.2, color: "rgba(255,255,255,0.92)", letterSpacing: "0.01em" }}>
+                TokenHarvest
+              </span>
+              <span style={{ fontFamily: "'Josefin Sans', 'Futura', 'Century Gothic', sans-serif", fontSize: "9px", letterSpacing: "0.196em", color: "rgba(199,215,218,0.65)", textTransform: "uppercase", textAlign: "right", marginTop: "2px" }}>
+                TRADE FINANCE
+              </span>
+            </div>
           </div>
-        </div>
+        </Link>
 
         {/* Navigation */}
         <div className="flex-1 py-5 px-3 space-y-6 overflow-y-auto">
