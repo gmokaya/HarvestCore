@@ -82,7 +82,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           <span style={{ fontFamily: "'Belleza', serif", fontSize: "28px", lineHeight: 1.2, color: "rgba(255,255,255,0.92)", letterSpacing: "0.01em", display: "block" }}>
             TokenHarvest
           </span>
-          <span style={{ fontFamily: "'Josefin Sans', 'Futura', 'Century Gothic', sans-serif", fontSize: "7.5px", letterSpacing: "0.196em", lineHeight: 1.4, color: "rgba(199,215,218,0.65)", textTransform: "uppercase", display: "block", marginTop: "3px" }}>
+          <span style={{ fontFamily: "'Josefin Sans', 'Futura', 'Century Gothic', sans-serif", fontSize: "9px", letterSpacing: "0.196em", lineHeight: 1.4, color: "rgba(199,215,218,0.65)", textTransform: "uppercase", display: "block", marginTop: "3px", textAlign: "right" }}>
             TRADE FINANCE
           </span>
         </div>
@@ -142,7 +142,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             <span style={{ fontFamily: "'Belleza', serif", fontSize: "18px", lineHeight: 1.2, color: "inherit" }}>
               TokenHarvest
             </span>
-            <span style={{ fontFamily: "'Josefin Sans', 'Futura', 'Century Gothic', sans-serif", fontSize: "6px", letterSpacing: "0.196em", lineHeight: 1.4, textTransform: "uppercase", opacity: 0.5, marginTop: "1px" }}>
+            <span style={{ fontFamily: "'Josefin Sans', 'Futura', 'Century Gothic', sans-serif", fontSize: "7.5px", letterSpacing: "0.196em", lineHeight: 1.4, textTransform: "uppercase", opacity: 0.5, marginTop: "1px", textAlign: "right" }}>
               TRADE FINANCE
             </span>
           </div>
