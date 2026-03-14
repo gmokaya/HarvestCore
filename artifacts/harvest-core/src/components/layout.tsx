@@ -142,11 +142,11 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Top header */}
         <header className="h-14 flex-shrink-0 border-b border-border bg-background flex items-center justify-between px-6 sticky top-0 z-10">
-          <div className="md:hidden" style={{ display: "inline-flex", flexDirection: "column" }}>
+          <div className="md:hidden" style={{ display: "inline-flex", flexDirection: "column", alignItems: "flex-end" }}>
             <span style={{ fontFamily: "'Belleza', serif", fontSize: "18px", lineHeight: 1.2, color: "inherit" }}>
               TokenHarvest
             </span>
-            <span style={{ fontFamily: "'Josefin Sans', 'Futura', 'Century Gothic', sans-serif", fontSize: "7.5px", letterSpacing: "0.196em", textTransform: "uppercase", opacity: 0.5, textAlign: "right", marginTop: "1px" }}>
+            <span style={{ fontFamily: "'Josefin Sans', 'Futura', 'Century Gothic', sans-serif", fontSize: "7.5px", letterSpacing: "0.196em", textTransform: "uppercase", opacity: 0.5, marginTop: "1px" }}>
               TRADE FINANCE
             </span>
           </div>
