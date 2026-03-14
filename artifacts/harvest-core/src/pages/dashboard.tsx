@@ -1,6 +1,6 @@
 import { useGetDashboardStats, useGetRecentActivity, useGetMarketPrices } from "@workspace/api-client-react"
 import { Card, CardContent, CardHeader, CardTitle, Badge, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui"
-import { Coins, Banknote, Store, AlertTriangle, TrendingUp, TrendingDown, Clock } from "lucide-react"
+import { TrendingUp, TrendingDown, Clock } from "lucide-react"
 import { formatCurrency, formatWeight, cn } from "@/lib/utils"
 
 export default function Dashboard() {
@@ -17,69 +17,6 @@ export default function Dashboard() {
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Platform Overview</h1>
         <p className="text-muted-foreground mt-2">Real-time metrics for the HarvestCore network.</p>
-      </div>
-
-      {/* Top Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="bg-gradient-to-br from-card to-card hover:from-primary/10 hover:border-primary/50 transition-colors duration-300">
-          <CardContent className="p-6 flex flex-col gap-4">
-            <div className="flex items-center justify-between">
-              <div className="p-3 bg-primary/10 text-primary rounded-xl">
-                <Coins className="w-5 h-5" />
-              </div>
-              <Badge variant="success" className="bg-emerald-500/20 text-emerald-400">+12%</Badge>
-            </div>
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">Total Active Tokens</p>
-              <h3 className="text-3xl font-display font-bold mt-1">{stats?.totalTokens || 0}</h3>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-br from-card to-card hover:from-blue-500/10 hover:border-blue-500/50 transition-colors duration-300">
-          <CardContent className="p-6 flex flex-col gap-4">
-            <div className="flex items-center justify-between">
-              <div className="p-3 bg-blue-500/10 text-blue-500 rounded-xl">
-                <Banknote className="w-5 h-5" />
-              </div>
-              <Badge variant="info" className="bg-blue-500/20 text-blue-400">+5.4%</Badge>
-            </div>
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">Total Loan Value</p>
-              <h3 className="text-3xl font-display font-bold mt-1">{formatCurrency(stats?.totalLoanValue || 0)}</h3>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-br from-card to-card hover:from-amber-500/10 hover:border-amber-500/50 transition-colors duration-300">
-          <CardContent className="p-6 flex flex-col gap-4">
-            <div className="flex items-center justify-between">
-              <div className="p-3 bg-amber-500/10 text-amber-500 rounded-xl">
-                <Store className="w-5 h-5" />
-              </div>
-              <span className="text-sm text-muted-foreground">Listings</span>
-            </div>
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">Active Marketplace Listings</p>
-              <h3 className="text-3xl font-display font-bold mt-1">{stats?.activeListings || 0}</h3>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-br from-card to-card hover:from-destructive/10 hover:border-destructive/50 transition-colors duration-300">
-          <CardContent className="p-6 flex flex-col gap-4">
-            <div className="flex items-center justify-between">
-              <div className="p-3 bg-destructive/10 text-destructive rounded-xl">
-                <AlertTriangle className="w-5 h-5" />
-              </div>
-              <Badge variant="destructive">{stats?.atRiskLoans || 0} Need Action</Badge>
-            </div>
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">At-Risk Loans</p>
-              <h3 className="text-3xl font-display font-bold mt-1">{stats?.atRiskLoans || 0}</h3>
-            </div>
-          </CardContent>
-        </Card>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
