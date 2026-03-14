@@ -53,7 +53,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           <span
             style={{
               fontFamily: "'Belleza', serif",
-              fontSize: "22px",
+              fontSize: "28px",
               lineHeight: 1.4,
               color: "rgba(255,255,255,0.92)",
               letterSpacing: "0.01em",
