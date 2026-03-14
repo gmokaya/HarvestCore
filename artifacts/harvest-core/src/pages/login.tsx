@@ -96,11 +96,11 @@ export default function LoginPage() {
 
         <div className="relative flex flex-col h-full px-12 py-10">
           {/* Logo */}
-          <div className="flex flex-col mb-16">
+          <div className="flex items-baseline justify-between mb-16">
             <span style={{ fontFamily: "'Belleza', serif", fontSize: "26px", lineHeight: 1.2, color: "rgba(255,255,255,0.92)", letterSpacing: "0.01em" }}>
               TokenHarvest
             </span>
-            <span style={{ fontFamily: "'Josefin Sans', 'Futura', 'Century Gothic', sans-serif", fontSize: "9px", letterSpacing: "0.196em", lineHeight: 1.4, color: "rgba(199,215,218,0.7)", textTransform: "uppercase", marginTop: "3px", textAlign: "right" }}>
+            <span style={{ fontFamily: "'Josefin Sans', 'Futura', 'Century Gothic', sans-serif", fontSize: "9px", letterSpacing: "0.196em", color: "rgba(199,215,218,0.7)", textTransform: "uppercase" }}>
               TRADE FINANCE
             </span>
           </div>
@@ -169,9 +169,9 @@ export default function LoginPage() {
       {/* ── RIGHT PANEL ─ login form ── */}
       <div className="flex-1 flex flex-col items-center justify-center px-6 sm:px-12 bg-white min-h-screen">
         {/* Mobile logo */}
-        <div className="lg:hidden mb-8 flex flex-col">
+        <div className="lg:hidden mb-8 flex items-baseline justify-between w-full max-w-[280px]">
           <span style={{ fontFamily: "'Belleza', serif", fontSize: "22px", lineHeight: 1.2, color: "#0A2A2A" }}>TokenHarvest</span>
-          <span style={{ fontFamily: "'Josefin Sans', 'Futura', 'Century Gothic', sans-serif", fontSize: "8.5px", letterSpacing: "0.196em", lineHeight: 1.4, color: "#0A2A2A", textTransform: "uppercase", opacity: 0.55, marginTop: "2px", textAlign: "right" }}>
+          <span style={{ fontFamily: "'Josefin Sans', 'Futura', 'Century Gothic', sans-serif", fontSize: "8.5px", letterSpacing: "0.196em", color: "#0A2A2A", textTransform: "uppercase", opacity: 0.55 }}>
             TRADE FINANCE
           </span>
         </div>
