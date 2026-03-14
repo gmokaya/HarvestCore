@@ -9,9 +9,9 @@ import { cn, formatCurrency } from "@/lib/utils";
 import {
   FileSignature, TrendingUp, CheckCircle2, Clock, AlertTriangle,
   ChevronDown, ChevronRight, Plus, Package, MapPin,
-  Coins, ShieldCheck, Activity, X, Brain, Link2,
-  Banknote, Bell, ArrowRight, Cpu, Database, Zap,
-  RefreshCw, BarChart3, Layers, Lock,
+  Coins, ShieldCheck, Activity, Brain, Link2,
+  ArrowRight, Database, Zap,
+  BarChart3, Layers, Lock,
 } from "lucide-react";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
@@ -701,73 +701,6 @@ export default function ForwardContracts() {
         </div>
       )}
 
-      {/* ── Integration Status Bar ── */}
-      <div className="grid grid-cols-5 gap-3 pt-2">
-        {[
-          {
-            title: "AI / Prediction Engine",
-            icon: Cpu,
-            color: "text-orange-600",
-            bg: "bg-orange-500/10",
-            status: "Active",
-            statusColor: "text-green-600",
-            items: ["ML-based Pricing Model", "Trend Analysis"],
-          },
-          {
-            title: "Blockchain",
-            icon: Link2,
-            color: "text-indigo-600",
-            bg: "bg-indigo-500/10",
-            status: "Connected",
-            statusColor: "text-green-600",
-            items: ["IOTA + BNC", "Tokenized Contracts", "Secure Ledger"],
-          },
-          {
-            title: "Wallet / Payment",
-            icon: Banknote,
-            color: "text-blue-600",
-            bg: "bg-blue-500/10",
-            status: "Ready",
-            statusColor: "text-green-600",
-            items: ["M-PESA", "Paystack", "PesaLink", "Pesapal"],
-          },
-          {
-            title: "Auto Settlement",
-            icon: Zap,
-            color: "text-teal-600",
-            bg: "bg-teal-500/10",
-            status: "On Delivery",
-            statusColor: "text-blue-600",
-            items: ["Automatic Funds Transfer", "KES / Stablecoin Support"],
-          },
-          {
-            title: "Notifications & Risk",
-            icon: Bell,
-            color: "text-purple-600",
-            bg: "bg-purple-500/10",
-            status: "Monitoring",
-            statusColor: "text-green-600",
-            items: ["Push & SMS Alerts", "Counterparty Risk Assessment"],
-          },
-        ].map(({ title, icon: Icon, color, bg, status, statusColor, items }) => (
-          <Card key={title} className="border-border">
-            <CardContent className="py-3 px-3">
-              <div className="flex items-center gap-2 mb-2">
-                <div className={cn("p-1.5 rounded-md", bg)}>
-                  <Icon className={cn("w-3.5 h-3.5", color)} />
-                </div>
-                <span className="text-xs font-semibold leading-tight">{title}</span>
-              </div>
-              <div className={cn("text-[10px] font-semibold mb-1.5", statusColor)}>● {status}</div>
-              <ul className="space-y-0.5">
-                {items.map((item) => (
-                  <li key={item} className="text-[10px] text-muted-foreground">· {item}</li>
-                ))}
-              </ul>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
     </div>
   );
 }
