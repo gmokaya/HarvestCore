@@ -25,37 +25,55 @@ import FinanceHub from "@/pages/finance-hub";
 
 const queryClient = new QueryClient({
   defaultOptions: {
-    queries: {
-      retry: false,
-      refetchOnWindowFocus: false,
-    },
+    queries: { retry: false, refetchOnWindowFocus: false },
   },
 });
 
-/** Wraps a page component — shows access denied screen if role lacks permission */
-function Guard({ path, component: Page }: { path: string; component: React.ComponentType }) {
-  const { user } = useAuth();
-  if (!user) return null;
-  if (!canAccess(user.role, path)) return <AccessDenied />;
-  return <Page />;
+/**
+ * HOC: wraps a page so it checks role permission at render time.
+ * Must be defined outside render functions so Switch gets a stable component ref.
+ */
+function protect(routePath: string, Page: React.ComponentType) {
+  const displayName = Page.displayName ?? Page.name ?? routePath;
+  function Protected() {
+    const { user } = useAuth();
+    if (!user) return null;
+    if (!canAccess(user.role, routePath)) return <AccessDenied />;
+    return <Page />;
+  }
+  Protected.displayName = `Protected(${displayName})`;
+  return Protected;
 }
+
+// Create guarded versions once — stable references, no re-mounting
+const PUsers            = protect("/users",             Users);
+const PInventory        = protect("/inventory",         Inventory);
+const PInspection       = protect("/inspection",        Inspection);
+const PReceipts         = protect("/receipts",          Receipts);
+const PTokens           = protect("/tokens",            Tokens);
+const PLoans            = protect("/loans",             Loans);
+const PForwardContracts = protect("/forward-contracts", ForwardContracts);
+const PMarketplace      = protect("/marketplace",       Marketplace);
+const PWallet           = protect("/wallet",            WalletPage);
+const PFinanceHub       = protect("/finance-hub",       FinanceHub);
+const PSettlement       = protect("/settlement",        Settlement);
 
 function AuthenticatedApp() {
   return (
     <AppLayout>
       <Switch>
         <Route path="/"                  component={Dashboard} />
-        <Route path="/users">            {() => <Guard path="/users"             component={Users} />}           </Route>
-        <Route path="/inventory">        {() => <Guard path="/inventory"         component={Inventory} />}       </Route>
-        <Route path="/inspection">       {() => <Guard path="/inspection"        component={Inspection} />}      </Route>
-        <Route path="/receipts">         {() => <Guard path="/receipts"          component={Receipts} />}        </Route>
-        <Route path="/tokens">           {() => <Guard path="/tokens"            component={Tokens} />}          </Route>
-        <Route path="/loans">            {() => <Guard path="/loans"             component={Loans} />}           </Route>
-        <Route path="/forward-contracts">{() => <Guard path="/forward-contracts" component={ForwardContracts} />}</Route>
-        <Route path="/marketplace">      {() => <Guard path="/marketplace"       component={Marketplace} />}     </Route>
-        <Route path="/wallet">           {() => <Guard path="/wallet"            component={WalletPage} />}      </Route>
-        <Route path="/finance-hub">      {() => <Guard path="/finance-hub"       component={FinanceHub} />}      </Route>
-        <Route path="/settlement">       {() => <Guard path="/settlement"        component={Settlement} />}      </Route>
+        <Route path="/users"             component={PUsers} />
+        <Route path="/inventory"         component={PInventory} />
+        <Route path="/inspection"        component={PInspection} />
+        <Route path="/receipts"          component={PReceipts} />
+        <Route path="/tokens"            component={PTokens} />
+        <Route path="/loans"             component={PLoans} />
+        <Route path="/forward-contracts" component={PForwardContracts} />
+        <Route path="/marketplace"       component={PMarketplace} />
+        <Route path="/wallet"            component={PWallet} />
+        <Route path="/finance-hub"       component={PFinanceHub} />
+        <Route path="/settlement"        component={PSettlement} />
         <Route component={NotFound} />
       </Switch>
     </AppLayout>
