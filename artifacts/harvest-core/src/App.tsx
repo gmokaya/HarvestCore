@@ -3,6 +3,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AppLayout } from "@/components/layout";
+import { AuthProvider, useAuth } from "@/contexts/auth";
+import LoginPage from "@/pages/login";
 import NotFound from "@/pages/not-found";
 
 // Pages
@@ -28,7 +30,7 @@ const queryClient = new QueryClient({
   },
 });
 
-function Router() {
+function AuthenticatedApp() {
   return (
     <AppLayout>
       <Switch>
@@ -50,15 +52,23 @@ function Router() {
   );
 }
 
+function Router() {
+  const { user } = useAuth();
+  if (!user) return <LoginPage />;
+  return <AuthenticatedApp />;
+}
+
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-          <Router />
-        </WouterRouter>
-        <Toaster />
-      </TooltipProvider>
+      <AuthProvider>
+        <TooltipProvider>
+          <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+            <Router />
+          </WouterRouter>
+          <Toaster />
+        </TooltipProvider>
+      </AuthProvider>
     </QueryClientProvider>
   );
 }

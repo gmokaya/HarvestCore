@@ -1,5 +1,6 @@
 import { Link, useLocation } from "wouter"
 import { cn } from "@/lib/utils"
+import { useAuth } from "@/contexts/auth"
 import { 
   LayoutDashboard, 
   Users, 
@@ -47,8 +48,20 @@ const navGroups = [
   },
 ]
 
+const ROLE_SHORT: Record<string, string> = {
+  admin: "System Administrator",
+  farmer: "Farmer / Borrower",
+  trader: "Commodity Trader",
+  collateral_manager: "Collateral Manager",
+  processor: "Processor",
+  warehouse_op: "Warehouse Operator",
+  checker: "Checker / Auditor",
+  lender: "Lender",
+}
+
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation()
+  const { user, logout } = useAuth()
 
   return (
     <div className="flex min-h-screen w-full bg-background">
@@ -104,11 +117,13 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         <div className="p-3 border-t border-white/10">
           <div className="flex items-center gap-3 px-2 py-2">
             <div className="w-7 h-7 rounded-full bg-white/15 flex items-center justify-center flex-shrink-0">
-              <span className="text-[10px] font-bold text-white">AD</span>
+              <span className="text-[10px] font-bold text-white">
+                {user ? user.name.slice(0, 2).toUpperCase() : "??"}
+              </span>
             </div>
             <div className="flex-1 overflow-hidden">
-              <p className="text-xs font-semibold text-white truncate">Admin User</p>
-              <p className="text-[10px] text-white/40 truncate">System Administrator</p>
+              <p className="text-xs font-semibold text-white truncate">{user?.name ?? "—"}</p>
+              <p className="text-[10px] text-white/40 truncate">{user ? (ROLE_SHORT[user.role] ?? user.role) : ""}</p>
             </div>
           </div>
         </div>
@@ -131,7 +146,10 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
               <Bell className="w-4.5 h-4.5" />
               <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-destructive border-2 border-background" />
             </button>
-            <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors text-sm font-medium">
+            <button
+              onClick={logout}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors text-sm font-medium"
+            >
               <LogOut className="w-4 h-4" />
               <span className="hidden sm:inline">Logout</span>
             </button>
