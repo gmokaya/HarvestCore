@@ -78,13 +78,15 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       {/* Sidebar — brand dark */}
       <aside className="w-60 flex-shrink-0 hidden md:flex flex-col" style={{ backgroundColor: "#0A2A2A" }}>
         {/* Logo */}
-        <div className="px-5 py-4 border-b border-white/10 flex flex-col">
-          <span style={{ fontFamily: "'Belleza', serif", fontSize: "28px", lineHeight: 1.2, color: "rgba(255,255,255,0.92)", letterSpacing: "0.01em" }}>
-            TokenHarvest
-          </span>
-          <span style={{ fontFamily: "'Josefin Sans', 'Futura', 'Century Gothic', sans-serif", fontSize: "9px", letterSpacing: "0.196em", color: "rgba(199,215,218,0.65)", textTransform: "uppercase", textAlign: "right", marginTop: "2px" }}>
-            TRADE FINANCE
-          </span>
+        <div className="px-5 py-4 border-b border-white/10">
+          <div style={{ display: "inline-flex", flexDirection: "column" }}>
+            <span style={{ fontFamily: "'Belleza', serif", fontSize: "28px", lineHeight: 1.2, color: "rgba(255,255,255,0.92)", letterSpacing: "0.01em" }}>
+              TokenHarvest
+            </span>
+            <span style={{ fontFamily: "'Josefin Sans', 'Futura', 'Century Gothic', sans-serif", fontSize: "9px", letterSpacing: "0.196em", color: "rgba(199,215,218,0.65)", textTransform: "uppercase", textAlign: "right", marginTop: "2px" }}>
+              TRADE FINANCE
+            </span>
+          </div>
         </div>
 
         {/* Navigation */}
@@ -138,7 +140,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Top header */}
         <header className="h-14 flex-shrink-0 border-b border-border bg-background flex items-center justify-between px-6 sticky top-0 z-10">
-          <div className="flex flex-col md:hidden">
+          <div className="md:hidden" style={{ display: "inline-flex", flexDirection: "column" }}>
             <span style={{ fontFamily: "'Belleza', serif", fontSize: "18px", lineHeight: 1.2, color: "inherit" }}>
               TokenHarvest
             </span>
