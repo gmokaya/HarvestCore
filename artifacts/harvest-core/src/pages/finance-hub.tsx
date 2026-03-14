@@ -287,21 +287,16 @@ export default function FinanceHubPage() {
   const loadAll = useCallback(async () => {
     setLoading(true);
     try {
-      const [poolsRes, accountsRes, ledgerRes, escrowsRes, reconRes] = await Promise.all([
+      const [poolsRes, ledgerRes, escrowsRes, reconRes] = await Promise.all([
         fetch(`${BASE}/api/liquidity-pools`, { headers: AUTH }),
-        fetch(`${BASE}/api/wallet/summary/platform`, { headers: AUTH }),
         fetch(`${BASE}/api/ledger?limit=60`, { headers: AUTH }),
         fetch(`${BASE}/api/escrow`, { headers: AUTH }),
         fetch(`${BASE}/api/ledger/reconciliation`, { headers: AUTH }),
       ]);
       if (poolsRes.ok) { const d = await poolsRes.json(); setPools(d.pools); }
-      if (accountsRes.ok) { /* summary only — accounts table fetched from platform_accounts */ }
       if (ledgerRes.ok) { const d = await ledgerRes.json(); setLedger(d.entries); setLedgerTotal(d.total); }
       if (escrowsRes.ok) { const d = await escrowsRes.json(); setEscrows(d.escrows); }
       if (reconRes.ok) { setReconciliation(await reconRes.json()); }
-
-      // Fetch platform accounts directly
-      const paRes = await fetch(`${BASE}/api/ledger/reconciliation`, { headers: AUTH });
     } finally { setLoading(false); }
   }, []);
 
@@ -631,7 +626,7 @@ export default function FinanceHubPage() {
 
           {/* Filter + List */}
           <div className="flex items-center gap-3">
-            <select value={escrowFilter} onChange={(e) => setEscrowFilter(e.target.value)}
+            <select aria-label="Filter escrow status" value={escrowFilter} onChange={(e) => setEscrowFilter(e.target.value)}
               className="text-xs border border-border rounded-md px-2 py-1.5 bg-background">
               <option value="">All Status</option>
               <option value="pending">Pending</option>
@@ -757,7 +752,7 @@ export default function FinanceHubPage() {
           {/* Filter + Journal */}
           <div className="flex items-center gap-3">
             <Filter className="w-3.5 h-3.5 text-muted-foreground" />
-            <select value={filterType} onChange={(e) => setFilterType(e.target.value)}
+            <select aria-label="Filter ledger entries" value={filterType} onChange={(e) => setFilterType(e.target.value)}
               className="text-xs border border-border rounded-md px-2 py-1.5 bg-background">
               <option value="">All Entries</option>
               <option value="debit">Debits only</option>

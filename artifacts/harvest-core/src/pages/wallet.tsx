@@ -381,12 +381,12 @@ export default function WalletPage() {
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
               <Filter className="w-3.5 h-3.5" /> Filters:
             </div>
-            <select value={filterType} onChange={(e) => setFilterType(e.target.value)}
+            <select aria-label="Filter transaction type" value={filterType} onChange={(e) => setFilterType(e.target.value)}
               className="text-xs border border-border rounded-md px-2 py-1.5 bg-background">
               <option value="">All Types</option>
               {Object.entries(TX_TYPE_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
             </select>
-            <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}
+            <select aria-label="Filter transaction status" value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}
               className="text-xs border border-border rounded-md px-2 py-1.5 bg-background">
               <option value="">All Status</option>
               <option value="completed">Completed</option>
@@ -394,7 +394,7 @@ export default function WalletPage() {
               <option value="failed">Failed</option>
               <option value="reversed">Reversed</option>
             </select>
-            <select value={filterCurrency} onChange={(e) => setFilterCurrency(e.target.value)}
+            <select aria-label="Filter currency" value={filterCurrency} onChange={(e) => setFilterCurrency(e.target.value)}
               className="text-xs border border-border rounded-md px-2 py-1.5 bg-background">
               <option value="">All Currencies</option>
               <option value="KES">KES</option>
