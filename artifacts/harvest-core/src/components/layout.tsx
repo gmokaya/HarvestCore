@@ -3,7 +3,6 @@ import { cn } from "@/lib/utils"
 import { 
   LayoutDashboard, 
   Users, 
-  Warehouse, 
   Coins, 
   Banknote, 
   Store, 
@@ -12,7 +11,10 @@ import {
   Bell,
   ClipboardCheck,
   FileCheck2,
+  Warehouse,
 } from "lucide-react"
+import logoFull from "@assets/TokenHarvest_(9)_1773476792512.png"
+import logoIcon from "@assets/image_1773476795625.png"
 
 const navGroups = [
   {
@@ -49,14 +51,27 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       {/* Sidebar — brand dark */}
       <aside className="w-60 flex-shrink-0 hidden md:flex flex-col" style={{ backgroundColor: "#0A2A2A" }}>
         {/* Logo */}
-        <div className="h-16 flex items-center px-5 border-b border-white/10">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
-              <Warehouse className="w-4.5 h-4.5 text-white" />
-            </div>
-            <span className="font-display font-bold text-lg tracking-tight text-white">
-              HarvestCore
-            </span>
+        <div className="flex flex-col items-center justify-center pt-5 pb-4 px-4 border-b border-white/10 gap-1">
+          <img
+            src={logoIcon}
+            alt="TokenHarvest icon"
+            className="w-10 h-10 rounded-xl object-cover"
+          />
+          <div style={{ width: "148px", height: "48px", overflow: "hidden", position: "relative" }}>
+            <img
+              src={logoFull}
+              alt="TokenHarvest Trade Finance"
+              style={{
+                position: "absolute",
+                width: "296px",
+                height: "296px",
+                left: "50%",
+                top: "50%",
+                transform: "translate(-50%, -44%)",
+                filter: "brightness(20)",
+                mixBlendMode: "screen",
+              }}
+            />
           </div>
         </div>
 
@@ -109,8 +124,9 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Top header */}
         <header className="h-14 flex-shrink-0 border-b border-border bg-background flex items-center justify-between px-6 sticky top-0 z-10">
-          <div className="flex items-center gap-4 md:hidden">
-            <span className="font-display font-bold text-base text-foreground">HarvestCore</span>
+          <div className="flex items-center gap-2 md:hidden">
+            <img src={logoIcon} alt="TokenHarvest" className="w-7 h-7 rounded-lg object-cover" />
+            <span className="font-display font-bold text-base text-foreground">TokenHarvest</span>
           </div>
 
           <div className="flex-1" />
