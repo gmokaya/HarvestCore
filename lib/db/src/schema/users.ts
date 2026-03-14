@@ -7,6 +7,7 @@ export const roleEnum = pgEnum("role", ["farmer", "trader", "collateral_manager"
 export const kycStatusEnum = pgEnum("kyc_status", ["pending", "approved", "rejected"]);
 export const kycTypeEnum = pgEnum("kyc_type", ["individual", "company", "cooperative"]);
 export const idTypeEnum = pgEnum("id_type", ["national_id", "passport", "driving_license"]);
+export const userStatusEnum = pgEnum("user_status", ["active", "suspended", "invited"]);
 
 export const usersTable = pgTable("users", {
   id: text("id").primaryKey().$defaultFn(() => generateId("USR")),
@@ -18,6 +19,8 @@ export const usersTable = pgTable("users", {
   phone: text("phone"),
   walletAddress: text("wallet_address"),
   kycStatus: kycStatusEnum("kyc_status").notNull().default("pending"),
+  status: userStatusEnum("status").notNull().default("active"),
+  lastLoginAt: timestamp("last_login_at"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
@@ -37,6 +40,17 @@ export const kycRecordsTable = pgTable("kyc_records", {
   reviewedAt: timestamp("reviewed_at"),
 });
 
+export const userAuditLogsTable = pgTable("user_audit_logs", {
+  id: text("id").primaryKey().$defaultFn(() => generateId("UAL")),
+  actorId: text("actor_id").notNull(),
+  actorName: text("actor_name").notNull(),
+  targetUserId: text("target_user_id"),
+  targetUserName: text("target_user_name"),
+  action: text("action").notNull(),
+  detail: text("detail"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 export const insertUserSchema = createInsertSchema(usersTable).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertKycSchema = createInsertSchema(kycRecordsTable).omit({ id: true, submittedAt: true });
 
@@ -44,3 +58,4 @@ export type User = typeof usersTable.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type KycRecord = typeof kycRecordsTable.$inferSelect;
 export type InsertKyc = z.infer<typeof insertKycSchema>;
+export type UserAuditLog = typeof userAuditLogsTable.$inferSelect;

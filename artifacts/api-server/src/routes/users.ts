@@ -1,17 +1,21 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { usersTable, kycRecordsTable } from "@workspace/db/schema";
+import { usersTable, kycRecordsTable, userAuditLogsTable } from "@workspace/db/schema";
 import { generateId, USER_ID_PREFIX } from "@workspace/db";
-import { eq, and, sql } from "drizzle-orm";
+import { eq, and, sql, desc } from "drizzle-orm";
 import {
   CreateUserBody, UpdateUserBody, SubmitKycBody
 } from "@workspace/api-zod";
 
 const router = Router();
 
+async function logAudit(actorId: string, actorName: string, action: string, detail?: string, targetUserId?: string, targetUserName?: string) {
+  await db.insert(userAuditLogsTable).values({ actorId, actorName, action, detail: detail ?? null, targetUserId: targetUserId ?? null, targetUserName: targetUserName ?? null }).catch(() => {});
+}
+
 router.get("/", async (req, res) => {
   try {
-    const { role, kycStatus, page = "1", limit = "20" } = req.query as Record<string, string>;
+    const { role, kycStatus, status, page = "1", limit = "50" } = req.query as Record<string, string>;
     const pageNum = parseInt(page);
     const limitNum = parseInt(limit);
     const offset = (pageNum - 1) * limitNum;
@@ -19,10 +23,12 @@ router.get("/", async (req, res) => {
     const conditions: Parameters<typeof and>[] = [];
     if (role) conditions.push(eq(usersTable.role, role as any));
     if (kycStatus) conditions.push(eq(usersTable.kycStatus, kycStatus as any));
+    if (status) conditions.push(eq(usersTable.status, status as any));
 
     const [users, countResult] = await Promise.all([
       db.select().from(usersTable)
         .where(conditions.length ? and(...conditions as any) : undefined)
+        .orderBy(desc(usersTable.createdAt))
         .limit(limitNum).offset(offset),
       db.select({ count: sql<number>`count(*)` }).from(usersTable)
         .where(conditions.length ? and(...conditions as any) : undefined)
@@ -49,14 +55,26 @@ router.post("/", async (req, res) => {
       id: generateId(prefix),
       ...rest,
       passwordHash: password,
+      status: "active",
     }).returning();
     const { passwordHash: _, ...safeUser } = user;
+    await logAudit("admin-001", "Platform Admin", "user_invited", `Invited ${user.name} as ${user.role}`, user.id, user.name);
     res.status(201).json(safeUser);
   } catch (err: any) {
     if (err.code === "23505") {
       res.status(409).json({ error: "Email already exists" });
       return;
     }
+    console.error(err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.get("/audit", async (req, res) => {
+  try {
+    const logs = await db.select().from(userAuditLogsTable).orderBy(desc(userAuditLogsTable.createdAt)).limit(100);
+    res.json({ logs });
+  } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Internal server error" });
   }
@@ -83,6 +101,51 @@ router.patch("/:userId", async (req, res) => {
       .where(eq(usersTable.id, req.params.userId))
       .returning();
     if (!user) { res.status(404).json({ error: "User not found" }); return; }
+    const { passwordHash: _, ...safeUser } = user;
+    res.json(safeUser);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.patch("/:userId/status", async (req, res) => {
+  try {
+    const { status } = req.body;
+    if (!["active", "suspended"].includes(status)) {
+      res.status(400).json({ error: "status must be 'active' or 'suspended'" }); return;
+    }
+    const [user] = await db.update(usersTable)
+      .set({ status, updatedAt: new Date() })
+      .where(eq(usersTable.id, req.params.userId))
+      .returning();
+    if (!user) { res.status(404).json({ error: "User not found" }); return; }
+    await logAudit("admin-001", "Platform Admin",
+      status === "suspended" ? "user_suspended" : "user_activated",
+      `${user.name} (${user.email}) ${status === "suspended" ? "suspended" : "re-activated"}`,
+      user.id, user.name);
+    const { passwordHash: _, ...safeUser } = user;
+    res.json(safeUser);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.patch("/:userId/role", async (req, res) => {
+  try {
+    const { role } = req.body;
+    const validRoles = ["farmer", "trader", "collateral_manager", "processor", "warehouse_op", "checker", "lender", "admin"];
+    if (!validRoles.includes(role)) {
+      res.status(400).json({ error: "Invalid role" }); return;
+    }
+    const [user] = await db.update(usersTable)
+      .set({ role, updatedAt: new Date() })
+      .where(eq(usersTable.id, req.params.userId))
+      .returning();
+    if (!user) { res.status(404).json({ error: "User not found" }); return; }
+    await logAudit("admin-001", "Platform Admin", "role_changed",
+      `${user.name}'s role changed to ${role}`, user.id, user.name);
     const { passwordHash: _, ...safeUser } = user;
     res.json(safeUser);
   } catch (err) {
@@ -123,12 +186,14 @@ router.get("/:userId/kyc", async (req, res) => {
 
 router.post("/:userId/kyc/approve", async (req, res) => {
   try {
+    const [user] = await db.select().from(usersTable).where(eq(usersTable.id, req.params.userId)).limit(1);
     const [kyc] = await db.update(kycRecordsTable)
       .set({ status: "approved", reviewedAt: new Date() })
       .where(eq(kycRecordsTable.userId, req.params.userId))
       .returning();
     await db.update(usersTable).set({ kycStatus: "approved", updatedAt: new Date() }).where(eq(usersTable.id, req.params.userId));
-    res.json(kyc);
+    if (user) await logAudit("admin-001", "Platform Admin", "kyc_approved", `KYC approved for ${user.name}`, user.id, user.name);
+    res.json(kyc ?? {});
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Internal server error" });
@@ -138,12 +203,14 @@ router.post("/:userId/kyc/approve", async (req, res) => {
 router.post("/:userId/kyc/reject", async (req, res) => {
   try {
     const { reason } = req.body;
+    const [user] = await db.select().from(usersTable).where(eq(usersTable.id, req.params.userId)).limit(1);
     const [kyc] = await db.update(kycRecordsTable)
       .set({ status: "rejected", rejectionReason: reason, reviewedAt: new Date() })
       .where(eq(kycRecordsTable.userId, req.params.userId))
       .returning();
     await db.update(usersTable).set({ kycStatus: "rejected", updatedAt: new Date() }).where(eq(usersTable.id, req.params.userId));
-    res.json(kyc);
+    if (user) await logAudit("admin-001", "Platform Admin", "kyc_rejected", `KYC rejected for ${user.name}: ${reason}`, user.id, user.name);
+    res.json(kyc ?? {});
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Internal server error" });

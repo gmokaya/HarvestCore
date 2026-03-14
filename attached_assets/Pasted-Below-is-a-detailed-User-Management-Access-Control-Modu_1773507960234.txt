@@ -1,0 +1,495 @@
+Below is a **detailed User Management & Access Control Module Design for TokenHarvest**. This module ensures:
+
+* **multi-organization support**
+* **strict data segregation**
+* **role-based access control (RBAC)**
+* **mobile and web API permission enforcement**
+
+This is critical for TokenHarvest because the platform will include **farmers, traders, warehouses, collateral managers, lenders, processors, and platform administrators**.
+
+---
+
+# TokenHarvest User Management & Access Control Module
+
+## 1. Purpose
+
+The **User Management Module** manages:
+
+* user accounts
+* organizational membership
+* roles and permissions
+* access rights to system modules
+
+It ensures:
+
+* users can only access **their organization’s data**
+* permissions are **controlled by role**
+* both **mobile and web apps enforce the same access rules**
+
+---
+
+# 2. Identity Structure
+
+Users belong to **organizations**.
+
+```text
+Platform
+│
+├ Organization
+│   ├ Users
+│   ├ Roles
+│   └ Permissions
+```
+
+Example:
+
+```text
+Organization: Kitale Farmers Cooperative
+│
+├ Farmer
+├ Warehouse Manager
+└ Finance Officer
+```
+
+Each organization controls **its own users and roles**.
+
+---
+
+# 3. User Categories
+
+TokenHarvest supports **three primary user groups** based on your platform structure.
+
+### 1 Farmers / Traders
+
+Actors:
+
+* farmers
+* cooperatives
+* commodity traders
+
+Access:
+
+* warehouse receipts
+* loan applications
+* commodity trading
+* wallet management
+
+---
+
+### 2 Collateral Managers / Warehouses
+
+Actors:
+
+* warehouse operators
+* inspection officers
+* collateral managers
+
+Access:
+
+* commodity intake
+* inspection reports
+* warehouse receipt issuance
+* storage monitoring
+
+---
+
+### 3 Commodity Processors / Manufacturers
+
+Actors:
+
+* grain millers
+* exporters
+* commodity processors
+
+Access:
+
+* marketplace
+* forward contracts
+* commodity purchases
+* settlement tracking
+
+---
+
+# 4. Platform Administrative Users
+
+Platform administrators manage the system.
+
+Roles:
+
+| Role               | Function                           |
+| ------------------ | ---------------------------------- |
+| Super Admin        | Full system control                |
+| Finance Admin      | Financial operations               |
+| Risk Manager       | Loan risk approval                 |
+| Operations Admin   | Warehouse and inspection oversight |
+| Compliance Officer | Regulatory oversight               |
+
+---
+
+# 5. Organizational Structure
+
+Every organization has its own **data boundary**.
+
+Example:
+
+```text
+Organization ID: ORG-001
+Name: Kitale Farmers Cooperative
+```
+
+All data linked to:
+
+* users
+* warehouse receipts
+* loans
+* wallets
+
+is tagged with:
+
+```text
+organization_id
+```
+
+---
+
+# 6. Data Segregation
+
+Users can only access **their organization’s data**.
+
+Example rule:
+
+```text
+If user.organization_id ≠ data.organization_id
+Access Denied
+```
+
+Example:
+
+Farmer from **ORG-001** cannot see data from **ORG-002**.
+
+---
+
+# 7. Role-Based Access Control (RBAC)
+
+Permissions are assigned through **roles**.
+
+Structure:
+
+```text
+Organization
+      ↓
+Role
+      ↓
+Permissions
+```
+
+Example role:
+
+```text
+Warehouse Manager
+```
+
+Permissions:
+
+```text
+Create Warehouse Receipts
+Update Commodity Storage
+View Inspection Reports
+```
+
+---
+
+# 8. Permission Categories
+
+Permissions control **what users can do** in each module.
+
+Example permission structure:
+
+| Module             | Permissions                     |
+| ------------------ | ------------------------------- |
+| User Management    | Create / Update Users           |
+| Inspection         | Create / Approve Reports        |
+| Warehouse Receipts | Issue / Transfer                |
+| Loans              | Apply / Approve                 |
+| Trading            | Create Listings / Accept Orders |
+| Wallet             | Deposit / Withdraw              |
+| Finance            | View Transactions               |
+
+---
+
+# 9. Role Configuration at Organization Level
+
+Organizations can configure their **own roles and permissions**.
+
+Example:
+
+Organization Admin can create roles like:
+
+```text
+Farm Operations Manager
+Loan Officer
+Warehouse Supervisor
+```
+
+Each role is assigned specific permissions.
+
+---
+
+# 10. User Creation Workflow
+
+### Step 1 – User Registration
+
+User provides:
+
+* name
+* email
+* phone
+* organization
+
+---
+
+### Step 2 – Organization Verification
+
+If joining an existing organization:
+
+```text
+User Request → Organization Admin Approval
+```
+
+---
+
+### Step 3 – Role Assignment
+
+Organization Admin assigns:
+
+```text
+Role
+Permissions
+```
+
+---
+
+### Step 4 – Account Activation
+
+User can access system based on **role permissions**.
+
+---
+
+# 11. Access Control for Mobile Apps
+
+Mobile app requests must pass through the **API authorization layer**.
+
+Architecture:
+
+```text
+Mobile App
+      ↓
+API Gateway
+      ↓
+Authentication Service
+      ↓
+Access Control Middleware
+      ↓
+Core Engine
+```
+
+---
+
+# 12. API Access Validation
+
+Every API request must include:
+
+```text
+JWT Access Token
+```
+
+Token contains:
+
+```json
+{
+"user_id": "USR-001",
+"organization_id": "ORG-001",
+"role": "Farmer",
+"permissions": ["loan_apply", "trade_create"]
+}
+```
+
+The backend validates:
+
+* token authenticity
+* organization ownership
+* role permissions
+
+---
+
+# 13. Example API Access Rule
+
+Example endpoint:
+
+```text
+POST /loan/apply
+```
+
+Access rule:
+
+```text
+Allowed Roles:
+Farmer
+Trader
+Cooperative Admin
+```
+
+If user role is not allowed:
+
+```text
+403 Forbidden
+```
+
+---
+
+# 14. Example Access Matrix
+
+| Module            | Farmer | Warehouse | Processor | Admin |
+| ----------------- | ------ | --------- | --------- | ----- |
+| User Profile      | ✔      | ✔         | ✔         | ✔     |
+| Commodity Intake  | ✖      | ✔         | ✖         | ✔     |
+| Inspection        | ✖      | ✔         | ✖         | ✔     |
+| Warehouse Receipt | View   | Create    | View      | ✔     |
+| Loan Application  | ✔      | ✖         | ✖         | ✔     |
+| Loan Approval     | ✖      | ✖         | ✖         | ✔     |
+| Trading           | ✔      | ✖         | ✔         | ✔     |
+| Wallet            | ✔      | ✔         | ✔         | ✔     |
+
+---
+
+# 15. User Database Structure
+
+### Users Table
+
+| Field           | Description            |
+| --------------- | ---------------------- |
+| user_id         | Unique user ID         |
+| organization_id | Organization reference |
+| name            | User name              |
+| email           | Email                  |
+| phone           | Phone number           |
+| role_id         | Assigned role          |
+| status          | Active / Suspended     |
+
+---
+
+### Organizations Table
+
+| Field           | Description                         |
+| --------------- | ----------------------------------- |
+| organization_id | Unique org ID                       |
+| name            | Organization name                   |
+| type            | Cooperative / Warehouse / Processor |
+
+---
+
+### Roles Table
+
+| Field           | Description        |
+| --------------- | ------------------ |
+| role_id         | Role ID            |
+| organization_id | Owner organization |
+| role_name       | Name of role       |
+
+---
+
+### Permissions Table
+
+| Field         | Description    |
+| ------------- | -------------- |
+| permission_id | Permission ID  |
+| module        | System module  |
+| action        | Allowed action |
+
+---
+
+# 16. Authentication System
+
+Use **JWT authentication**.
+
+Process:
+
+```text
+User Login
+      ↓
+Auth Service
+      ↓
+JWT Token Issued
+      ↓
+API Requests Authorized
+```
+
+Token expiry example:
+
+```text
+Access Token: 1 hour
+Refresh Token: 7 days
+```
+
+---
+
+# 17. Security Controls
+
+### Multi-Factor Authentication
+
+Required for:
+
+* loan approvals
+* large transactions
+* admin access
+
+---
+
+### Audit Logs
+
+Track:
+
+* user logins
+* role changes
+* permission changes
+* data access
+
+---
+
+# 18. User Interface
+
+### Organization Admin Dashboard
+
+Functions:
+
+* create users
+* assign roles
+* configure permissions
+* view user activity
+
+---
+
+### User Dashboard
+
+Shows:
+
+* accessible modules
+* organization data
+* allowed actions
+
+---
+
+# Strategic Benefit
+
+This design ensures TokenHarvest supports:
+
+* **multi-tenant organizations**
+* **secure role-based access**
+* **strict data separation**
+* **API security for mobile apps**
+
+This architecture allows the platform to safely scale to **thousands of organizations and millions of users**.
+
+---
+
+If you want, I can also design the **TokenHarvest Identity & Organization Hierarchy Model** used by **large fintech platforms**, which allows **parent organizations, subsidiaries, cooperatives, and warehouse networks** to be managed within the same system.
