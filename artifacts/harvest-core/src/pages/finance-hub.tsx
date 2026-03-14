@@ -169,7 +169,7 @@ const DIST_STATUS: Record<string, string> = {
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function StatusDot({ ok, label }: { ok: boolean; label: string }) {
   return (
-    <span className={cn("inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded",
+    <span className={cn("inline-flex items-center gap-1 text-xs font-semibold px-1.5 py-0.5 rounded",
       ok ? "bg-[#c7d7da]/50 text-[#0a2a2a]" : "bg-[#a6a6a6]/15 text-[#a6a6a6]")}>
       <span className={cn("w-1.5 h-1.5 rounded-full", ok ? "bg-[#0a2a2a]" : "bg-[#a6a6a6]")} />
       {label}
@@ -180,8 +180,8 @@ function StatusDot({ ok, label }: { ok: boolean; label: string }) {
 function SectionHeader({ title, sub }: { title: string; sub?: string }) {
   return (
     <div className="mb-5">
-      <h2 className="text-sm font-semibold">{title}</h2>
-      {sub && <p className="text-xs text-muted-foreground mt-0.5">{sub}</p>}
+      <h2 className="text-base font-semibold">{title}</h2>
+      {sub && <p className="text-sm text-muted-foreground mt-0.5">{sub}</p>}
     </div>
   );
 }
@@ -189,9 +189,9 @@ function SectionHeader({ title, sub }: { title: string; sub?: string }) {
 function StatCard({ label, value, sub, color }: { label: string; value: string; sub?: string; color?: string }) {
   return (
     <Card className="p-4">
-      <div className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide">{label}</div>
+      <div className="text-xs text-muted-foreground font-medium uppercase tracking-wide">{label}</div>
       <div className={cn("text-xl font-bold mt-0.5", color ?? "text-foreground")}>{value}</div>
-      {sub && <div className="text-[10px] text-muted-foreground mt-0.5">{sub}</div>}
+      {sub && <div className="text-xs text-muted-foreground mt-0.5">{sub}</div>}
     </Card>
   );
 }
@@ -559,8 +559,8 @@ export default function FinanceHubPage() {
             <Layers className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h1 className="text-lg font-semibold">Finance Engine</h1>
-            <p className="text-xs text-muted-foreground">Treasury · Reconciliation · Escrow · Ledger · Monitoring</p>
+            <h1 className="text-3xl font-bold tracking-tight">Finance Engine</h1>
+            <p className="text-sm text-muted-foreground">Treasury · Reconciliation · Escrow · Ledger · Monitoring</p>
           </div>
         </div>
         <button onClick={loadAll} className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground border rounded-md px-3 py-1.5">
@@ -571,7 +571,7 @@ export default function FinanceHubPage() {
       {/* Status Banners */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {reconciliation && (
-          <div className={cn("flex items-center gap-3 px-4 py-3 rounded-lg text-xs font-medium border",
+          <div className={cn("flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium border",
             reconciliation.systemBalanced
               ? "bg-[#c7d7da]/30 border-[#c7d7da] text-[#0a2a2a]"
               : "bg-[#0a2a2a]/8 border-[#0a2a2a]/30 text-[#0a2a2a]")}>
@@ -584,7 +584,7 @@ export default function FinanceHubPage() {
           </div>
         )}
         {alertSummary && alertSummary.open > 0 && (
-          <div className="flex items-center gap-3 px-4 py-3 rounded-lg text-xs font-medium border bg-[#0a2a2a]/8 border-[#0a2a2a]/20 text-[#0a2a2a]">
+          <div className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium border bg-[#0a2a2a]/8 border-[#0a2a2a]/20 text-[#0a2a2a]">
             <ShieldAlert className="w-4 h-4 shrink-0" />
             <span>
               {alertSummary.open} open fraud alert{alertSummary.open !== 1 ? "s" : ""}
@@ -593,7 +593,7 @@ export default function FinanceHubPage() {
           </div>
         )}
         {reconSummary && (
-          <div className="flex items-center gap-3 px-4 py-3 rounded-lg text-xs font-medium border bg-[#a6a6a6]/10 border-[#a6a6a6]/30 text-[#0a2a2a]">
+          <div className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium border bg-[#a6a6a6]/10 border-[#a6a6a6]/30 text-[#0a2a2a]">
             <GitMerge className="w-4 h-4 shrink-0" />
             <span>
               Reconciliation {reconSummary.matchRate}% matched — {reconSummary.unmatched} unmatched, {reconSummary.discrepancy} discrepanc{reconSummary.discrepancy !== 1 ? "ies" : "y"}
@@ -601,7 +601,7 @@ export default function FinanceHubPage() {
           </div>
         )}
         {distSummary && (
-          <div className="flex items-center gap-3 px-4 py-3 rounded-lg text-xs font-medium border bg-[#c7d7da]/20 border-[#c7d7da] text-[#0a2a2a]">
+          <div className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium border bg-[#c7d7da]/20 border-[#c7d7da] text-[#0a2a2a]">
             <Users className="w-4 h-4 shrink-0" />
             <span>
               KES {fmt(distSummary.totalDistributed)} distributed to investors · KES {fmt(distSummary.pendingAmount)} pending
@@ -614,7 +614,7 @@ export default function FinanceHubPage() {
       <div className="flex gap-0.5 border-b overflow-x-auto">
         {TABS.map((t) => (
           <button key={t.id} onClick={() => setActiveTab(t.id)}
-            className={cn("flex items-center gap-1.5 px-3 py-2 text-xs font-medium border-b-2 transition-colors -mb-px whitespace-nowrap",
+            className={cn("flex items-center gap-1.5 px-3 py-2 text-sm font-medium border-b-2 transition-colors -mb-px whitespace-nowrap",
               activeTab === t.id
                 ? "border-foreground text-foreground"
                 : "border-transparent text-muted-foreground hover:text-foreground hover:border-muted")}>
@@ -642,10 +642,10 @@ export default function FinanceHubPage() {
                 { label: "User Wallets", desc: "Individual farmer, trader, lender wallets", color: "bg-[#a6a6a6]", items: ["KES Wallet", "USDC Wallet"] },
               ].map((tier, i) => (
                 <div key={i} className="flex-1 min-w-[160px]">
-                  <div className={cn("text-[10px] font-bold text-white px-2 py-1 rounded-t-md", tier.color)}>{tier.label}</div>
+                  <div className={cn("text-xs font-bold text-white px-2 py-1 rounded-t-md", tier.color)}>{tier.label}</div>
                   <div className="border border-t-0 rounded-b-md p-2 space-y-1">
-                    <p className="text-[10px] text-muted-foreground mb-2">{tier.desc}</p>
-                    {tier.items.map((item) => <div key={item} className="text-[10px] bg-muted/40 rounded px-2 py-1 font-medium">{item}</div>)}
+                    <p className="text-xs text-muted-foreground mb-2">{tier.desc}</p>
+                    {tier.items.map((item) => <div key={item} className="text-xs bg-muted/40 rounded px-2 py-1 font-medium">{item}</div>)}
                   </div>
                   {i < 3 && <div className="text-center mt-2 text-muted-foreground"><ChevronRight className="w-4 h-4 rotate-90 mx-auto" /></div>}
                 </div>
@@ -668,14 +668,14 @@ export default function FinanceHubPage() {
                 <div key={acc.id} className={cn("rounded-xl p-4 border space-y-2", ACCOUNT_COLORS[acc.type] ?? "border-border bg-muted/20")}>
                   <div className="flex items-center gap-2">
                     <Icon className="w-4 h-4 opacity-70" />
-                    <span className="text-[10px] font-semibold">{ACCOUNT_TYPE_LABELS[acc.type]}</span>
+                    <span className="text-xs font-semibold">{ACCOUNT_TYPE_LABELS[acc.type]}</span>
                   </div>
                   <div>
                     <div className="text-xs font-bold">{acc.name}</div>
-                    <div className="text-[10px] text-muted-foreground mt-0.5">{acc.desc}</div>
+                    <div className="text-xs text-muted-foreground mt-0.5">{acc.desc}</div>
                   </div>
                   <div className="pt-1 border-t border-black/10">
-                    <div className="text-[10px] text-muted-foreground">Balance</div>
+                    <div className="text-xs text-muted-foreground">Balance</div>
                     <div className="text-sm font-bold">{acc.currency} {acc.balance}</div>
                   </div>
                 </div>
@@ -695,9 +695,9 @@ export default function FinanceHubPage() {
               ].map((step, i) => (
                 <div key={i} className="flex items-center gap-2">
                   <div className="text-center">
-                    <div className="w-7 h-7 rounded-full border-2 flex items-center justify-center text-[10px] font-bold"
+                    <div className="w-7 h-7 rounded-full border-2 flex items-center justify-center text-xs font-bold"
                       style={{ borderColor: "#0A2A2A", color: "#0A2A2A" }}>{i + 1}</div>
-                    <div className="text-[10px] font-medium mt-1 max-w-[80px]">{step.label}</div>
+                    <div className="text-xs font-medium mt-1 max-w-[80px]">{step.label}</div>
                     <div className="text-[9px] text-muted-foreground max-w-[80px]">{step.sub}</div>
                   </div>
                   {i < 5 && <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />}
@@ -731,20 +731,20 @@ export default function FinanceHubPage() {
                           <PoolIcon className="w-4 h-4 text-white/70" />
                           <span className="text-xs font-medium text-white/70">{pool.name}</span>
                         </div>
-                        <span className="text-[10px] px-1.5 py-0.5 rounded font-medium bg-white/15 text-white/90">
+                        <span className="text-xs px-1.5 py-0.5 rounded font-medium bg-white/15 text-white/90">
                           {pool.status}
                         </span>
                       </div>
                       <div className="text-xl font-bold">{pool.currency} {fmt(pool.balance)}</div>
                       <div className="text-xs text-white/60 mt-0.5">Total balance</div>
                       <div className="mt-3 flex gap-4 text-xs text-white/70">
-                        <div><div className="text-[10px] text-white/40">Available</div>{pool.currency} {fmt(pool.available)}</div>
-                        <div><div className="text-[10px] text-white/40">Capacity</div>{pool.currency} {fmt(pool.capacity)}</div>
+                        <div><div className="text-xs text-white/40">Available</div>{pool.currency} {fmt(pool.available)}</div>
+                        <div><div className="text-xs text-white/40">Capacity</div>{pool.currency} {fmt(pool.capacity)}</div>
                       </div>
                     </div>
                     <div className="p-4 space-y-3 bg-background">
                       <div>
-                        <div className="flex justify-between text-[10px] text-muted-foreground mb-1">
+                        <div className="flex justify-between text-xs text-muted-foreground mb-1">
                           <span>Utilization</span><span>{pool.utilizationPct}%</span>
                         </div>
                         <div className="h-1.5 bg-muted rounded-full overflow-hidden">
@@ -753,8 +753,8 @@ export default function FinanceHubPage() {
                         </div>
                       </div>
                       <div className="grid grid-cols-2 gap-2 text-xs">
-                        <div><div className="text-[10px] text-muted-foreground">Total Deposited</div><div className="font-medium">{pool.currency} {fmt(pool.totalDeposited)}</div></div>
-                        <div><div className="text-[10px] text-muted-foreground">Total Withdrawn</div><div className="font-medium">{pool.currency} {fmt(pool.totalWithdrawn)}</div></div>
+                        <div><div className="text-xs text-muted-foreground">Total Deposited</div><div className="font-medium">{pool.currency} {fmt(pool.totalDeposited)}</div></div>
+                        <div><div className="text-xs text-muted-foreground">Total Withdrawn</div><div className="font-medium">{pool.currency} {fmt(pool.totalWithdrawn)}</div></div>
                       </div>
                       <button onClick={() => setSelectedPool(pool)}
                         className="w-full text-xs font-medium border border-border rounded-md py-1.5 hover:bg-muted/50 transition-colors">
@@ -801,7 +801,7 @@ export default function FinanceHubPage() {
               </Card>
             ) : (
               <Card className="overflow-hidden">
-                <table className="w-full text-xs">
+                <table className="w-full text-sm">
                   <thead>
                     <tr className="text-left text-muted-foreground border-b bg-muted/30">
                       <th className="px-4 py-2.5 font-medium">Investor</th>
@@ -818,7 +818,7 @@ export default function FinanceHubPage() {
                       <tr key={d.id} className="border-b hover:bg-muted/10 transition-colors">
                         <td className="px-4 py-2.5">
                           <div className="font-medium">{d.investorName ?? d.investorId}</div>
-                          <div className="text-[10px] text-muted-foreground font-mono">{d.investorId}</div>
+                          <div className="text-xs text-muted-foreground font-mono">{d.investorId}</div>
                         </td>
                         <td className="px-4 py-2.5 text-muted-foreground">
                           {d.poolId === "LP-LOAN-KES" ? "Loan Pool" : d.poolId === "LP-TRADING-KES" ? "Trading Pool" : "USDC Pool"}
@@ -826,7 +826,7 @@ export default function FinanceHubPage() {
                         <td className="px-4 py-2.5 font-medium">{d.period}</td>
                         <td className="px-4 py-2.5 text-right font-semibold text-[#0a2a2a]">
                           {d.currency} {fmt(d.netAmount)}
-                          <div className="text-[10px] text-muted-foreground font-normal">of {d.currency} {fmt(d.grossAmount)} gross</div>
+                          <div className="text-xs text-muted-foreground font-normal">of {d.currency} {fmt(d.grossAmount)} gross</div>
                         </td>
                         <td className="px-4 py-2.5">
                           {d.yieldRate && (
@@ -836,14 +836,14 @@ export default function FinanceHubPage() {
                           )}
                         </td>
                         <td className="px-4 py-2.5">
-                          <span className={cn("text-[10px] font-medium px-1.5 py-0.5 rounded", DIST_STATUS[d.status])}>
+                          <span className={cn("text-xs font-medium px-1.5 py-0.5 rounded", DIST_STATUS[d.status])}>
                             {d.status}
                           </span>
                         </td>
                         <td className="px-4 py-2.5">
                           {d.status === "pending" && (
                             <button onClick={() => handlePayDist(d.id)}
-                              className="text-[10px] font-medium px-2 py-1 rounded bg-[#c7d7da]/40 text-[#0a2a2a] hover:bg-[#c7d7da]/70 border border-[#c7d7da]">
+                              className="text-xs font-medium px-2 py-1 rounded bg-[#c7d7da]/40 text-[#0a2a2a] hover:bg-[#c7d7da]/70 border border-[#c7d7da]">
                               Mark Paid
                             </button>
                           )}
@@ -866,8 +866,8 @@ export default function FinanceHubPage() {
                 { source: "Loan Repayments", pool: "Loan Financing", color: "text-[#0a2a2a] bg-[#c7d7da]/20 border-[#c7d7da]" },
               ].map((s) => (
                 <div key={s.source} className={cn("rounded-lg p-3 border", s.color)}>
-                  <div className="text-[10px] font-bold">{s.source}</div>
-                  <div className="text-[10px] opacity-70 mt-0.5">→ {s.pool}</div>
+                  <div className="text-xs font-bold">{s.source}</div>
+                  <div className="text-xs opacity-70 mt-0.5">→ {s.pool}</div>
                 </div>
               ))}
             </div>
@@ -930,12 +930,12 @@ export default function FinanceHubPage() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="text-xs font-mono text-muted-foreground">{e.id}</span>
-                      <span className={cn("text-[10px] font-medium px-1.5 py-0.5 rounded", ESCROW_STATUS_COLORS[e.status])}>
+                      <span className={cn("text-xs font-medium px-1.5 py-0.5 rounded", ESCROW_STATUS_COLORS[e.status])}>
                         {e.status}
                       </span>
                     </div>
                     <div className="text-sm font-semibold mt-1">{e.currency} {fmt(e.amount)}</div>
-                    <div className="text-[10px] text-muted-foreground mt-0.5 truncate">
+                    <div className="text-xs text-muted-foreground mt-0.5 truncate">
                       {e.buyerName} → {e.sellerName}
                       {e.description && <span className="ml-2 opacity-70">· {e.description}</span>}
                     </div>
@@ -943,24 +943,24 @@ export default function FinanceHubPage() {
                   <div className="flex flex-col gap-1 shrink-0">
                     {e.status === "pending" && (
                       <button onClick={() => handleEscrowAction(e.id, "fund")}
-                        className="text-[10px] font-medium px-2 py-1 rounded bg-[#c7d7da]/40 text-[#0a2a2a] hover:bg-[#c7d7da]/70 border border-[#c7d7da]">
+                        className="text-xs font-medium px-2 py-1 rounded bg-[#c7d7da]/40 text-[#0a2a2a] hover:bg-[#c7d7da]/70 border border-[#c7d7da]">
                         Fund Escrow
                       </button>
                     )}
                     {e.status === "funded" && (
                       <>
                         <button onClick={() => handleEscrowAction(e.id, "release")}
-                          className="text-[10px] font-medium px-2 py-1 rounded bg-[#0a2a2a] text-white hover:bg-[#1c3c3c]">
+                          className="text-xs font-medium px-2 py-1 rounded bg-[#0a2a2a] text-white hover:bg-[#1c3c3c]">
                           Release to Seller
                         </button>
                         <button onClick={() => handleEscrowAction(e.id, "cancel")}
-                          className="text-[10px] font-medium px-2 py-1 rounded bg-[#a6a6a6]/15 text-[#a6a6a6] hover:bg-[#a6a6a6]/30 border border-[#a6a6a6]/30">
+                          className="text-xs font-medium px-2 py-1 rounded bg-[#a6a6a6]/15 text-[#a6a6a6] hover:bg-[#a6a6a6]/30 border border-[#a6a6a6]/30">
                           Cancel
                         </button>
                       </>
                     )}
                     {["released", "cancelled"].includes(e.status) && (
-                      <span className="text-[10px] text-muted-foreground">Settled</span>
+                      <span className="text-xs text-muted-foreground">Settled</span>
                     )}
                   </div>
                 </Card>
@@ -987,8 +987,8 @@ export default function FinanceHubPage() {
                     <StatusDot ok={item.balanced} label={item.balanced ? "Balanced" : "Imbalanced"} />
                   </div>
                   <div className="grid grid-cols-2 gap-2 text-xs">
-                    <div><div className="text-[10px] text-muted-foreground">Total Debits</div><div className="font-semibold text-[#a6a6a6]">{item.currency} {fmt(item.debits)}</div></div>
-                    <div><div className="text-[10px] text-muted-foreground">Total Credits</div><div className="font-semibold text-[#0a2a2a]">{item.currency} {fmt(item.credits)}</div></div>
+                    <div><div className="text-xs text-muted-foreground">Total Debits</div><div className="font-semibold text-[#a6a6a6]">{item.currency} {fmt(item.debits)}</div></div>
+                    <div><div className="text-xs text-muted-foreground">Total Credits</div><div className="font-semibold text-[#0a2a2a]">{item.currency} {fmt(item.credits)}</div></div>
                   </div>
                 </Card>
               ))}
@@ -1000,7 +1000,7 @@ export default function FinanceHubPage() {
                     : <AlertTriangle className="w-8 h-8 text-[#0a2a2a]" />}
                   <div>
                     <div className="text-sm font-bold">{reconciliation.systemBalanced ? "All Clear" : "Action Required"}</div>
-                    <div className="text-[10px] text-muted-foreground">{reconciliation.totalEntries.toLocaleString()} total entries</div>
+                    <div className="text-xs text-muted-foreground">{reconciliation.totalEntries.toLocaleString()} total entries</div>
                   </div>
                 </div>
               </Card>
@@ -1025,7 +1025,7 @@ export default function FinanceHubPage() {
             </Card>
           ) : (
             <Card className="overflow-hidden">
-              <table className="w-full text-xs">
+              <table className="w-full text-sm">
                 <thead>
                   <tr className="text-left text-muted-foreground border-b bg-muted/30">
                     <th className="px-4 py-2.5 font-medium">Tx Group</th>
@@ -1043,20 +1043,20 @@ export default function FinanceHubPage() {
                         <tr key={entry.id} className={cn("border-b transition-colors hover:bg-muted/10", ei === 0 && gi > 0 ? "border-t-2 border-muted" : "")}>
                           <td className="px-4 py-2 font-mono text-muted-foreground">{ei === 0 ? entry.txnGroupId : ""}</td>
                           <td className="px-4 py-2">
-                            <span className={cn("inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded",
+                            <span className={cn("inline-flex items-center gap-1 text-xs font-semibold px-1.5 py-0.5 rounded",
                               entry.entryType === "debit" ? "bg-[#a6a6a6]/15 text-[#a6a6a6]" : "bg-[#c7d7da]/50 text-[#0a2a2a]")}>
                               {entry.entryType === "debit" ? <TrendingDown className="w-3 h-3" /> : <TrendingUp className="w-3 h-3" />}
                               {entry.entryType.toUpperCase()}
                             </span>
                           </td>
-                          <td className="px-4 py-2"><div className="font-medium">{entry.accountLabel}</div><div className="text-[10px] text-muted-foreground">{entry.accountType.replace("_", " ")}</div></td>
+                          <td className="px-4 py-2"><div className="font-medium">{entry.accountLabel}</div><div className="text-xs text-muted-foreground">{entry.accountType.replace("_", " ")}</div></td>
                           <td className={cn("px-4 py-2 text-right font-semibold", entry.entryType === "debit" ? "text-[#a6a6a6]" : "text-[#0a2a2a]")}>
                             {entry.currency} {fmt(entry.amount)}
                           </td>
                           <td className="px-4 py-2 text-muted-foreground max-w-[200px] truncate">{entry.description ?? "—"}</td>
                           <td className="px-4 py-2 text-muted-foreground whitespace-nowrap">
                             {new Date(entry.createdAt).toLocaleDateString("en-KE", { day: "2-digit", month: "short" })}
-                            <div className="text-[10px]">{new Date(entry.createdAt).toLocaleTimeString("en-KE", { hour: "2-digit", minute: "2-digit" })}</div>
+                            <div className="text-xs">{new Date(entry.createdAt).toLocaleTimeString("en-KE", { hour: "2-digit", minute: "2-digit" })}</div>
                           </td>
                         </tr>
                       ))}
@@ -1115,14 +1115,14 @@ export default function FinanceHubPage() {
                       <span className="text-xs font-bold">{acc.name}</span>
                     </div>
                     <div>
-                      <div className="text-[10px] text-muted-foreground">Balance</div>
+                      <div className="text-xs text-muted-foreground">Balance</div>
                       <div className="text-lg font-bold">{acc.currency} {acc.balance}</div>
                     </div>
-                    <p className="text-[10px] text-muted-foreground">{acc.desc}</p>
+                    <p className="text-xs text-muted-foreground">{acc.desc}</p>
                     <div className="space-y-1.5">
                       {acc.breakdown.map((b) => (
                         <div key={b.label}>
-                          <div className="flex justify-between text-[10px] mb-0.5">
+                          <div className="flex justify-between text-xs mb-0.5">
                             <span className="text-muted-foreground">{b.label}</span>
                             <span className="font-medium">{b.pct}%</span>
                           </div>
@@ -1158,7 +1158,7 @@ export default function FinanceHubPage() {
                     </div>
                     <div className="text-xs font-bold">{rev.source}</div>
                     <div className="text-sm font-bold">KES {rev.amount}</div>
-                    <div className="text-[10px] opacity-70">{rev.desc}</div>
+                    <div className="text-xs opacity-70">{rev.desc}</div>
                   </div>
                 );
               })}
@@ -1179,7 +1179,7 @@ export default function FinanceHubPage() {
                 <div key={i} className="flex items-center gap-2">
                   <div className={cn("px-3 py-1.5 rounded-lg text-xs font-medium", step.color)}>
                     <div className="font-semibold">{step.label}</div>
-                    <div className="text-[10px] opacity-70">{step.desc}</div>
+                    <div className="text-xs opacity-70">{step.desc}</div>
                   </div>
                   {i < 4 && <ArrowRight className="w-4 h-4 text-muted-foreground shrink-0" />}
                 </div>
@@ -1228,7 +1228,7 @@ export default function FinanceHubPage() {
                       <Icon className="w-3.5 h-3.5 shrink-0" />
                       <div>
                         <div className="font-bold capitalize">{r.rail}</div>
-                        <div className="text-[10px] opacity-70">{r.matched}/{r.total} matched · {matchPct}%</div>
+                        <div className="text-xs opacity-70">{r.matched}/{r.total} matched · {matchPct}%</div>
                       </div>
                     </div>
                   );
@@ -1261,7 +1261,7 @@ export default function FinanceHubPage() {
             </Card>
           ) : (
             <Card className="overflow-hidden">
-              <table className="w-full text-xs">
+              <table className="w-full text-sm">
                 <thead>
                   <tr className="text-left text-muted-foreground border-b bg-muted/30">
                     <th className="px-4 py-2.5 font-medium">Rail</th>
@@ -1280,13 +1280,13 @@ export default function FinanceHubPage() {
                     return (
                       <tr key={txn.id} className="border-b hover:bg-muted/10 transition-colors">
                         <td className="px-4 py-2.5">
-                          <span className={cn("inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded border", RAIL_COLORS[txn.rail])}>
+                          <span className={cn("inline-flex items-center gap-1 text-xs font-semibold px-1.5 py-0.5 rounded border", RAIL_COLORS[txn.rail])}>
                             <Icon className="w-3 h-3" />{txn.rail}
                           </span>
                         </td>
-                        <td className="px-4 py-2.5 font-mono text-muted-foreground text-[10px]">{txn.externalRef}</td>
+                        <td className="px-4 py-2.5 font-mono text-muted-foreground text-xs">{txn.externalRef}</td>
                         <td className="px-4 py-2.5">
-                          <span className={cn("text-[10px] font-medium px-1.5 py-0.5 rounded",
+                          <span className={cn("text-xs font-medium px-1.5 py-0.5 rounded",
                             txn.direction === "inbound" ? "bg-[#c7d7da]/50 text-[#0a2a2a]" : "bg-[#a6a6a6]/20 text-[#a6a6a6]")}>
                             {txn.direction}
                           </span>
@@ -1294,9 +1294,9 @@ export default function FinanceHubPage() {
                         <td className="px-4 py-2.5 text-right font-semibold">
                           {txn.currency} {fmt(txn.amount)}
                         </td>
-                        <td className="px-4 py-2.5 text-muted-foreground text-[10px]">{txn.phoneOrAccount ?? "—"}</td>
+                        <td className="px-4 py-2.5 text-muted-foreground text-xs">{txn.phoneOrAccount ?? "—"}</td>
                         <td className="px-4 py-2.5">
-                          <span className={cn("text-[10px] font-medium px-1.5 py-0.5 rounded", RAIL_TXN_STATUS[txn.status])}>
+                          <span className={cn("text-xs font-medium px-1.5 py-0.5 rounded", RAIL_TXN_STATUS[txn.status])}>
                             {txn.status}
                           </span>
                           {txn.discrepancyNote && (
@@ -1310,18 +1310,18 @@ export default function FinanceHubPage() {
                           <div className="flex gap-1">
                             {txn.status === "unmatched" && (
                               <button onClick={() => handleRailAction(txn.id, "discrepancy")}
-                                className="text-[10px] px-2 py-0.5 rounded bg-[#0a2a2a]/10 text-[#0a2a2a] hover:bg-[#0a2a2a]/20 border border-[#0a2a2a]/20">
+                                className="text-xs px-2 py-0.5 rounded bg-[#0a2a2a]/10 text-[#0a2a2a] hover:bg-[#0a2a2a]/20 border border-[#0a2a2a]/20">
                                 Flag
                               </button>
                             )}
                             {["unmatched", "discrepancy"].includes(txn.status) && (
                               <button onClick={() => handleRailAction(txn.id, "dismiss")}
-                                className="text-[10px] px-2 py-0.5 rounded bg-[#a6a6a6]/10 text-[#a6a6a6] hover:bg-[#a6a6a6]/20 border border-[#a6a6a6]/20">
+                                className="text-xs px-2 py-0.5 rounded bg-[#a6a6a6]/10 text-[#a6a6a6] hover:bg-[#a6a6a6]/20 border border-[#a6a6a6]/20">
                                 Dismiss
                               </button>
                             )}
                             {txn.status === "matched" && (
-                              <span className="text-[10px] text-[#0a2a2a] flex items-center gap-0.5">
+                              <span className="text-xs text-[#0a2a2a] flex items-center gap-0.5">
                                 <CheckCircle2 className="w-3 h-3" /> Matched
                               </span>
                             )}
@@ -1414,23 +1414,23 @@ export default function FinanceHubPage() {
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap mb-1">
-                        <span className={cn("text-[10px] font-bold px-1.5 py-0.5 rounded border uppercase tracking-wide", SEVERITY_COLORS[alert.severity])}>
+                        <span className={cn("text-xs font-bold px-1.5 py-0.5 rounded border uppercase tracking-wide", SEVERITY_COLORS[alert.severity])}>
                           {alert.severity}
                         </span>
                         <span className="text-xs font-semibold">{ALERT_TYPE_LABELS[alert.alertType] ?? alert.alertType}</span>
-                        <span className={cn("text-[10px] font-medium px-1.5 py-0.5 rounded", ALERT_STATUS_COLORS[alert.status])}>
+                        <span className={cn("text-xs font-medium px-1.5 py-0.5 rounded", ALERT_STATUS_COLORS[alert.status])}>
                           {alert.status}
                         </span>
                       </div>
                       <p className="text-xs text-muted-foreground leading-relaxed">{alert.description}</p>
-                      <div className="flex items-center gap-3 mt-2 text-[10px] text-muted-foreground">
+                      <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
                         {alert.amount && <span className="font-medium text-foreground">{alert.currency} {fmt(alert.amount)}</span>}
                         {alert.transactionRef && <span className="font-mono">ref: {alert.transactionRef}</span>}
                         <span>{fmtDate(alert.createdAt)}</span>
                         {alert.resolvedAt && <span className="text-[#0a2a2a]">Resolved: {fmtDate(alert.resolvedAt)}</span>}
                       </div>
                       {alert.resolutionNote && (
-                        <div className="mt-2 text-[10px] px-2 py-1.5 bg-[#c7d7da]/30 border border-[#c7d7da] rounded text-[#0a2a2a]">
+                        <div className="mt-2 text-xs px-2 py-1.5 bg-[#c7d7da]/30 border border-[#c7d7da] rounded text-[#0a2a2a]">
                           Resolution: {alert.resolutionNote}
                         </div>
                       )}
@@ -1439,16 +1439,16 @@ export default function FinanceHubPage() {
                       <div className="flex flex-col gap-1 shrink-0">
                         {alert.status === "open" && (
                           <button onClick={() => handleAlertAction(alert.id, "escalate")}
-                            className="text-[10px] font-medium px-2 py-1 rounded bg-[#c7d7da]/30 text-[#0a2a2a] hover:bg-[#c7d7da]/60 border border-[#c7d7da] whitespace-nowrap">
+                            className="text-xs font-medium px-2 py-1 rounded bg-[#c7d7da]/30 text-[#0a2a2a] hover:bg-[#c7d7da]/60 border border-[#c7d7da] whitespace-nowrap">
                             Investigate
                           </button>
                         )}
                         <button onClick={() => handleAlertAction(alert.id, "resolve")}
-                          className="text-[10px] font-medium px-2 py-1 rounded bg-[#0a2a2a] text-white hover:bg-[#1c3c3c] whitespace-nowrap">
+                          className="text-xs font-medium px-2 py-1 rounded bg-[#0a2a2a] text-white hover:bg-[#1c3c3c] whitespace-nowrap">
                           Resolve
                         </button>
                         <button onClick={() => handleAlertAction(alert.id, "dismiss")}
-                          className="text-[10px] font-medium px-2 py-1 rounded bg-[#a6a6a6]/10 text-[#a6a6a6] hover:bg-[#a6a6a6]/20 border border-[#a6a6a6]/20 whitespace-nowrap">
+                          className="text-xs font-medium px-2 py-1 rounded bg-[#a6a6a6]/10 text-[#a6a6a6] hover:bg-[#a6a6a6]/20 border border-[#a6a6a6]/20 whitespace-nowrap">
                           Dismiss
                         </button>
                       </div>
