@@ -27,60 +27,61 @@
 }
 
 :root {
-  /* Enterprise Fintech Dark Theme Default */
-  --background: 222 47% 8%;
-  --foreground: 210 40% 98%;
-  
-  --card: 222 47% 11%;
-  --card-foreground: 210 40% 98%;
-  
-  --popover: 222 47% 11%;
-  --popover-foreground: 210 40% 98%;
-  
-  /* Fintech Emerald Accent */
-  --primary: 142 71% 45%;
-  --primary-foreground: 144 100% 11%;
-  
-  --secondary: 217.2 32.6% 17.5%;
-  --secondary-foreground: 210 40% 98%;
-  
-  --muted: 217.2 32.6% 17.5%;
-  --muted-foreground: 215 20.2% 65.1%;
-  
-  /* Amber/Gold for pending states */
+  /* Clean White Minimalist + #0A2A2A Brand */
+  --background: 0 0% 100%;
+  --foreground: 220 13% 13%;
+
+  --card: 0 0% 100%;
+  --card-foreground: 220 13% 13%;
+
+  --popover: 0 0% 100%;
+  --popover-foreground: 220 13% 13%;
+
+  /* Brand: #0A2A2A — deep forest teal */
+  --primary: 180 61% 10%;
+  --primary-foreground: 0 0% 100%;
+
+  --secondary: 220 13% 96%;
+  --secondary-foreground: 220 13% 20%;
+
+  --muted: 220 13% 96%;
+  --muted-foreground: 220 10% 46%;
+
+  /* Amber for pending/warning states */
   --accent: 38 92% 50%;
   --accent-foreground: 48 100% 12%;
-  
-  --destructive: 348 83% 53%;
-  --destructive-foreground: 210 40% 98%;
-  
-  --border: 217.2 32.6% 17.5%;
-  --input: 217.2 32.6% 17.5%;
-  --ring: 142 71% 45%;
+
+  --destructive: 0 72% 55%;
+  --destructive-foreground: 0 0% 100%;
+
+  --border: 220 13% 91%;
+  --input: 220 13% 96%;
+  --ring: 180 61% 10%;
 }
 
 @layer base {
   body {
-    @apply bg-background text-foreground antialiased font-sans selection:bg-primary/30;
+    @apply bg-background text-foreground antialiased font-sans selection:bg-primary/15;
   }
 
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
-    @apply font-bold tracking-tight text-white;
+    @apply font-bold tracking-tight text-foreground;
   }
 }
 
-/* Custom Scrollbar for dense data tables */
+/* Scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  @apply bg-muted rounded-full;
+  background: hsl(220 13% 88%);
+  border-radius: 999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-muted-foreground;
+  background: hsl(220 10% 70%);
 }
