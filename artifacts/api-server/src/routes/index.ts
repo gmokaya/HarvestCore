@@ -18,6 +18,9 @@ import walletRouter from "./wallet";
 import ledgerRouter from "./ledger";
 import liquidityPoolsRouter from "./liquidity-pools";
 import escrowRouter from "./escrow";
+import reconciliationRouter from "./reconciliation";
+import fraudAlertsRouter from "./fraud-alerts";
+import investorDistributionsRouter from "./investor-distributions";
 
 const router: IRouter = Router();
 
@@ -40,5 +43,8 @@ router.use("/wallet", walletRouter);
 router.use("/ledger", ledgerRouter);
 router.use("/liquidity-pools", liquidityPoolsRouter);
 router.use("/escrow", escrowRouter);
+router.use("/reconciliation", reconciliationRouter);
+router.use("/fraud-alerts", fraudAlertsRouter);
+router.use("/investor-distributions", investorDistributionsRouter);
 
 export default router;

@@ -12,3 +12,6 @@ export * from "./platform_accounts";
 export * from "./ledger";
 export * from "./liquidity_pools";
 export * from "./escrow_accounts";
+export * from "./payment_rail_transactions";
+export * from "./fraud_alerts";
+export * from "./investor_distributions";

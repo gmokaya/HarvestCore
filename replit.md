@@ -107,8 +107,31 @@ Full buyer → escrow → seller workflow:
 4. `POST /api/escrow/:id/cancel` — refund buyer
 - Service: `services/escrow.ts`
 
+### Payment Rail Reconciliation
+Match platform ledger entries against external payment rails:
+- DB: `payment_rail_transactions` table (rail, externalRef, direction, amount, status: unmatched/matched/discrepancy/dismissed)
+- Service: `services/reconciliation.ts` — import, match, flag discrepancy, dismiss
+- Routes: `GET /api/reconciliation`, `GET /api/reconciliation/summary`, `POST /api/reconciliation/import`, `POST /api/reconciliation/:id/match|discrepancy|dismiss`
+
+### Fraud & Risk Monitoring
+Real-time transaction surveillance with alerting:
+- DB: `fraud_alerts` table (alertType, severity: low/medium/high/critical, status: open/investigating/resolved/dismissed)
+- Service: `services/fraud-monitor.ts` — create, resolve, dismiss, escalate, summary
+- Routes: `GET /api/fraud-alerts`, `GET /api/fraud-alerts/summary`, `POST /api/fraud-alerts`, `POST /api/fraud-alerts/:id/resolve|dismiss|escalate`
+
+### Investor Distributions
+Returns distributed to pool investors from loan repayments:
+- DB: `investor_distributions` table (poolId, investorId, period, grossAmount, feeAmount, netAmount, yieldRate, status: pending/paid)
+- Service: `services/investor-distribution.ts` — create, mark paid, summary by pool
+- Routes: `GET /api/investor-distributions`, `GET /api/investor-distributions/summary`, `POST /api/investor-distributions`, `POST /api/investor-distributions/:id/pay`
+
+### Treasury Sub-Accounts
+3 new platform accounts seeded: PA-OPERATING-KES (KES 12.5M), PA-RESERVE-KES (KES 20M), PA-REVENUE-KES (KES 3.85M)
+
 ### Frontend: Finance Engine page (`/finance-hub`)
-4 tabs: Internal Accounts · Liquidity Pools · Escrow Engine · Ledger Audit
+7 tabs: Internal Accounts · Liquidity Pools (+ Investor Distributions section) · Escrow Engine · Ledger Audit · Treasury · Reconciliation · Monitoring
+- Top banner bar shows 4 live status cards (ledger balance, open fraud alerts, reconciliation match rate, investor distributions)
+- Monitoring tab has red badge showing count of open alerts
 
 ## User Roles & RBAC
 
