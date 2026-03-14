@@ -84,10 +84,10 @@ const TABS = [
   { id: "monitoring",     label: "Monitoring",        icon: ShieldAlert },
 ];
 
-const POOL_COLORS: Record<string, string> = {
-  loan_financing: "from-blue-600 to-blue-800",
-  trading_settlement: "from-purple-600 to-purple-800",
-  stablecoin: "from-teal-600 to-teal-800",
+const POOL_BG: Record<string, string> = {
+  loan_financing:    "#0a2a2a",
+  trading_settlement:"#1c3c3c",
+  stablecoin:        "#0f3333",
 };
 const POOL_ICONS: Record<string, React.ElementType> = {
   loan_financing: Banknote,
@@ -95,13 +95,13 @@ const POOL_ICONS: Record<string, React.ElementType> = {
   stablecoin: CircleDollarSign,
 };
 const ACCOUNT_COLORS: Record<string, string> = {
-  treasury: "border-amber-200 bg-amber-50",
-  loan_pool: "border-blue-200 bg-blue-50",
-  trading_pool: "border-purple-200 bg-purple-50",
-  stablecoin_pool: "border-teal-200 bg-teal-50",
-  escrow: "border-green-200 bg-green-50",
-  settlement: "border-slate-200 bg-slate-50",
-  fee_collection: "border-orange-200 bg-orange-50",
+  treasury:       "border-[#c7d7da] bg-[#c7d7da]/20",
+  loan_pool:      "border-[#c7d7da] bg-[#c7d7da]/20",
+  trading_pool:   "border-[#c7d7da] bg-[#c7d7da]/20",
+  stablecoin_pool:"border-[#c7d7da] bg-[#c7d7da]/20",
+  escrow:         "border-[#c7d7da] bg-[#c7d7da]/20",
+  settlement:     "border-[#c7d7da] bg-[#c7d7da]/20",
+  fee_collection: "border-[#c7d7da] bg-[#c7d7da]/20",
 };
 const ACCOUNT_ICON: Record<string, React.ElementType> = {
   treasury: Landmark, loan_pool: Banknote, trading_pool: ArrowLeftRight,
@@ -115,41 +115,41 @@ const ACCOUNT_TYPE_LABELS: Record<string, string> = {
   fee_collection: "Fee Collection",
 };
 const ESCROW_STATUS_COLORS: Record<string, string> = {
-  pending: "text-yellow-700 bg-yellow-50",
-  funded: "text-blue-700 bg-blue-50",
-  released: "text-green-700 bg-green-50",
-  cancelled: "text-slate-600 bg-slate-50",
-  disputed: "text-red-700 bg-red-50",
+  pending:   "text-[#a6a6a6] bg-[#a6a6a6]/10 border border-[#a6a6a6]/30",
+  funded:    "text-[#0a2a2a] bg-[#c7d7da]/40 border border-[#c7d7da]",
+  released:  "text-[#0a2a2a] bg-[#c7d7da]/60 border border-[#c7d7da]",
+  cancelled: "text-[#a6a6a6] bg-[#a6a6a6]/10 border border-[#a6a6a6]/20",
+  disputed:  "text-white bg-[#0a2a2a] border border-[#0a2a2a]",
 };
 const RAIL_ICONS: Record<string, React.ElementType> = {
   mpesa: PhoneCall, pesalink: Wifi, paystack: CreditCard,
   pesapal: Send, stablecoin: CircleDollarSign, manual: FileCheck2,
 };
 const RAIL_COLORS: Record<string, string> = {
-  mpesa: "text-green-700 bg-green-50 border-green-200",
-  pesalink: "text-blue-700 bg-blue-50 border-blue-200",
-  paystack: "text-purple-700 bg-purple-50 border-purple-200",
-  pesapal: "text-orange-700 bg-orange-50 border-orange-200",
-  stablecoin: "text-teal-700 bg-teal-50 border-teal-200",
-  manual: "text-slate-700 bg-slate-50 border-slate-200",
+  mpesa:      "text-[#0a2a2a] bg-[#c7d7da]/30 border-[#c7d7da]",
+  pesalink:   "text-[#0a2a2a] bg-[#c7d7da]/30 border-[#c7d7da]",
+  paystack:   "text-[#0a2a2a] bg-[#c7d7da]/30 border-[#c7d7da]",
+  pesapal:    "text-[#0a2a2a] bg-[#c7d7da]/30 border-[#c7d7da]",
+  stablecoin: "text-[#0a2a2a] bg-[#c7d7da]/30 border-[#c7d7da]",
+  manual:     "text-[#0a2a2a] bg-[#c7d7da]/30 border-[#c7d7da]",
 };
 const RAIL_TXN_STATUS: Record<string, string> = {
-  matched: "text-green-700 bg-green-50",
-  unmatched: "text-amber-700 bg-amber-50",
-  discrepancy: "text-red-700 bg-red-50",
-  dismissed: "text-slate-500 bg-slate-50",
+  matched:     "text-[#0a2a2a] bg-[#c7d7da]/50",
+  unmatched:   "text-[#a6a6a6] bg-[#a6a6a6]/10",
+  discrepancy: "text-white bg-[#0a2a2a]",
+  dismissed:   "text-[#a6a6a6] bg-[#a6a6a6]/10",
 };
 const SEVERITY_COLORS: Record<string, string> = {
-  critical: "text-red-800 bg-red-100 border-red-300",
-  high: "text-red-700 bg-red-50 border-red-200",
-  medium: "text-amber-700 bg-amber-50 border-amber-200",
-  low: "text-blue-700 bg-blue-50 border-blue-200",
+  critical: "text-white bg-[#0a2a2a] border-[#0a2a2a]",
+  high:     "text-[#0a2a2a] bg-[#c7d7da]/40 border-[#0a2a2a]",
+  medium:   "text-[#a6a6a6] bg-[#a6a6a6]/10 border-[#a6a6a6]",
+  low:      "text-[#a6a6a6] bg-[#c7d7da]/20 border-[#c7d7da]",
 };
 const ALERT_STATUS_COLORS: Record<string, string> = {
-  open: "text-red-700 bg-red-50",
-  investigating: "text-amber-700 bg-amber-50",
-  resolved: "text-green-700 bg-green-50",
-  dismissed: "text-slate-600 bg-slate-50",
+  open:          "text-[#0a2a2a] bg-[#c7d7da]/30",
+  investigating: "text-[#0a2a2a] bg-[#a6a6a6]/20",
+  resolved:      "text-[#0a2a2a] bg-[#c7d7da]/60",
+  dismissed:     "text-[#a6a6a6] bg-[#a6a6a6]/10",
 };
 const ALERT_TYPE_LABELS: Record<string, string> = {
   large_withdrawal: "Large Withdrawal",
@@ -160,18 +160,18 @@ const ALERT_TYPE_LABELS: Record<string, string> = {
   account_takeover: "Account Takeover",
 };
 const DIST_STATUS: Record<string, string> = {
-  pending: "text-amber-700 bg-amber-50",
-  processing: "text-blue-700 bg-blue-50",
-  paid: "text-green-700 bg-green-50",
-  failed: "text-red-700 bg-red-50",
+  pending:    "text-[#0a2a2a] bg-[#c7d7da]/30",
+  processing: "text-[#a6a6a6] bg-[#a6a6a6]/10",
+  paid:       "text-[#0a2a2a] bg-[#c7d7da]/60",
+  failed:     "text-[#a6a6a6] bg-[#a6a6a6]/10",
 };
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function StatusDot({ ok, label }: { ok: boolean; label: string }) {
   return (
     <span className={cn("inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded",
-      ok ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700")}>
-      <span className={cn("w-1.5 h-1.5 rounded-full", ok ? "bg-green-500" : "bg-red-500")} />
+      ok ? "bg-[#c7d7da]/50 text-[#0a2a2a]" : "bg-[#a6a6a6]/15 text-[#a6a6a6]")}>
+      <span className={cn("w-1.5 h-1.5 rounded-full", ok ? "bg-[#0a2a2a]" : "bg-[#a6a6a6]")} />
       {label}
     </span>
   );
@@ -571,10 +571,12 @@ export default function FinanceHubPage() {
       {/* Status Banners */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {reconciliation && (
-          <div className={cn("flex items-center gap-3 px-4 py-3 rounded-lg text-sm border",
-            reconciliation.systemBalanced ? "bg-green-50 border-green-200 text-green-800" : "bg-red-50 border-red-200 text-red-800")}>
+          <div className={cn("flex items-center gap-3 px-4 py-3 rounded-lg text-xs font-medium border",
+            reconciliation.systemBalanced
+              ? "bg-[#c7d7da]/30 border-[#c7d7da] text-[#0a2a2a]"
+              : "bg-[#0a2a2a]/8 border-[#0a2a2a]/30 text-[#0a2a2a]")}>
             {reconciliation.systemBalanced ? <CheckCircle2 className="w-4 h-4 shrink-0" /> : <AlertTriangle className="w-4 h-4 shrink-0" />}
-            <span className="font-medium text-xs">
+            <span>
               {reconciliation.systemBalanced
                 ? `Ledger balanced — ${reconciliation.totalEntries} entries`
                 : `Imbalance — KES Δ${reconciliation.kes.difference}`}
@@ -582,27 +584,26 @@ export default function FinanceHubPage() {
           </div>
         )}
         {alertSummary && alertSummary.open > 0 && (
-          <div className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm border bg-amber-50 border-amber-200 text-amber-800">
+          <div className="flex items-center gap-3 px-4 py-3 rounded-lg text-xs font-medium border bg-[#0a2a2a]/8 border-[#0a2a2a]/20 text-[#0a2a2a]">
             <ShieldAlert className="w-4 h-4 shrink-0" />
-            <span className="font-medium text-xs">
+            <span>
               {alertSummary.open} open fraud alert{alertSummary.open !== 1 ? "s" : ""}
               {alertSummary.bySeverity.critical > 0 && ` · ${alertSummary.bySeverity.critical} critical`}
             </span>
           </div>
         )}
         {reconSummary && (
-          <div className={cn("flex items-center gap-3 px-4 py-3 rounded-lg text-sm border",
-            reconSummary.unmatched > 0 ? "bg-amber-50 border-amber-200 text-amber-800" : "bg-green-50 border-green-200 text-green-800")}>
+          <div className="flex items-center gap-3 px-4 py-3 rounded-lg text-xs font-medium border bg-[#a6a6a6]/10 border-[#a6a6a6]/30 text-[#0a2a2a]">
             <GitMerge className="w-4 h-4 shrink-0" />
-            <span className="font-medium text-xs">
+            <span>
               Reconciliation {reconSummary.matchRate}% matched — {reconSummary.unmatched} unmatched, {reconSummary.discrepancy} discrepanc{reconSummary.discrepancy !== 1 ? "ies" : "y"}
             </span>
           </div>
         )}
         {distSummary && (
-          <div className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm border bg-blue-50 border-blue-200 text-blue-800">
+          <div className="flex items-center gap-3 px-4 py-3 rounded-lg text-xs font-medium border bg-[#c7d7da]/20 border-[#c7d7da] text-[#0a2a2a]">
             <Users className="w-4 h-4 shrink-0" />
-            <span className="font-medium text-xs">
+            <span>
               KES {fmt(distSummary.totalDistributed)} distributed to investors · KES {fmt(distSummary.pendingAmount)} pending
             </span>
           </div>
@@ -635,10 +636,10 @@ export default function FinanceHubPage() {
             <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-4">Account Hierarchy</h3>
             <div className="flex items-start gap-6 overflow-x-auto pb-2">
               {[
-                { label: "Platform Treasury", desc: "Master accounts holding all platform capital", color: "bg-amber-600", items: ["Treasury (KES)", "Treasury (USDC)"] },
-                { label: "Liquidity Pools", desc: "Capital pools funding loans and trades", color: "bg-blue-600", items: ["Loan Financing Pool", "Trading Settlement Pool", "Stablecoin Pool"] },
-                { label: "Operational Accounts", desc: "Escrow, settlement, and fee collection", color: "bg-green-700", items: ["Escrow Engine", "Settlement Account", "Fee Collection"] },
-                { label: "User Wallets", desc: "Individual farmer, trader, lender wallets", color: "bg-slate-600", items: ["KES Wallet", "USDC Wallet"] },
+                { label: "Platform Treasury", desc: "Master accounts holding all platform capital", color: "bg-[#0a2a2a]", items: ["Treasury (KES)", "Treasury (USDC)"] },
+                { label: "Liquidity Pools", desc: "Capital pools funding loans and trades", color: "bg-[#1c3c3c]", items: ["Loan Financing Pool", "Trading Settlement Pool", "Stablecoin Pool"] },
+                { label: "Operational Accounts", desc: "Escrow, settlement, and fee collection", color: "bg-[#2e4f4f]", items: ["Escrow Engine", "Settlement Account", "Fee Collection"] },
+                { label: "User Wallets", desc: "Individual farmer, trader, lender wallets", color: "bg-[#a6a6a6]", items: ["KES Wallet", "USDC Wallet"] },
               ].map((tier, i) => (
                 <div key={i} className="flex-1 min-w-[160px]">
                   <div className={cn("text-[10px] font-bold text-white px-2 py-1 rounded-t-md", tier.color)}>{tier.label}</div>
@@ -720,18 +721,17 @@ export default function FinanceHubPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {pools.map((pool) => {
                 const PoolIcon = POOL_ICONS[pool.poolType] ?? Banknote;
-                const grad = POOL_COLORS[pool.poolType] ?? "from-slate-600 to-slate-800";
+                const poolBg = POOL_BG[pool.poolType] ?? "#0a2a2a";
                 const utilPct = parseFloat(pool.utilizationPct);
                 return (
                   <div key={pool.id} className="rounded-xl overflow-hidden border shadow-sm">
-                    <div className={cn("p-5 text-white bg-gradient-to-br", grad)}>
+                    <div className="p-5 text-white" style={{ backgroundColor: poolBg }}>
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-2">
-                          <PoolIcon className="w-4 h-4 text-white/80" />
-                          <span className="text-xs font-medium text-white/80">{pool.name}</span>
+                          <PoolIcon className="w-4 h-4 text-white/70" />
+                          <span className="text-xs font-medium text-white/70">{pool.name}</span>
                         </div>
-                        <span className={cn("text-[10px] px-1.5 py-0.5 rounded font-medium",
-                          pool.status === "active" ? "bg-green-500/20 text-green-200" : "bg-red-500/20 text-red-200")}>
+                        <span className="text-[10px] px-1.5 py-0.5 rounded font-medium bg-white/15 text-white/90">
                           {pool.status}
                         </span>
                       </div>
@@ -786,10 +786,10 @@ export default function FinanceHubPage() {
             </div>
             {distSummary && (
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-                <StatCard label="Total Distributed" value={`KES ${fmt(distSummary.totalDistributed)}`} sub={`${distSummary.paidCount} payments`} color="text-green-700" />
-                <StatCard label="Pending Payout" value={`KES ${fmt(distSummary.pendingAmount)}`} sub={`${distSummary.pendingCount} pending`} color="text-amber-700" />
+                <StatCard label="Total Distributed" value={`KES ${fmt(distSummary.totalDistributed)}`} sub={`${distSummary.paidCount} payments`} color="text-[#0a2a2a]" />
+                <StatCard label="Pending Payout" value={`KES ${fmt(distSummary.pendingAmount)}`} sub={`${distSummary.pendingCount} pending`} color="text-[#a6a6a6]" />
                 <StatCard label="Gross Distributed" value={`KES ${fmt(distSummary.totalGross)}`} sub="Before platform fees" />
-                <StatCard label="Platform Fees" value={`KES ${fmt(distSummary.totalFees)}`} sub="5% management fee" color="text-blue-700" />
+                <StatCard label="Platform Fees" value={`KES ${fmt(distSummary.totalFees)}`} sub="5% management fee" color="text-[#0a2a2a]" />
               </div>
             )}
             {loading ? (
@@ -824,13 +824,13 @@ export default function FinanceHubPage() {
                           {d.poolId === "LP-LOAN-KES" ? "Loan Pool" : d.poolId === "LP-TRADING-KES" ? "Trading Pool" : "USDC Pool"}
                         </td>
                         <td className="px-4 py-2.5 font-medium">{d.period}</td>
-                        <td className="px-4 py-2.5 text-right font-semibold text-green-700">
+                        <td className="px-4 py-2.5 text-right font-semibold text-[#0a2a2a]">
                           {d.currency} {fmt(d.netAmount)}
                           <div className="text-[10px] text-muted-foreground font-normal">of {d.currency} {fmt(d.grossAmount)} gross</div>
                         </td>
                         <td className="px-4 py-2.5">
                           {d.yieldRate && (
-                            <span className="flex items-center gap-1 text-blue-700 font-medium">
+                            <span className="flex items-center gap-1 text-[#0a2a2a] font-medium">
                               <BadgePercent className="w-3 h-3" />{d.yieldRate}
                             </span>
                           )}
@@ -843,7 +843,7 @@ export default function FinanceHubPage() {
                         <td className="px-4 py-2.5">
                           {d.status === "pending" && (
                             <button onClick={() => handlePayDist(d.id)}
-                              className="text-[10px] font-medium px-2 py-1 rounded bg-green-50 text-green-700 hover:bg-green-100 border border-green-200">
+                              className="text-[10px] font-medium px-2 py-1 rounded bg-[#c7d7da]/40 text-[#0a2a2a] hover:bg-[#c7d7da]/70 border border-[#c7d7da]">
                               Mark Paid
                             </button>
                           )}
@@ -860,10 +860,10 @@ export default function FinanceHubPage() {
             <h3 className="text-sm font-semibold mb-4">Pool Funding Sources</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {[
-                { source: "Institutional Lenders", pool: "Loan Financing", color: "text-blue-700 bg-blue-50 border-blue-200" },
-                { source: "Platform Treasury", pool: "All Pools", color: "text-amber-700 bg-amber-50 border-amber-200" },
-                { source: "DeFi / Stablecoin", pool: "Stablecoin Pool", color: "text-teal-700 bg-teal-50 border-teal-200" },
-                { source: "Loan Repayments", pool: "Loan Financing", color: "text-green-700 bg-green-50 border-green-200" },
+                { source: "Institutional Lenders", pool: "Loan Financing", color: "text-[#0a2a2a] bg-[#c7d7da]/20 border-[#c7d7da]" },
+                { source: "Platform Treasury", pool: "All Pools", color: "text-[#0a2a2a] bg-[#c7d7da]/20 border-[#c7d7da]" },
+                { source: "DeFi / Stablecoin", pool: "Stablecoin Pool", color: "text-[#0a2a2a] bg-[#c7d7da]/20 border-[#c7d7da]" },
+                { source: "Loan Repayments", pool: "Loan Financing", color: "text-[#0a2a2a] bg-[#c7d7da]/20 border-[#c7d7da]" },
               ].map((s) => (
                 <div key={s.source} className={cn("rounded-lg p-3 border", s.color)}>
                   <div className="text-[10px] font-bold">{s.source}</div>
@@ -890,10 +890,10 @@ export default function FinanceHubPage() {
           <Card className="p-5 bg-gradient-to-r from-muted/30 to-background">
             <div className="flex items-center gap-3 flex-wrap">
               {[
-                { icon: ArrowDownToLine, label: "Buyer Deposits", color: "bg-blue-100 text-blue-700" },
-                { icon: Lock, label: "Escrow Lock", color: "bg-amber-100 text-amber-700" },
-                { icon: CheckCircle2, label: "Commodity Delivered", color: "bg-purple-100 text-purple-700" },
-                { icon: ArrowUpFromLine, label: "Seller Credited", color: "bg-green-100 text-green-700" },
+                { icon: ArrowDownToLine, label: "Buyer Deposits", color: "bg-[#c7d7da]/40 text-[#0a2a2a]" },
+                { icon: Lock, label: "Escrow Lock", color: "bg-[#a6a6a6]/20 text-[#0a2a2a]" },
+                { icon: CheckCircle2, label: "Commodity Delivered", color: "bg-[#c7d7da]/60 text-[#0a2a2a]" },
+                { icon: ArrowUpFromLine, label: "Seller Credited", color: "bg-[#0a2a2a] text-white" },
               ].map((step, i) => (
                 <div key={i} className="flex items-center gap-2">
                   <div className={cn("flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium", step.color)}>
@@ -943,18 +943,18 @@ export default function FinanceHubPage() {
                   <div className="flex flex-col gap-1 shrink-0">
                     {e.status === "pending" && (
                       <button onClick={() => handleEscrowAction(e.id, "fund")}
-                        className="text-[10px] font-medium px-2 py-1 rounded bg-blue-100 text-blue-700 hover:bg-blue-200">
+                        className="text-[10px] font-medium px-2 py-1 rounded bg-[#c7d7da]/40 text-[#0a2a2a] hover:bg-[#c7d7da]/70 border border-[#c7d7da]">
                         Fund Escrow
                       </button>
                     )}
                     {e.status === "funded" && (
                       <>
                         <button onClick={() => handleEscrowAction(e.id, "release")}
-                          className="text-[10px] font-medium px-2 py-1 rounded bg-green-100 text-green-700 hover:bg-green-200">
+                          className="text-[10px] font-medium px-2 py-1 rounded bg-[#0a2a2a] text-white hover:bg-[#1c3c3c]">
                           Release to Seller
                         </button>
                         <button onClick={() => handleEscrowAction(e.id, "cancel")}
-                          className="text-[10px] font-medium px-2 py-1 rounded bg-red-50 text-red-700 hover:bg-red-100">
+                          className="text-[10px] font-medium px-2 py-1 rounded bg-[#a6a6a6]/15 text-[#a6a6a6] hover:bg-[#a6a6a6]/30 border border-[#a6a6a6]/30">
                           Cancel
                         </button>
                       </>
@@ -981,14 +981,14 @@ export default function FinanceHubPage() {
                 { label: "KES Ledger", debits: reconciliation.kes.totalDebits, credits: reconciliation.kes.totalCredits, balanced: reconciliation.kes.balanced, currency: "KES" },
                 { label: "USDC Ledger", debits: reconciliation.usdc.totalDebits, credits: reconciliation.usdc.totalCredits, balanced: reconciliation.usdc.balanced, currency: "USDC" },
               ].map((item) => (
-                <Card key={item.label} className={cn("p-4 border", item.balanced ? "border-green-200 bg-green-50/30" : "border-red-200 bg-red-50/30")}>
+                <Card key={item.label} className={cn("p-4 border", item.balanced ? "border-[#c7d7da] bg-[#c7d7da]/10" : "border-[#0a2a2a]/20 bg-[#0a2a2a]/5")}>
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-xs font-semibold">{item.label}</span>
                     <StatusDot ok={item.balanced} label={item.balanced ? "Balanced" : "Imbalanced"} />
                   </div>
                   <div className="grid grid-cols-2 gap-2 text-xs">
-                    <div><div className="text-[10px] text-muted-foreground">Total Debits</div><div className="font-semibold text-red-600">{item.currency} {fmt(item.debits)}</div></div>
-                    <div><div className="text-[10px] text-muted-foreground">Total Credits</div><div className="font-semibold text-green-600">{item.currency} {fmt(item.credits)}</div></div>
+                    <div><div className="text-[10px] text-muted-foreground">Total Debits</div><div className="font-semibold text-[#a6a6a6]">{item.currency} {fmt(item.debits)}</div></div>
+                    <div><div className="text-[10px] text-muted-foreground">Total Credits</div><div className="font-semibold text-[#0a2a2a]">{item.currency} {fmt(item.credits)}</div></div>
                   </div>
                 </Card>
               ))}
@@ -996,8 +996,8 @@ export default function FinanceHubPage() {
                 <div className="text-xs font-semibold mb-2">System Status</div>
                 <div className="flex items-center gap-2">
                   {reconciliation.systemBalanced
-                    ? <CheckCircle2 className="w-8 h-8 text-green-500" />
-                    : <AlertTriangle className="w-8 h-8 text-red-500" />}
+                    ? <CheckCircle2 className="w-8 h-8 text-[#0a2a2a]" />
+                    : <AlertTriangle className="w-8 h-8 text-[#0a2a2a]" />}
                   <div>
                     <div className="text-sm font-bold">{reconciliation.systemBalanced ? "All Clear" : "Action Required"}</div>
                     <div className="text-[10px] text-muted-foreground">{reconciliation.totalEntries.toLocaleString()} total entries</div>
@@ -1044,13 +1044,13 @@ export default function FinanceHubPage() {
                           <td className="px-4 py-2 font-mono text-muted-foreground">{ei === 0 ? entry.txnGroupId : ""}</td>
                           <td className="px-4 py-2">
                             <span className={cn("inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded",
-                              entry.entryType === "debit" ? "bg-red-50 text-red-700" : "bg-green-50 text-green-700")}>
+                              entry.entryType === "debit" ? "bg-[#a6a6a6]/15 text-[#a6a6a6]" : "bg-[#c7d7da]/50 text-[#0a2a2a]")}>
                               {entry.entryType === "debit" ? <TrendingDown className="w-3 h-3" /> : <TrendingUp className="w-3 h-3" />}
                               {entry.entryType.toUpperCase()}
                             </span>
                           </td>
                           <td className="px-4 py-2"><div className="font-medium">{entry.accountLabel}</div><div className="text-[10px] text-muted-foreground">{entry.accountType.replace("_", " ")}</div></td>
-                          <td className={cn("px-4 py-2 text-right font-semibold", entry.entryType === "debit" ? "text-red-700" : "text-green-700")}>
+                          <td className={cn("px-4 py-2 text-right font-semibold", entry.entryType === "debit" ? "text-[#a6a6a6]" : "text-[#0a2a2a]")}>
                             {entry.currency} {fmt(entry.amount)}
                           </td>
                           <td className="px-4 py-2 text-muted-foreground max-w-[200px] truncate">{entry.description ?? "—"}</td>
@@ -1077,10 +1077,10 @@ export default function FinanceHubPage() {
 
           {/* Treasury Summary */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <StatCard label="Total Treasury (KES)" value="KES 86.35M" sub="Operating + Reserve + Revenue" color="text-amber-700" />
+            <StatCard label="Total Treasury (KES)" value="KES 86.35M" sub="Operating + Reserve + Revenue" color="text-[#0a2a2a]" />
             <StatCard label="Operating Account" value="KES 12.5M" sub="Day-to-day expenses" />
-            <StatCard label="Reserve Account" value="KES 20.0M" sub="6-month emergency runway" color="text-blue-700" />
-            <StatCard label="Revenue Collected" value="KES 3.85M" sub="YTD platform fees" color="text-green-700" />
+            <StatCard label="Reserve Account" value="KES 20.0M" sub="6-month emergency runway" color="text-[#0a2a2a]" />
+            <StatCard label="Revenue Collected" value="KES 3.85M" sub="YTD platform fees" color="text-[#0a2a2a]" />
           </div>
 
           {/* Treasury Sub-Accounts */}
@@ -1090,21 +1090,21 @@ export default function FinanceHubPage() {
               {[
                 {
                   id: "PA-OPERATING-KES", name: "Operating Account", balance: "12,500,000.00", currency: "KES",
-                  icon: Activity, color: "border-blue-200 bg-blue-50/50",
+                  icon: Activity, color: "border-[#c7d7da] bg-[#c7d7da]/10",
                   desc: "Day-to-day operational expenses: salaries, infrastructure, vendor payments",
-                  breakdown: [{ label: "Staff Salaries", pct: 45, color: "bg-blue-500" }, { label: "Infrastructure", pct: 30, color: "bg-blue-400" }, { label: "Vendors", pct: 25, color: "bg-blue-300" }],
+                  breakdown: [{ label: "Staff Salaries", pct: 45, color: "bg-[#0a2a2a]" }, { label: "Infrastructure", pct: 30, color: "bg-[#2e4f4f]" }, { label: "Vendors", pct: 25, color: "bg-[#c7d7da]" }],
                 },
                 {
                   id: "PA-RESERVE-KES", name: "Reserve Account", balance: "20,000,000.00", currency: "KES",
-                  icon: ShieldCheck, color: "border-amber-200 bg-amber-50/50",
+                  icon: ShieldCheck, color: "border-[#c7d7da] bg-[#c7d7da]/10",
                   desc: "Emergency reserve — minimum 6-month operating runway requirement",
-                  breakdown: [{ label: "Liquidity Buffer", pct: 60, color: "bg-amber-500" }, { label: "Contingency", pct: 40, color: "bg-amber-400" }],
+                  breakdown: [{ label: "Liquidity Buffer", pct: 60, color: "bg-[#0a2a2a]" }, { label: "Contingency", pct: 40, color: "bg-[#c7d7da]" }],
                 },
                 {
                   id: "PA-REVENUE-KES", name: "Revenue Account", balance: "3,847,500.00", currency: "KES",
-                  icon: TrendingUp, color: "border-green-200 bg-green-50/50",
+                  icon: TrendingUp, color: "border-[#c7d7da] bg-[#c7d7da]/10",
                   desc: "Accumulated platform revenue: trading commissions, loan origination, service fees",
-                  breakdown: [{ label: "Trading Fees", pct: 52, color: "bg-green-500" }, { label: "Loan Origination", pct: 30, color: "bg-green-400" }, { label: "Service Fees", pct: 18, color: "bg-green-300" }],
+                  breakdown: [{ label: "Trading Fees", pct: 52, color: "bg-[#0a2a2a]" }, { label: "Loan Origination", pct: 30, color: "bg-[#2e4f4f]" }, { label: "Service Fees", pct: 18, color: "bg-[#c7d7da]" }],
                 },
               ].map((acc) => {
                 const Icon = acc.icon;
@@ -1144,10 +1144,10 @@ export default function FinanceHubPage() {
             <p className="text-xs text-muted-foreground mb-4">Platform revenue streams contributing to the Revenue Account</p>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {[
-                { source: "Trading Commissions", amount: "2,000,500", pct: "52%", icon: ArrowLeftRight, color: "text-green-700 bg-green-50 border-green-200", desc: "1.5% on every commodity trade" },
-                { source: "Loan Origination", amount: "1,153,500", pct: "30%", icon: Banknote, color: "text-blue-700 bg-blue-50 border-blue-200", desc: "2% origination fee on loans disbursed" },
-                { source: "Platform Service Fees", amount: "462,750", pct: "12%", icon: Zap, color: "text-purple-700 bg-purple-50 border-purple-200", desc: "Subscription, KYC, and API fees" },
-                { source: "Interest Margin", amount: "230,750", pct: "6%", icon: BadgePercent, color: "text-amber-700 bg-amber-50 border-amber-200", desc: "Spread between pool rate and loan rate" },
+                { source: "Trading Commissions", amount: "2,000,500", pct: "52%", icon: ArrowLeftRight, color: "text-[#0a2a2a] bg-[#c7d7da]/20 border-[#c7d7da]", desc: "1.5% on every commodity trade" },
+                { source: "Loan Origination", amount: "1,153,500", pct: "30%", icon: Banknote, color: "text-[#0a2a2a] bg-[#c7d7da]/20 border-[#c7d7da]", desc: "2% origination fee on loans disbursed" },
+                { source: "Platform Service Fees", amount: "462,750", pct: "12%", icon: Zap, color: "text-[#0a2a2a] bg-[#c7d7da]/20 border-[#c7d7da]", desc: "Subscription, KYC, and API fees" },
+                { source: "Interest Margin", amount: "230,750", pct: "6%", icon: BadgePercent, color: "text-[#0a2a2a] bg-[#c7d7da]/20 border-[#c7d7da]", desc: "Spread between pool rate and loan rate" },
               ].map((rev) => {
                 const Icon = rev.icon;
                 return (
@@ -1170,11 +1170,11 @@ export default function FinanceHubPage() {
             <h3 className="text-sm font-semibold mb-4">Capital Allocation Flow</h3>
             <div className="flex items-center gap-3 flex-wrap">
               {[
-                { label: "Revenue Collected", desc: "Fees & commissions", color: "bg-green-100 text-green-800" },
-                { label: "Fee Account", desc: "PA-FEE-KES", color: "bg-orange-100 text-orange-800" },
-                { label: "Treasury Split", desc: "Operating / Reserve / Revenue", color: "bg-amber-100 text-amber-800" },
-                { label: "Pool Allocation", desc: "Boosts lending capacity", color: "bg-blue-100 text-blue-800" },
-                { label: "Investor Returns", desc: "Pool yield distribution", color: "bg-purple-100 text-purple-800" },
+                { label: "Revenue Collected", desc: "Fees & commissions", color: "bg-[#c7d7da]/40 text-[#0a2a2a]" },
+                { label: "Fee Account", desc: "PA-FEE-KES", color: "bg-[#a6a6a6]/15 text-[#0a2a2a]" },
+                { label: "Treasury Split", desc: "Operating / Reserve / Revenue", color: "bg-[#c7d7da]/30 text-[#0a2a2a]" },
+                { label: "Pool Allocation", desc: "Boosts lending capacity", color: "bg-[#c7d7da]/20 text-[#0a2a2a]" },
+                { label: "Investor Returns", desc: "Pool yield distribution", color: "bg-[#0a2a2a] text-white" },
               ].map((step, i) => (
                 <div key={i} className="flex items-center gap-2">
                   <div className={cn("px-3 py-1.5 rounded-lg text-xs font-medium", step.color)}>
@@ -1207,11 +1207,11 @@ export default function FinanceHubPage() {
             <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
               <StatCard label="Match Rate" value={`${reconSummary.matchRate}%`}
                 sub={`${reconSummary.matched} of ${reconSummary.total}`}
-                color={Number(reconSummary.matchRate) >= 80 ? "text-green-700" : "text-amber-700"} />
+                color="text-[#0a2a2a]" />
               <StatCard label="Total Records" value={String(reconSummary.total)} sub="Across all rails" />
-              <StatCard label="Matched" value={String(reconSummary.matched)} sub="Confirmed" color="text-green-700" />
-              <StatCard label="Unmatched" value={String(reconSummary.unmatched)} sub="Needs attention" color="text-amber-700" />
-              <StatCard label="Discrepancies" value={String(reconSummary.discrepancy)} sub="Amount mismatch" color="text-red-700" />
+              <StatCard label="Matched" value={String(reconSummary.matched)} sub="Confirmed" color="text-[#0a2a2a]" />
+              <StatCard label="Unmatched" value={String(reconSummary.unmatched)} sub="Needs attention" color="text-[#a6a6a6]" />
+              <StatCard label="Discrepancies" value={String(reconSummary.discrepancy)} sub="Amount mismatch" color="text-[#0a2a2a]" />
             </div>
           )}
 
@@ -1287,7 +1287,7 @@ export default function FinanceHubPage() {
                         <td className="px-4 py-2.5 font-mono text-muted-foreground text-[10px]">{txn.externalRef}</td>
                         <td className="px-4 py-2.5">
                           <span className={cn("text-[10px] font-medium px-1.5 py-0.5 rounded",
-                            txn.direction === "inbound" ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700")}>
+                            txn.direction === "inbound" ? "bg-[#c7d7da]/50 text-[#0a2a2a]" : "bg-[#a6a6a6]/20 text-[#a6a6a6]")}>
                             {txn.direction}
                           </span>
                         </td>
@@ -1310,18 +1310,18 @@ export default function FinanceHubPage() {
                           <div className="flex gap-1">
                             {txn.status === "unmatched" && (
                               <button onClick={() => handleRailAction(txn.id, "discrepancy")}
-                                className="text-[10px] px-2 py-0.5 rounded bg-red-50 text-red-700 hover:bg-red-100 border border-red-200">
+                                className="text-[10px] px-2 py-0.5 rounded bg-[#0a2a2a]/10 text-[#0a2a2a] hover:bg-[#0a2a2a]/20 border border-[#0a2a2a]/20">
                                 Flag
                               </button>
                             )}
                             {["unmatched", "discrepancy"].includes(txn.status) && (
                               <button onClick={() => handleRailAction(txn.id, "dismiss")}
-                                className="text-[10px] px-2 py-0.5 rounded bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200">
+                                className="text-[10px] px-2 py-0.5 rounded bg-[#a6a6a6]/10 text-[#a6a6a6] hover:bg-[#a6a6a6]/20 border border-[#a6a6a6]/20">
                                 Dismiss
                               </button>
                             )}
                             {txn.status === "matched" && (
-                              <span className="text-[10px] text-green-600 flex items-center gap-0.5">
+                              <span className="text-[10px] text-[#0a2a2a] flex items-center gap-0.5">
                                 <CheckCircle2 className="w-3 h-3" /> Matched
                               </span>
                             )}
@@ -1347,9 +1347,9 @@ export default function FinanceHubPage() {
           {alertSummary && (
             <>
               <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-                <StatCard label="Open Alerts" value={String(alertSummary.open)} sub="Needs review" color="text-red-700" />
-                <StatCard label="Investigating" value={String(alertSummary.investigating)} sub="In progress" color="text-amber-700" />
-                <StatCard label="Resolved" value={String(alertSummary.resolved)} sub="Closed safely" color="text-green-700" />
+                <StatCard label="Open Alerts" value={String(alertSummary.open)} sub="Needs review" color="text-[#0a2a2a]" />
+                <StatCard label="Investigating" value={String(alertSummary.investigating)} sub="In progress" color="text-[#a6a6a6]" />
+                <StatCard label="Resolved" value={String(alertSummary.resolved)} sub="Closed safely" color="text-[#0a2a2a]" />
                 <StatCard label="Dismissed" value={String(alertSummary.dismissed)} sub="False positives" />
                 <StatCard label="Total Alerts" value={String(alertSummary.total)} sub="All time" />
               </div>
@@ -1357,10 +1357,10 @@ export default function FinanceHubPage() {
                 <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">Severity Distribution</h3>
                 <div className="flex flex-wrap gap-2">
                   {[
-                    { level: "critical", count: alertSummary.bySeverity.critical, color: "border-red-400 bg-red-100 text-red-900" },
-                    { level: "high", count: alertSummary.bySeverity.high, color: "border-red-200 bg-red-50 text-red-700" },
-                    { level: "medium", count: alertSummary.bySeverity.medium, color: "border-amber-200 bg-amber-50 text-amber-700" },
-                    { level: "low", count: alertSummary.bySeverity.low, color: "border-blue-200 bg-blue-50 text-blue-700" },
+                    { level: "critical", count: alertSummary.bySeverity.critical, color: "border-[#0a2a2a] bg-[#0a2a2a] text-white" },
+                    { level: "high", count: alertSummary.bySeverity.high, color: "border-[#0a2a2a] bg-[#c7d7da]/40 text-[#0a2a2a]" },
+                    { level: "medium", count: alertSummary.bySeverity.medium, color: "border-[#a6a6a6] bg-[#a6a6a6]/10 text-[#a6a6a6]" },
+                    { level: "low", count: alertSummary.bySeverity.low, color: "border-[#c7d7da] bg-[#c7d7da]/20 text-[#0a2a2a]" },
                   ].map((s) => (
                     <div key={s.level} className={cn("flex items-center gap-2 rounded-lg border px-4 py-2 font-medium", s.color)}>
                       <span className="text-lg font-bold">{s.count}</span>
@@ -1427,10 +1427,10 @@ export default function FinanceHubPage() {
                         {alert.amount && <span className="font-medium text-foreground">{alert.currency} {fmt(alert.amount)}</span>}
                         {alert.transactionRef && <span className="font-mono">ref: {alert.transactionRef}</span>}
                         <span>{fmtDate(alert.createdAt)}</span>
-                        {alert.resolvedAt && <span className="text-green-600">Resolved: {fmtDate(alert.resolvedAt)}</span>}
+                        {alert.resolvedAt && <span className="text-[#0a2a2a]">Resolved: {fmtDate(alert.resolvedAt)}</span>}
                       </div>
                       {alert.resolutionNote && (
-                        <div className="mt-2 text-[10px] px-2 py-1.5 bg-green-50 border border-green-200 rounded text-green-700">
+                        <div className="mt-2 text-[10px] px-2 py-1.5 bg-[#c7d7da]/30 border border-[#c7d7da] rounded text-[#0a2a2a]">
                           Resolution: {alert.resolutionNote}
                         </div>
                       )}
@@ -1439,16 +1439,16 @@ export default function FinanceHubPage() {
                       <div className="flex flex-col gap-1 shrink-0">
                         {alert.status === "open" && (
                           <button onClick={() => handleAlertAction(alert.id, "escalate")}
-                            className="text-[10px] font-medium px-2 py-1 rounded bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200 whitespace-nowrap">
+                            className="text-[10px] font-medium px-2 py-1 rounded bg-[#c7d7da]/30 text-[#0a2a2a] hover:bg-[#c7d7da]/60 border border-[#c7d7da] whitespace-nowrap">
                             Investigate
                           </button>
                         )}
                         <button onClick={() => handleAlertAction(alert.id, "resolve")}
-                          className="text-[10px] font-medium px-2 py-1 rounded bg-green-50 text-green-700 hover:bg-green-100 border border-green-200 whitespace-nowrap">
+                          className="text-[10px] font-medium px-2 py-1 rounded bg-[#0a2a2a] text-white hover:bg-[#1c3c3c] whitespace-nowrap">
                           Resolve
                         </button>
                         <button onClick={() => handleAlertAction(alert.id, "dismiss")}
-                          className="text-[10px] font-medium px-2 py-1 rounded bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200 whitespace-nowrap">
+                          className="text-[10px] font-medium px-2 py-1 rounded bg-[#a6a6a6]/10 text-[#a6a6a6] hover:bg-[#a6a6a6]/20 border border-[#a6a6a6]/20 whitespace-nowrap">
                           Dismiss
                         </button>
                       </div>

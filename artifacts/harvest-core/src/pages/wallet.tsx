@@ -33,16 +33,16 @@ const TX_TYPE_LABELS: Record<string, string> = {
 };
 
 const TX_COLORS: Record<string, string> = {
-  deposit: "text-green-700 bg-green-50",
-  withdrawal: "text-red-700 bg-red-50",
-  loan_disbursement: "text-blue-700 bg-blue-50",
-  loan_repayment: "text-orange-700 bg-orange-50",
-  trade_settlement: "text-purple-700 bg-purple-50",
-  escrow_lock: "text-yellow-700 bg-yellow-50",
-  escrow_release: "text-teal-700 bg-teal-50",
-  transfer_in: "text-green-700 bg-green-50",
-  transfer_out: "text-red-700 bg-red-50",
-  fee: "text-slate-600 bg-slate-50",
+  deposit:          "text-[#0a2a2a] bg-[#c7d7da]/40",
+  withdrawal:       "text-[#a6a6a6] bg-[#a6a6a6]/10",
+  loan_disbursement:"text-[#0a2a2a] bg-[#c7d7da]/30",
+  loan_repayment:   "text-[#a6a6a6] bg-[#a6a6a6]/10",
+  trade_settlement: "text-[#0a2a2a] bg-[#c7d7da]/20",
+  escrow_lock:      "text-[#a6a6a6] bg-[#a6a6a6]/10",
+  escrow_release:   "text-[#0a2a2a] bg-[#c7d7da]/30",
+  transfer_in:      "text-[#0a2a2a] bg-[#c7d7da]/40",
+  transfer_out:     "text-[#a6a6a6] bg-[#a6a6a6]/10",
+  fee:              "text-[#a6a6a6] bg-[#a6a6a6]/10",
 };
 
 const CREDIT_TYPES = new Set(["deposit", "loan_disbursement", "trade_settlement", "escrow_release", "transfer_in"]);
@@ -89,10 +89,10 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 // ── Status badge ───────────────────────────────────────────────────────────────
 function StatusBadge({ status }: { status: string }) {
   const map: Record<string, [string, React.ElementType]> = {
-    completed: ["text-green-700 bg-green-50", CheckCircle2],
-    pending:   ["text-yellow-700 bg-yellow-50", Clock],
-    failed:    ["text-red-700 bg-red-50", XCircle],
-    reversed:  ["text-slate-600 bg-slate-50", AlertTriangle],
+    completed: ["text-[#0a2a2a] bg-[#c7d7da]/50",  CheckCircle2],
+    pending:   ["text-[#a6a6a6] bg-[#a6a6a6]/10",  Clock],
+    failed:    ["text-[#a6a6a6] bg-[#a6a6a6]/10",  XCircle],
+    reversed:  ["text-[#a6a6a6] bg-[#a6a6a6]/10",  AlertTriangle],
   };
   const [cls, Icon] = map[status] ?? ["text-slate-600 bg-slate-50", Clock];
   return (
@@ -229,8 +229,7 @@ export default function WalletPage() {
                 <Banknote className="w-4 h-4 text-white/70" />
                 <span className="text-xs font-medium text-white/70">KES Wallet</span>
               </div>
-              <span className={cn("text-[10px] px-1.5 py-0.5 rounded font-medium",
-                kes?.status === "active" ? "bg-green-500/20 text-green-300" : "bg-red-500/20 text-red-300")}>
+              <span className="text-[10px] px-1.5 py-0.5 rounded font-medium bg-white/15 text-white/90">
                 {kes?.status ?? "active"}
               </span>
             </div>
@@ -254,10 +253,10 @@ export default function WalletPage() {
           <Card className="p-5 space-y-3 border border-border/60">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <CircleDollarSign className="w-4 h-4 text-blue-600" />
+                <CircleDollarSign className="w-4 h-4 text-[#0a2a2a]" />
                 <span className="text-xs font-medium text-muted-foreground">USDC Wallet</span>
               </div>
-              <span className="text-[10px] px-1.5 py-0.5 rounded font-medium bg-blue-50 text-blue-700">Stablecoin</span>
+              <span className="text-[10px] px-1.5 py-0.5 rounded font-medium bg-[#c7d7da]/40 text-[#0a2a2a]">Stablecoin</span>
             </div>
             <div>
               <div className="text-2xl font-bold">USDC {fmt(usdc?.balance ?? "0")}</div>
@@ -275,17 +274,17 @@ export default function WalletPage() {
           </Card>
 
           {/* Locked Collateral */}
-          <Card className="p-5 space-y-3 border border-amber-200 bg-amber-50/30">
+          <Card className="p-5 space-y-3 border border-[#c7d7da] bg-[#c7d7da]/10">
             <div className="flex items-center gap-2">
-              <Lock className="w-4 h-4 text-amber-600" />
-              <span className="text-xs font-medium text-amber-800">Locked / Collateral</span>
+              <Lock className="w-4 h-4 text-[#0a2a2a]" />
+              <span className="text-xs font-medium text-[#0a2a2a]">Locked / Collateral</span>
             </div>
             <div>
-              <div className="text-2xl font-bold text-amber-900">KES {fmt(kes?.lockedBalance ?? "0")}</div>
-              <div className="text-xs text-amber-700 mt-0.5">Reserved for active loans & escrow</div>
+              <div className="text-2xl font-bold text-[#0a2a2a]">KES {fmt(kes?.lockedBalance ?? "0")}</div>
+              <div className="text-xs text-[#a6a6a6] mt-0.5">Reserved for active loans & escrow</div>
             </div>
-            <div className="pt-1 border-t border-amber-200">
-              <div className="text-[10px] text-amber-600">Funds release automatically on loan repayment or contract settlement</div>
+            <div className="pt-1 border-t border-[#c7d7da]">
+              <div className="text-[10px] text-[#a6a6a6]">Funds release automatically on loan repayment or contract settlement</div>
             </div>
           </Card>
         </div>
@@ -325,15 +324,15 @@ export default function WalletPage() {
             <h3 className="text-sm font-semibold mb-4">Connected Payment Rails</h3>
             <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
               {[
-                { name: "M-PESA", desc: "Mobile money", color: "bg-green-50 border-green-200 text-green-800", dot: "bg-green-500" },
-                { name: "PesaLink", desc: "Bank transfer", color: "bg-blue-50 border-blue-200 text-blue-800", dot: "bg-blue-500" },
-                { name: "Paystack", desc: "Card payments", color: "bg-purple-50 border-purple-200 text-purple-800", dot: "bg-purple-500" },
-                { name: "Pesapal", desc: "Bulk settlement", color: "bg-orange-50 border-orange-200 text-orange-800", dot: "bg-orange-500" },
-                { name: "Stablecoin", desc: "USDC/USDT", color: "bg-teal-50 border-teal-200 text-teal-800", dot: "bg-teal-500" },
+                { name: "M-PESA", desc: "Mobile money" },
+                { name: "PesaLink", desc: "Bank transfer" },
+                { name: "Paystack", desc: "Card payments" },
+                { name: "Pesapal", desc: "Bulk settlement" },
+                { name: "Stablecoin", desc: "USDC/USDT" },
               ].map((rail) => (
-                <div key={rail.name} className={cn("rounded-lg p-3 border", rail.color)}>
+                <div key={rail.name} className="rounded-lg p-3 border border-[#c7d7da] bg-[#c7d7da]/15 text-[#0a2a2a]">
                   <div className="flex items-center gap-1.5 mb-1">
-                    <div className={cn("w-1.5 h-1.5 rounded-full", rail.dot)} />
+                    <div className="w-1.5 h-1.5 rounded-full bg-[#0a2a2a]" />
                     <span className="text-xs font-semibold">{rail.name}</span>
                   </div>
                   <p className="text-[10px] opacity-70">{rail.desc}</p>
@@ -583,7 +582,7 @@ function TxList({ txns, loading, showBalance = false }: { txns: Tx[]; loading: b
                   </span>
                 </td>
                 <td className="py-2.5 pr-4 text-right font-semibold">
-                  <span className={cn(isCredit ? "text-green-700" : "text-red-700")}>
+                  <span className={cn(isCredit ? "text-[#0a2a2a] font-semibold" : "text-[#a6a6a6]")}>
                     <span className="mr-0.5">{isCredit ? "+" : "−"}</span>
                     {t.currency} {fmt(t.amount)}
                   </span>
