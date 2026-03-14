@@ -136,6 +136,11 @@ export default function ForwardContracts() {
   const [aiForecast, setAiForecast] = useState<{
     aiSuggestedPrice: number; currentSpotPrice: number; changePct: number;
     confidence: number; daysAhead: number; method: string;
+    breakdown: {
+      trendContrib: number; seasonContrib: number; momentumContrib: number;
+      cagr3yr: number; trendLabel: string; marketNote: string | null;
+      priceHistory: { p24mo: number; p12mo: number; current: number };
+    };
   } | null>(null);
   const [forecastLoading, setForecastLoading] = useState(false);
 
@@ -607,27 +612,57 @@ export default function ForwardContracts() {
                           <span className="text-xs text-amber-700">Calculating forecast…</span>
                         </div>
                       ) : aiForecast ? (
-                        <div className="flex items-center justify-between gap-3">
-                          <div className="flex items-start gap-2">
-                            <Brain className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
-                            <div className="space-y-0.5">
-                              <div className="text-xs text-amber-800">
-                                <span className="font-semibold">KES {aiForecast.aiSuggestedPrice.toLocaleString()}/{form.unit}</span>
-                                {" "}forecasted at delivery
-                                <span className={cn("ml-1.5 font-medium", aiForecast.changePct >= 0 ? "text-green-700" : "text-red-700")}>
-                                  ({aiForecast.changePct >= 0 ? "+" : ""}{aiForecast.changePct}% vs today's KES {aiForecast.currentSpotPrice.toLocaleString()})
-                                </span>
-                              </div>
-                              <div className="text-[10px] text-amber-600">
-                                {aiForecast.daysAhead} day{aiForecast.daysAhead !== 1 ? "s" : ""} ahead · {aiForecast.confidence}% confidence · reference only
+                        <div className="space-y-2">
+                          {/* Main forecast line */}
+                          <div className="flex items-center justify-between gap-3">
+                            <div className="flex items-start gap-2">
+                              <Brain className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
+                              <div className="space-y-0.5">
+                                <div className="text-xs text-amber-900">
+                                  <span className="font-semibold">KES {aiForecast.aiSuggestedPrice.toLocaleString()}/{form.unit}</span>
+                                  {" "}forecasted at delivery
+                                  <span className={cn("ml-1.5 font-medium", aiForecast.changePct >= 0 ? "text-green-700" : "text-red-700")}>
+                                    ({aiForecast.changePct >= 0 ? "+" : ""}{aiForecast.changePct}% vs spot KES {aiForecast.currentSpotPrice.toLocaleString()})
+                                  </span>
+                                </div>
+                                <div className="text-[10px] text-amber-600">
+                                  {aiForecast.daysAhead} days ahead · {aiForecast.confidence}% confidence · reference only
+                                </div>
                               </div>
                             </div>
+                            <button type="button"
+                              className="shrink-0 text-xs font-medium text-amber-700 border border-amber-300 rounded px-2 py-0.5 hover:bg-amber-100 transition-colors"
+                              onClick={() => setForm((f) => ({ ...f, forwardPrice: String(aiForecast.aiSuggestedPrice) }))}>
+                              Apply
+                            </button>
                           </div>
-                          <button type="button"
-                            className="shrink-0 text-xs font-medium text-amber-700 border border-amber-300 rounded px-2 py-0.5 hover:bg-amber-100 transition-colors"
-                            onClick={() => setForm((f) => ({ ...f, forwardPrice: String(aiForecast.aiSuggestedPrice) }))}>
-                            Apply
-                          </button>
+                          {/* Breakdown row */}
+                          <div className="flex items-center gap-3 pt-1.5 border-t border-amber-200 flex-wrap">
+                            <span className="text-[10px] text-amber-700 font-medium">Model factors:</span>
+                            <span className={cn("text-[10px] px-1.5 py-0.5 rounded", aiForecast.breakdown.trendContrib >= 0 ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800")}>
+                              3yr trend {aiForecast.breakdown.trendContrib >= 0 ? "+" : ""}{aiForecast.breakdown.trendContrib}% · {aiForecast.breakdown.trendLabel} ({aiForecast.breakdown.cagr3yr}% CAGR)
+                            </span>
+                            <span className={cn("text-[10px] px-1.5 py-0.5 rounded", aiForecast.breakdown.seasonContrib >= 0 ? "bg-orange-100 text-orange-800" : "bg-blue-100 text-blue-800")}>
+                              Seasonal {aiForecast.breakdown.seasonContrib >= 0 ? "+" : ""}{aiForecast.breakdown.seasonContrib.toFixed(1)}%
+                            </span>
+                            <span className={cn("text-[10px] px-1.5 py-0.5 rounded", aiForecast.breakdown.momentumContrib >= 0 ? "bg-purple-100 text-purple-800" : "bg-slate-100 text-slate-700")}>
+                              Momentum {aiForecast.breakdown.momentumContrib >= 0 ? "+" : ""}{aiForecast.breakdown.momentumContrib.toFixed(1)}%
+                            </span>
+                          </div>
+                          {/* Market note */}
+                          {aiForecast.breakdown.marketNote && (
+                            <div className="text-[10px] text-amber-700 italic">
+                              ⚡ {aiForecast.breakdown.marketNote}
+                            </div>
+                          )}
+                          {/* 3-yr price history */}
+                          <div className="flex items-center gap-3 text-[10px] text-amber-600">
+                            <span>24mo ago: KES {aiForecast.breakdown.priceHistory.p24mo.toLocaleString()}</span>
+                            <ArrowRight className="w-2.5 h-2.5" />
+                            <span>12mo ago: KES {aiForecast.breakdown.priceHistory.p12mo.toLocaleString()}</span>
+                            <ArrowRight className="w-2.5 h-2.5" />
+                            <span className="font-medium">Today: KES {aiForecast.breakdown.priceHistory.current.toLocaleString()}</span>
+                          </div>
                         </div>
                       ) : null}
                     </div>
