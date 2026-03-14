@@ -12,6 +12,7 @@ import {
   ClipboardCheck,
   FileCheck2,
   Warehouse,
+  FileSignature,
 } from "lucide-react"
 
 const navGroups = [
@@ -35,6 +36,7 @@ const navGroups = [
     items: [
       { href: "/tokens", label: "Tokens", icon: Coins },
       { href: "/loans", label: "Credit & Loans", icon: Banknote },
+      { href: "/forward-contracts", label: "Forward Contracts", icon: FileSignature },
       { href: "/marketplace", label: "Marketplace", icon: Store },
       { href: "/settlement", label: "Settlement", icon: Scale },
     ],

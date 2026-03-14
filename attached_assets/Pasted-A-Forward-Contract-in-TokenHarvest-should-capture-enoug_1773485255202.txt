@@ -1,0 +1,234 @@
+A **Forward Contract in TokenHarvest** should capture enough information to **define the trade, secure collateral, manage delivery, and enable automated settlement**. Because it replaces exchange-regulated futures, the **data structure must be very clear and enforceable**.
+
+Below is the **recommended forward contract data structure**.
+
+---
+
+# 1. Contract Identification
+
+These fields uniquely identify the contract.
+
+* **Contract ID** – Unique system identifier
+* **Blockchain Contract Hash** – Hash recorded on IOTA/BNC
+* **Contract Type** – Forward Contract
+* **Contract Status** – Draft / Open / Accepted / Active / Settled / Cancelled / Defaulted
+* **Creation Date**
+* **Expiration Date**
+
+---
+
+# 2. Parties to the Contract
+
+Defines who is buying and selling.
+
+### Seller
+
+* Seller ID
+* Seller Name
+* Organization ID (if cooperative or trader group)
+* Wallet Address / Payment Account
+* KYC Verification Status
+
+### Buyer
+
+* Buyer ID
+* Buyer Name
+* Organization ID
+* Wallet Address / Payment Account
+* KYC Verification Status
+
+---
+
+# 3. Commodity Details
+
+Defines the asset being traded.
+
+* **Commodity Type** (Maize, Beans, Coffee, etc.)
+* **Commodity Grade / Quality Standard**
+* **Moisture Content** (important for grains)
+* **Packaging Type** (bags, bulk, pallets)
+* **Total Quantity**
+* **Unit of Measure** (kg, tons, bags)
+* **Warehouse Receipt ID** (if already stored)
+
+Optional but useful:
+
+* **Certification** (organic, export grade)
+* **Origin Location**
+
+---
+
+# 4. Pricing Terms
+
+Defines the financial terms of the forward contract.
+
+* **Agreed Forward Price** (per unit)
+* **Total Contract Value**
+* **Currency** (KES / Stablecoin)
+* **AI Suggested Price** (system-generated reference)
+* **Price Lock Timestamp**
+
+Optional:
+
+* **Price Adjustment Clause** (if tied to market index)
+
+---
+
+# 5. Delivery Terms
+
+Defines how and when the commodity will be delivered.
+
+* **Delivery Date**
+* **Delivery Window** (e.g., 10–15 Sept)
+* **Delivery Location** (warehouse ID or processor facility)
+* **Delivery Method**
+
+  * Warehouse pickup
+  * Transport arranged by buyer
+  * Platform logistics
+
+Optional:
+
+* **Partial Delivery Allowed (Yes/No)**
+
+---
+
+# 6. Collateral / Security
+
+This protects both parties from default.
+
+Possible collateral types:
+
+* **Tokenized Warehouse Receipt**
+* **Inventory Lock**
+* **Cash Margin Deposit**
+* **Loan-backed commodity**
+
+Fields include:
+
+* Collateral Type
+* Collateral Value
+* Collateral Token ID (if blockchain tokenized)
+* Collateral Lock Status
+
+---
+
+# 7. Payment Terms
+
+Defines how settlement will occur.
+
+* **Payment Method**
+
+  * M-PESA
+  * Bank (PesaLink)
+  * Stablecoin
+* **Payment Schedule**
+
+  * Upfront
+  * On delivery
+  * Partial deposit + final settlement
+
+Optional:
+
+* **Escrow Wallet ID**
+
+---
+
+# 8. Risk & Compliance Fields
+
+Used by the **AI risk engine**.
+
+* Buyer Risk Score
+* Seller Risk Score
+* Contract Risk Rating
+* Insurance Coverage (if available)
+
+---
+
+# 9. Smart Contract / Blockchain Fields
+
+If tokenized.
+
+* Smart Contract Address
+* Blockchain Network (IOTA / BNC)
+* Tokenized Contract ID
+* Settlement Trigger Rules
+
+Example:
+
+```
+Settlement Condition:
+Delivery Confirmed AND Payment Received
+```
+
+---
+
+# 10. Contract Lifecycle Tracking
+
+Used for monitoring.
+
+* Contract Status Updates
+* Delivery Confirmation Timestamp
+* Payment Confirmation Timestamp
+* Settlement Timestamp
+
+---
+
+# 11. Dispute Resolution
+
+Important in private contracts.
+
+* Dispute Status
+* Arbitration Authority
+* Evidence Upload (documents, inspection photos)
+
+---
+
+# 12. Audit & Traceability
+
+Ensures transparency.
+
+* Created By
+* Approved By
+* Last Modified
+* Digital Signatures of Parties
+
+---
+
+# Example Simplified Contract Record
+
+```
+Contract ID: FC-2026-00012
+Commodity: White Maize
+Quantity: 50 Tons
+Price: KES 3,800 per bag
+Delivery Date: 15 September 2026
+Warehouse: Kitale Grain Warehouse
+Buyer: Unga Mills Ltd
+Seller: Trans Nzoia Farmers Cooperative
+Collateral: Tokenized Warehouse Receipt
+Payment Method: M-PESA / PesaLink
+Contract Status: Active
+Blockchain Hash: 0x8f4c32...
+```
+
+---
+
+# Important Feature for TokenHarvest
+
+Because your platform includes **Tokenized Warehouse Receipts**, the forward contract should also include:
+
+**Commodity Token Reference**
+
+```
+Token ID: TH-MAIZE-2026-009
+Blockchain: IOTA
+Warehouse: Kitale Grain Store
+Quantity Locked: 50 Tons
+```
+
+This **prevents double selling** and enables automated settlement.
+
+---
+
+If you'd like, I can also design the **Forward Contract Database Schema (PostgreSQL tables)** so developers can implement this directly in the TokenHarvest core engine.
