@@ -78,6 +78,38 @@ Every package extends `tsconfig.base.json` which sets `composite: true`. The roo
 - `marketplace_listings` — commodity trade listings
 - `activity_log` — platform audit trail
 
+## Finance Engine (Bank-Grade Architecture)
+
+### Internal Account Structure
+Seven typed platform accounts seeded at startup (in `services/seed-platform.ts`):
+- **PA-TREASURY-KES / PA-TREASURY-USDC** — Master platform capital reserves
+- **PA-ESCROW-KES** — Central escrow holding account
+- **PA-SETTLEMENT-KES** — Final trade settlement account
+- **PA-FEE-KES** — Platform fee revenue collection
+
+### Liquidity Pools (seeded at startup)
+| Pool ID | Type | Currency | Initial Balance |
+|---|---|---|---|
+| LP-LOAN-KES | loan_financing | KES | 250,000,000 |
+| LP-TRADING-KES | trading_settlement | KES | 80,000,000 |
+| LP-USDC | stablecoin | USDC | 250,000 |
+
+### Double-Entry Ledger
+Every financial event creates **two paired entries** (debit + credit) sharing a `txnGroupId`. The system is always reconciled — `totalDebits === totalCredits` for each currency.
+- Route: `GET /api/ledger`, `GET /api/ledger/reconciliation`, `GET /api/ledger/group/:txnGroupId`
+- Service: `services/ledger.ts` — `recordDoubleEntry()`, `getReconciliation()`
+
+### Escrow Engine
+Full buyer → escrow → seller workflow:
+1. `POST /api/escrow/create` — create escrow record
+2. `POST /api/escrow/:id/fund` — lock buyer funds + ledger entry
+3. `POST /api/escrow/:id/release` — debit buyer → credit seller + ledger entry
+4. `POST /api/escrow/:id/cancel` — refund buyer
+- Service: `services/escrow.ts`
+
+### Frontend: Finance Engine page (`/finance-hub`)
+4 tabs: Internal Accounts · Liquidity Pools · Escrow Engine · Ledger Audit
+
 ## User Roles & RBAC
 
 | Role | Label | Key Permissions |
@@ -113,7 +145,7 @@ Database layer using Drizzle ORM with PostgreSQL. Exports a Drizzle client insta
 - `src/schema/index.ts` — barrel re-export of all models
 - `src/schema/<modelname>.ts` — table definitions with `drizzle-zod` insert schemas (no models definitions exist right now)
 - `drizzle.config.ts` — Drizzle Kit config (requires `DATABASE_URL`, automatically provided by Replit)
-- Exports: `.` (pool, db, schema), `./schema` (schema only)
+- Exports: `.` (pool, db, schema), `./schema` (schema only), `./utils/id` (generateId utility)
 
 Production migrations are handled by Replit when publishing. In development, we just use `pnpm --filter @workspace/db run push`, and we fallback to `pnpm --filter @workspace/db run push-force`.
 

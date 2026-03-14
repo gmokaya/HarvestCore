@@ -14,6 +14,7 @@ import {
   Warehouse,
   FileSignature,
   Wallet,
+  Layers,
 } from "lucide-react"
 
 const navGroups = [
@@ -39,6 +40,7 @@ const navGroups = [
       { href: "/loans", label: "Credit & Loans", icon: Banknote },
       { href: "/forward-contracts", label: "Forward Contracts", icon: FileSignature },
       { href: "/wallet", label: "Wallet & Payments", icon: Wallet },
+      { href: "/finance-hub", label: "Finance Engine", icon: Layers },
       { href: "/marketplace", label: "Marketplace", icon: Store },
       { href: "/settlement", label: "Settlement", icon: Scale },
     ],

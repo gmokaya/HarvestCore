@@ -17,6 +17,7 @@ import Marketplace from "@/pages/marketplace";
 import Settlement from "@/pages/settlement";
 import ForwardContracts from "@/pages/forward-contracts";
 import WalletPage from "@/pages/wallet";
+import FinanceHub from "@/pages/finance-hub";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -41,6 +42,7 @@ function Router() {
         <Route path="/forward-contracts" component={ForwardContracts} />
         <Route path="/marketplace" component={Marketplace} />
         <Route path="/wallet" component={WalletPage} />
+        <Route path="/finance-hub" component={FinanceHub} />
         <Route path="/settlement" component={Settlement} />
         <Route component={NotFound} />
       </Switch>
