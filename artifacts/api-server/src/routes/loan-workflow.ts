@@ -5,6 +5,7 @@ import {
   loanApprovalsTable, loanApproversTable, repaymentsTable, activityLogTable,
 } from "@workspace/db/schema";
 import { eq, desc, sql, and } from "drizzle-orm";
+import { creditWallet, debitWallet } from "../services/wallet";
 
 const router = Router();
 
@@ -170,6 +171,17 @@ router.post("/:loanId/advance", async (req, res) => {
         updates.outstandingBalance = loan.principalAmount;
         updates.interestRate = "14";
         await db.update(tokensTable).set({ tokenState: "financed", updatedAt: new Date() }).where(eq(tokensTable.id, loan.tokenId));
+        // Credit borrower wallet with disbursed principal
+        await creditWallet({
+          userId: loan.borrowerId,
+          amount: Number(loan.principalAmount),
+          currency: "KES",
+          type: "loan_disbursement",
+          description: `Loan disbursement — ${loan.id}`,
+          railProvider: (loan.disbursementMethod ?? "mpesa") as any,
+          relatedEntityId: loan.id,
+          relatedEntityType: "loan",
+        });
       }
       if (nextStage === "monitoring") {
         const ltvVal = loan.collateralValue
@@ -216,6 +228,21 @@ router.post("/:loanId/repay", async (req, res) => {
     const repayAmount = Number(amount);
     const newBalance = Math.max(0, currentBalance - repayAmount);
     const isFullyRepaid = newBalance === 0;
+
+    // Debit borrower wallet (best-effort — wallet may not have balance if external payment)
+    try {
+      await debitWallet({
+        userId: loan.borrowerId,
+        amount: repayAmount,
+        currency: "KES",
+        type: "loan_repayment",
+        description: `Loan repayment — ${loan.id}`,
+        railProvider: (paymentMethod ?? "mpesa") as any,
+        reference: transactionRef,
+        relatedEntityId: loan.id,
+        relatedEntityType: "loan",
+      });
+    } catch { /* wallet debit failed — record repayment anyway (external payment rail) */ }
 
     await db.insert(repaymentsTable).values({
       loanId: loan.id,

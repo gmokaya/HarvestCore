@@ -13,6 +13,7 @@ import {
   FileCheck2,
   Warehouse,
   FileSignature,
+  Wallet,
 } from "lucide-react"
 
 const navGroups = [
@@ -37,6 +38,7 @@ const navGroups = [
       { href: "/tokens", label: "Tokens", icon: Coins },
       { href: "/loans", label: "Credit & Loans", icon: Banknote },
       { href: "/forward-contracts", label: "Forward Contracts", icon: FileSignature },
+      { href: "/wallet", label: "Wallet & Payments", icon: Wallet },
       { href: "/marketplace", label: "Marketplace", icon: Store },
       { href: "/settlement", label: "Settlement", icon: Scale },
     ],

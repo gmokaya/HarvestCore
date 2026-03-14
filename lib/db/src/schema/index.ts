@@ -7,3 +7,4 @@ export * from "./tokens";
 export * from "./loans";
 export * from "./marketplace";
 export * from "./forward_contracts";
+export * from "./wallets";

@@ -1,0 +1,444 @@
+Below is a **complete design for the TokenHarvest Payment System and Wallet Management Engine**. This module is critical because it handles **loan disbursements, repayments, trading settlements, and user balances** across **fiat (KES) and stablecoins**.
+
+The design fits your architecture using **mobile app + web core engine + payment rails (M-PESA, PesaLink, Paystack, Pesapal)**.
+
+---
+
+# TokenHarvest Payment System & Wallet Management Engine
+
+## 1. Purpose
+
+The **Payment & Wallet Engine** manages all financial transactions on the platform.
+
+It enables:
+
+* loan disbursements
+* loan repayments
+* commodity trade settlements
+* wallet balance management
+* cross-rail payments (M-PESA, bank, stablecoins)
+
+It also ensures **secure, auditable, and traceable movement of funds**.
+
+---
+
+# 2. Wallet Types
+
+Each user should automatically receive a **multi-currency wallet**.
+
+### Wallet Structure
+
+```text
+User Wallet
+│
+├ Fiat Wallet (KES)
+├ Stablecoin Wallet (USDC / USDT)
+└ Locked Collateral Wallet
+```
+
+### Explanation
+
+**Fiat Wallet (KES)**
+Used for:
+
+* loan disbursement
+* loan repayment
+* commodity purchases
+* withdrawal to M-PESA or bank
+
+**Stablecoin Wallet**
+Used for:
+
+* lender repayment automation
+* cross-border settlement
+* DeFi liquidity pools
+
+**Locked Collateral Wallet**
+Used for:
+
+* funds reserved for active loans
+* escrow in trading contracts
+
+---
+
+# 3. Wallet Account Creation
+
+When a user registers:
+
+```text
+User Created
+      ↓
+Wallet Generated
+      ↓
+Wallet Linked to Payment Rails
+```
+
+Example wallet record:
+
+```json
+{
+ "wallet_id": "WLT-88421",
+ "user_id": "FRM-0092",
+ "currency": "KES",
+ "balance": 0,
+ "locked_balance": 0,
+ "created_at": "2026-03-15"
+}
+```
+
+---
+
+# 4. Payment Rails Integration
+
+Your wallet engine connects to external payment rails.
+
+| Payment Rail | Purpose                               |
+| ------------ | ------------------------------------- |
+| M-PESA       | Mobile money deposits and withdrawals |
+| PesaLink     | Bank-to-bank transfers                |
+| Paystack     | Card payments                         |
+| Pesapal      | Bulk settlements                      |
+| Stablecoins  | Automated lender repayments           |
+
+---
+
+### Payment Rail Architecture
+
+```text
+User Wallet
+      ↓
+Payment Gateway Layer
+      ↓
+External Payment Rails
+```
+
+---
+
+# 5. Supported Transactions
+
+The wallet must support **six key transaction types**.
+
+### 1 Deposit
+
+User deposits money into wallet.
+
+Example:
+
+```text
+M-PESA → TokenHarvest Wallet
+```
+
+---
+
+### 2 Withdrawal
+
+User withdraws wallet balance.
+
+Example:
+
+```text
+Wallet → M-PESA
+Wallet → Bank (PesaLink)
+```
+
+---
+
+### 3 Loan Disbursement
+
+Loan funds are sent to borrower wallet.
+
+```text
+Lender Pool → Borrower Wallet
+```
+
+Borrower can withdraw to M-PESA.
+
+---
+
+### 4 Loan Repayment
+
+Borrower repays loan through wallet.
+
+```text
+Borrower Wallet → Loan Engine
+```
+
+---
+
+### 5 Trade Settlement
+
+Commodity sale proceeds paid to seller wallet.
+
+```text
+Buyer Wallet → Seller Wallet
+```
+
+---
+
+### 6 Escrow Lock
+
+Funds temporarily locked.
+
+Example:
+
+```text
+Forward Contract Settlement
+```
+
+---
+
+# 6. Wallet Ledger System
+
+Every wallet transaction must be recorded in a **ledger**.
+
+### Ledger Table
+
+| Field          | Description                         |
+| -------------- | ----------------------------------- |
+| Transaction ID | Unique transaction identifier       |
+| User ID        | Wallet owner                        |
+| Amount         | Transaction value                   |
+| Currency       | KES / USDC                          |
+| Type           | Deposit / Withdrawal / Loan / Trade |
+| Status         | Pending / Completed / Failed        |
+| Timestamp      | Date and time                       |
+
+Example:
+
+```json
+{
+ "transaction_id": "TXN-55021",
+ "user_id": "FRM-0092",
+ "type": "Loan Disbursement",
+ "amount": 700000,
+ "currency": "KES",
+ "status": "Completed"
+}
+```
+
+---
+
+# 7. Wallet API Endpoints
+
+Your backend should expose these endpoints.
+
+### Wallet APIs
+
+Create wallet
+
+```
+POST /wallet/create
+```
+
+Get wallet balance
+
+```
+GET /wallet/{user_id}
+```
+
+Deposit funds
+
+```
+POST /wallet/deposit
+```
+
+Withdraw funds
+
+```
+POST /wallet/withdraw
+```
+
+Transfer funds
+
+```
+POST /wallet/transfer
+```
+
+Transaction history
+
+```
+GET /wallet/transactions/{user_id}
+```
+
+---
+
+# 8. Loan Payment Integration
+
+The wallet engine must integrate tightly with the **Loan Engine**.
+
+### Loan Disbursement
+
+```text
+Loan Approved
+      ↓
+Funds Transferred
+      ↓
+Borrower Wallet Credited
+```
+
+### Loan Repayment
+
+```text
+Borrower Wallet Debited
+      ↓
+Loan Balance Reduced
+```
+
+---
+
+# 9. Escrow System (Critical for Trading)
+
+For marketplace trading you need **escrow functionality**.
+
+Example:
+
+```text
+Buyer Deposits Funds
+      ↓
+Funds Locked in Escrow
+      ↓
+Commodity Delivered
+      ↓
+Funds Released to Seller
+```
+
+---
+
+# 10. Stablecoin Integration
+
+Stablecoins allow **automated lender settlements**.
+
+Example workflow:
+
+```text
+Investor Wallet
+      ↓
+Stablecoin Pool
+      ↓
+Loan Disbursement
+      ↓
+Repayment
+      ↓
+Automatic Lender Payout
+```
+
+Benefits:
+
+* faster settlement
+* lower transaction costs
+* cross-border payments
+
+---
+
+# 11. Security Controls
+
+The wallet engine must include:
+
+### Transaction Authentication
+
+Require:
+
+* OTP verification
+* PIN authentication
+
+For high-value transactions.
+
+---
+
+### Fraud Monitoring
+
+Detect:
+
+* abnormal withdrawals
+* rapid transfers
+* suspicious wallet activity
+
+---
+
+### Transaction Limits
+
+Example:
+
+| Transaction      | Limit       |
+| ---------------- | ----------- |
+| Daily withdrawal | KES 500,000 |
+| Single transfer  | KES 200,000 |
+
+---
+
+# 12. Wallet UI (Mobile App)
+
+Users should see:
+
+### Wallet Dashboard
+
+```text
+Wallet Balance
+KES Balance
+Stablecoin Balance
+Locked Funds
+```
+
+### Quick Actions
+
+* Deposit
+* Withdraw
+* Send Money
+* Repay Loan
+* View Transactions
+
+---
+
+# 13. Payment System Architecture
+
+```text
+Mobile App / Web App
+        ↓
+Payment & Wallet Engine
+        ↓
+Transaction Ledger
+        ↓
+Payment Gateway Layer
+        ↓
+External Payment Rails
+   ├ M-PESA
+   ├ PesaLink
+   ├ Paystack
+   ├ Pesapal
+   └ Stablecoins
+```
+
+---
+
+# 14. Example End-to-End Payment
+
+### Loan Disbursement
+
+```text
+Loan Approved
+      ↓
+Lender Funds Pool
+      ↓
+Borrower Wallet Credited
+      ↓
+Borrower Withdraws to M-PESA
+```
+
+---
+
+# Strategic Role in TokenHarvest
+
+The **Wallet Engine becomes the financial backbone of the platform**.
+
+It enables:
+
+* **asset-backed lending**
+* **commodity trading**
+* **automated settlements**
+* **stablecoin financing**
+
+Without this module, the **loan and trading engines cannot function**.
+
+---
+
+If you want, I can also design the **TokenHarvest Payment System Architecture used by fintechs (wallet + escrow + liquidity pools)** which will make the platform **bank-grade and scalable for millions of transactions**.

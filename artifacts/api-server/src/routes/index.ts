@@ -14,6 +14,7 @@ import dashboardRouter from "./dashboard";
 import ewrsRouter from "./ewrs";
 import forwardContractsRouter from "./forward_contracts";
 import loanWorkflowRouter from "./loan-workflow";
+import walletRouter from "./wallet";
 
 const router: IRouter = Router();
 
@@ -32,5 +33,6 @@ router.use("/dashboard", dashboardRouter);
 router.use("/ewrs", ewrsRouter);
 router.use("/forward-contracts", forwardContractsRouter);
 router.use("/loan-workflow", loanWorkflowRouter);
+router.use("/wallet", walletRouter);
 
 export default router;
