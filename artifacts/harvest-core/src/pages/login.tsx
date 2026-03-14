@@ -96,13 +96,13 @@ export default function LoginPage() {
 
         <div className="relative flex flex-col h-full px-12 py-10">
           {/* Logo */}
-          <div style={{ display: "inline-flex", flexDirection: "column", marginBottom: "4rem" }}>
-            <span style={{ fontFamily: "'Belleza', serif", fontSize: "26px", lineHeight: 1.2, color: "rgba(255,255,255,0.92)", letterSpacing: "0.01em" }}>
+          <div style={{ width: "max-content", marginBottom: "4rem" }}>
+            <div style={{ fontFamily: "'Belleza', serif", fontSize: "26px", lineHeight: 1.2, color: "rgba(255,255,255,0.92)", letterSpacing: "0.01em" }}>
               TokenHarvest
-            </span>
-            <span style={{ fontFamily: "'Josefin Sans', 'Futura', 'Century Gothic', sans-serif", fontSize: "9px", letterSpacing: "0.196em", color: "rgba(199,215,218,0.7)", textTransform: "uppercase", alignSelf: "flex-end", marginTop: "2px" }}>
+            </div>
+            <div style={{ fontFamily: "'Josefin Sans', 'Futura', 'Century Gothic', sans-serif", fontSize: "9px", letterSpacing: "0.196em", color: "rgba(199,215,218,0.7)", textTransform: "uppercase", textAlign: "right", marginTop: "2px" }}>
               TRADE FINANCE
-            </span>
+            </div>
           </div>
 
           {/* Hero text */}
