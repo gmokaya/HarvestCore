@@ -445,11 +445,11 @@ export default function Loans() {
                           </div>
                         </div>
                       </div>
-                      <div className="flex flex-col gap-2 shrink-0">
-                        <Button size="sm" onClick={() => setAdvanceLoan(loan)}>
-                          <CheckCircle2 className="w-3.5 h-3.5 mr-1.5" /> {next.action}
+                      <div className="flex items-center gap-2 shrink-0">
+                        <Button size="sm" className="h-7 text-xs px-3" onClick={() => setAdvanceLoan(loan)}>
+                          <CheckCircle2 className="w-3 h-3 mr-1" /> {next.action}
                         </Button>
-                        <Button size="sm" variant="outline" className="text-red-600 border-red-200 hover:bg-red-50"
+                        <Button size="sm" variant="outline" className="h-7 text-xs px-3 text-red-600 border-red-200 hover:bg-red-50"
                           onClick={() => { setAdvanceLoan(loan); setAdvanceDecision("rejected") }}>
                           Reject
                         </Button>
