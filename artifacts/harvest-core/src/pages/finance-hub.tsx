@@ -6,7 +6,7 @@ import {
   ArrowDownToLine, ArrowUpFromLine, TrendingUp, TrendingDown,
   CheckCircle2, Clock, XCircle, AlertTriangle, Scale,
   Banknote, CircleDollarSign, Lock, ChevronRight, Filter,
-  ArrowLeftRight, DollarSign, Layers, Building2, Activity,
+  ArrowLeftRight, DollarSign, Building2, Activity,
   Link2, ShieldAlert, Users, FileCheck2, BadgePercent,
   TriangleAlert, Zap, AlertOctagon, ArrowRight, PhoneCall,
   CreditCard, Send, Wifi, WifiOff, GitMerge,
@@ -554,14 +554,9 @@ export default function FinanceHubPage() {
 
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ backgroundColor: "#0A2A2A" }}>
-            <Layers className="w-5 h-5 text-white" />
-          </div>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Finance Engine</h1>
-            <p className="text-sm text-muted-foreground">Treasury · Reconciliation · Escrow · Ledger · Monitoring</p>
-          </div>
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Finance Engine</h1>
+          <p className="text-sm text-muted-foreground">Treasury · Reconciliation · Escrow · Ledger · Monitoring</p>
         </div>
         <button onClick={loadAll} className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground border rounded-md px-3 py-1.5">
           <RefreshCw className="w-3.5 h-3.5" /> Refresh

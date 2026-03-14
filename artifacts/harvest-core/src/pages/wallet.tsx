@@ -200,14 +200,9 @@ export default function WalletPage() {
 
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ backgroundColor: "#0A2A2A" }}>
-            <Wallet className="w-5 h-5 text-white" />
-          </div>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Wallet & Payments</h1>
-            <p className="text-sm text-muted-foreground">Multi-currency wallet · KES & USDC · M-PESA · PesaLink</p>
-          </div>
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Wallet & Payments</h1>
+          <p className="text-sm text-muted-foreground">Multi-currency wallet · KES & USDC · M-PESA · PesaLink</p>
         </div>
         <button onClick={() => { loadWallets(); loadTxns(); }}
           className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground border rounded-md px-3 py-1.5 transition-colors">
