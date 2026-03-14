@@ -11,8 +11,7 @@ import {
   FileSignature, TrendingUp, CheckCircle2, Clock, AlertTriangle,
   ChevronDown, ChevronRight, Plus, Package, MapPin, FileDown,
   Coins, ShieldCheck, Activity, Brain, Link2,
-  ArrowRight, Zap,
-  Layers, Lock,
+  Zap, Layers, Lock,
 } from "lucide-react";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
@@ -74,15 +73,6 @@ const NEXT_STATUSES: Record<string, string[]> = {
   accepted: ["active", "cancelled"],
   active:   ["settled", "defaulted"],
 };
-
-// Workflow step config — maps each status to a step index
-const WORKFLOW_STEPS = [
-  { label: "Create Contract",        desc: "Farmer / Trader",           icon: FileSignature, step: 1 },
-  { label: "AI Price Suggestion",    desc: "Pricing Engine",            icon: Brain,         step: 2 },
-  { label: "Accept Contract",        desc: "Commodity Processor",       icon: CheckCircle2,  step: 3 },
-  { label: "Blockchain Tokenization",desc: "IOTA / BNC",                icon: Link2,         step: 4 },
-  { label: "Automate Settlement",    desc: "On Delivery Confirmation",  icon: Zap,           step: 5 },
-];
 
 function StatusBadge({ status }: { status: string }) {
   const cfg = STATUS_CONFIG[status] ?? STATUS_CONFIG.draft;
@@ -213,33 +203,6 @@ export default function ForwardContracts() {
           </Button>
         </div>
       </div>
-
-      {/* Workflow Steps Banner */}
-      <Card className="border-border">
-        <CardContent className="py-4 px-5">
-          <div className="flex items-center gap-0">
-            {WORKFLOW_STEPS.map((step, idx) => (
-              <div key={step.step} className="flex items-center flex-1 min-w-0">
-                <div className="flex flex-col items-center flex-1 min-w-0 px-2">
-                  <div className="flex items-center justify-center w-9 h-9 rounded-full mb-1.5 border-2"
-                    style={{ backgroundColor: "#0A2A2A22", borderColor: "#0A2A2A55" }}>
-                    <step.icon className="w-4 h-4" style={{ color: "#0A2A2A" }} />
-                  </div>
-                  <div className="text-xs font-semibold text-center leading-tight">{step.label}</div>
-                  <div className="text-[10px] text-muted-foreground text-center mt-0.5">{step.desc}</div>
-                  <div className="mt-1 text-[10px] font-bold rounded-full px-1.5 py-0.5 border"
-                    style={{ backgroundColor: "#0A2A2A11", borderColor: "#0A2A2A33", color: "#0A2A2A" }}>
-                    Step {step.step}
-                  </div>
-                </div>
-                {idx < WORKFLOW_STEPS.length - 1 && (
-                  <ArrowRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-                )}
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
