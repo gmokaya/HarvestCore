@@ -6,9 +6,10 @@ import {
   Input, Label,
 } from "@/components/ui"
 import { cn, formatCurrency } from "@/lib/utils"
+import { downloadPDF } from "@/lib/pdf-report"
 import {
   CheckCircle2, ChevronDown, ChevronRight,
-  Plus, Users,
+  Plus, Users, FileDown,
 } from "lucide-react"
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "")
@@ -243,6 +244,49 @@ export default function Loans() {
 
   const filteredLoans = stageFilter === "all" ? loans : loans.filter(l => l.workflowStage === stageFilter)
 
+  const handleDownloadPDF = () => {
+    if (tab === "Audit Trail") {
+      downloadPDF({
+        title: "Credit & Lending — Audit Trail",
+        subtitle: `${auditLog.length} approval entries · ${new Date().toLocaleDateString("en-KE")}`,
+        filename: `loan-audit-trail-${Date.now()}.pdf`,
+        sections: [{
+          heading: "Approval Audit Log",
+          columns: ["Entry ID", "Loan ID", "Approver", "Role", "Stage", "Decision", "Date"],
+          rows: auditLog.map(a => [
+            a.id.slice(0, 8), a.loanId.slice(0, 8), a.approverName,
+            ROLE_LABELS[a.approverRole] ?? a.approverRole,
+            a.stage, a.decision.toUpperCase(),
+            new Date(a.createdAt).toLocaleDateString("en-KE"),
+          ]),
+        }],
+      })
+    } else {
+      downloadPDF({
+        title: "Credit & Lending — Loan Portfolio",
+        subtitle: `${filteredLoans.length} loans · ${new Date().toLocaleDateString("en-KE")}`,
+        filename: `loan-portfolio-${Date.now()}.pdf`,
+        summary: stats ? [
+          ["Total Loans", String(stats.total)],
+          ["Active", String(stats.active)],
+          ["Pending", String(stats.pending)],
+          ["Portfolio (KES)", formatCurrency(stats.portfolio)],
+          ["Defaulted", String(stats.defaulted)],
+        ] : undefined,
+        sections: [{
+          heading: "Loan Portfolio",
+          columns: ["Loan ID", "Borrower", "Commodity", "Principal (KES)", "Outstanding (KES)", "Stage", "Status"],
+          rows: filteredLoans.map(l => [
+            l.id.slice(0, 10), l.borrowerName, l.commodity,
+            formatCurrency(l.principalAmount),
+            l.outstandingBalance != null ? formatCurrency(l.outstandingBalance) : "—",
+            l.workflowStageLabel, l.status,
+          ]),
+        }],
+      })
+    }
+  }
+
   if (loading) return <div className="p-8 text-center text-muted-foreground">Loading loan engine...</div>
 
   return (
@@ -253,6 +297,10 @@ export default function Loans() {
           <h1 className="text-3xl font-bold tracking-tight">Credit & Lending</h1>
           <p className="text-muted-foreground mt-1">Multi-stage approval workflow · Bank-grade governance · Full audit trail</p>
         </div>
+        <button onClick={handleDownloadPDF}
+          className="flex items-center gap-1.5 text-sm border rounded-md px-3 py-1.5 hover:bg-muted/50 transition-colors text-muted-foreground hover:text-foreground">
+          <FileDown className="w-4 h-4" /> Download PDF
+        </button>
       </div>
 
       {/* Stats */}

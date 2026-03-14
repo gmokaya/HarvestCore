@@ -13,8 +13,9 @@ import {
   ClipboardCheck, AlertTriangle, CheckCircle2, XCircle, Clock,
   ChevronDown, ChevronRight, Thermometer, Camera, FileText, Award,
   Plus, Trash2, Printer, User, Scale, ShieldCheck, FlaskConical,
-  Droplets, BadgeCheck, ClipboardList, TriangleAlert,
+  Droplets, BadgeCheck, ClipboardList, TriangleAlert, FileDown,
 } from "lucide-react";
+import { downloadPDF } from "@/lib/pdf-report";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 function api(path: string, opts?: RequestInit) {
@@ -343,7 +344,38 @@ function InspectionReportModal({ inspection, onClose }: { inspection: any; onClo
 
           <div className="flex justify-end gap-2 pt-2">
             <Button variant="outline" onClick={onClose} className="border-border/50">Close</Button>
-            <Button className="gap-2"><Printer className="w-4 h-4" /> Print / Export PDF</Button>
+            <Button className="gap-2" onClick={() => {
+              downloadPDF({
+                title: `Inspection Report — ${inspection.commodity}`,
+                subtitle: `INS-${new Date(inspection.inspectionDate).getFullYear()}-${reportId} · ${dateStr}`,
+                filename: `inspection-${inspection.id}-${Date.now()}.pdf`,
+                summary: [
+                  ["Grade", inspection.grade ?? "—"],
+                  ["Damage Level", inspection.damageLevel ?? "—"],
+                  ["Status", inspection.status],
+                  ["Weight (kg)", inspection.netWeightKg ? Number(inspection.netWeightKg).toLocaleString() : "—"],
+                  ["Bag Count", inspection.bagCount ? String(inspection.bagCount) : "—"],
+                ],
+                sections: [{
+                  heading: "Quality Parameters",
+                  columns: ["Parameter", "Value"],
+                  rows: [
+                    ["Commodity", `${inspection.commodity}${inspection.variety ? ` — ${inspection.variety}` : ""}`],
+                    ["Warehouse", inspection.warehouseName ?? "—"],
+                    ["Inspection Type", inspection.inspectionType ?? "—"],
+                    ["Moisture Content", inspection.moisturePercent != null ? `${inspection.moisturePercent}%` : "—"],
+                    ["Broken Grain", inspection.brokenGrainPercent != null ? `${inspection.brokenGrainPercent}%` : "—"],
+                    ["Foreign Matter", inspection.foreignMatterPercent != null ? `${inspection.foreignMatterPercent}%` : "—"],
+                    ["Pest Damage", inspection.pestDamagePercent != null ? `${inspection.pestDamagePercent}%` : "—"],
+                    ["Mold / Aflatoxin", inspection.aflatoxinDetected ? "Aflatoxin Detected" : inspection.moldPresent ? "Mold Present" : "None"],
+                    ["Discoloration", inspection.discoloration ? "Present" : "None"],
+                    ["Inspector", inspection.inspectorName ?? "—"],
+                    ["License No.", inspection.licenseNumber ?? "—"],
+                    ["Notes", inspection.checkerNotes ?? "—"],
+                  ],
+                }],
+              })
+            }}><FileDown className="w-4 h-4" /> Download PDF</Button>
           </div>
         </div>
       </DialogContent>
@@ -1030,6 +1062,35 @@ export default function InspectionPage() {
   const warehouses = warehousesData?.warehouses ?? [];
   const inspectors = usersData?.users ?? [];
 
+  const handleDownloadPDF = () => {
+    downloadPDF({
+      title: "Inspection & Quality — Inspection Register",
+      subtitle: `${filtered.length} records · ${new Date().toLocaleDateString("en-KE")}`,
+      filename: `inspection-register-${Date.now()}.pdf`,
+      summary: [
+        ["Total", String(stats.total ?? 0)],
+        ["Approved", String(stats.approved ?? 0)],
+        ["Pending", String(stats.pending ?? 0)],
+        ["Rejected", String(stats.rejected ?? 0)],
+        ["Certified", String(stats.certified ?? 0)],
+      ],
+      sections: [{
+        heading: "Inspection Register",
+        columns: ["ID", "Commodity", "Warehouse", "Inspector", "Grade", "Damage", "Status", "Date"],
+        rows: filtered.map((ins: any) => [
+          ins.id?.slice(0, 8) ?? "—",
+          `${ins.commodity}${ins.variety ? ` (${ins.variety})` : ""}`,
+          ins.warehouseName ?? "—",
+          ins.inspectorName ?? "—",
+          ins.grade ?? "—",
+          ins.damageLevel ?? "—",
+          ins.status,
+          new Date(ins.inspectionDate).toLocaleDateString("en-KE"),
+        ]),
+      }],
+    })
+  }
+
   return (
     <div className="space-y-6">
       {/* Page header */}
@@ -1038,9 +1099,15 @@ export default function InspectionPage() {
           <h1 className="text-3xl font-bold tracking-tight">Inspection & Quality</h1>
           <p className="text-sm text-muted-foreground mt-1">Commodity grading, quality verification, and risk assessment</p>
         </div>
-        <Button onClick={() => setActiveMainTab("new")} className="gap-2">
-          <ClipboardCheck className="w-4 h-4" /> New Inspection
-        </Button>
+        <div className="flex items-center gap-2">
+          <button onClick={handleDownloadPDF}
+            className="flex items-center gap-1.5 text-sm border rounded-md px-3 py-1.5 hover:bg-muted/50 transition-colors text-muted-foreground hover:text-foreground">
+            <FileDown className="w-4 h-4" /> Download PDF
+          </button>
+          <Button onClick={() => setActiveMainTab("new")} className="gap-2">
+            <ClipboardCheck className="w-4 h-4" /> New Inspection
+          </Button>
+        </div>
       </div>
 
       {/* Stats bar */}

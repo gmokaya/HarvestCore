@@ -6,9 +6,10 @@ import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui";
 import { cn, formatCurrency } from "@/lib/utils";
+import { downloadPDF } from "@/lib/pdf-report";
 import {
   FileSignature, TrendingUp, CheckCircle2, Clock, AlertTriangle,
-  ChevronDown, ChevronRight, Plus, Package, MapPin,
+  ChevronDown, ChevronRight, Plus, Package, MapPin, FileDown,
   Coins, ShieldCheck, Activity, Brain, Link2,
   ArrowRight, Zap,
   Layers, Lock,
@@ -171,6 +172,29 @@ export default function ForwardContracts() {
   const totalContractValue = Number(form.quantity || 0) * Number(form.forwardPrice || 0);
   const aiData = AI_PRICES[aiCommodity] ?? AI_PRICES.Maize;
 
+  const handleDownloadPDF = () => {
+    downloadPDF({
+      title: "Forward Contracts — Contract Portfolio",
+      subtitle: `${contracts.length} contracts · ${new Date().toLocaleDateString("en-KE")}`,
+      filename: `forward-contracts-${Date.now()}.pdf`,
+      sections: [{
+        heading: "Contract Portfolio",
+        columns: ["ID", "Commodity", "Seller", "Buyer", "Qty (kg)", "Price (KES/kg)", "Total Value", "Delivery Date", "Status"],
+        rows: contracts.map((c: any) => [
+          c.id?.slice(0, 8) ?? "—",
+          c.commodity,
+          c.sellerName ?? "—",
+          c.buyerName ?? "—",
+          Number(c.quantity || 0).toLocaleString(),
+          Number(c.forwardPrice || 0).toLocaleString(),
+          formatCurrency(Number(c.quantity || 0) * Number(c.forwardPrice || 0)),
+          c.deliveryDate ? new Date(c.deliveryDate).toLocaleDateString("en-KE") : "—",
+          c.status,
+        ]),
+      }],
+    })
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -179,9 +203,15 @@ export default function ForwardContracts() {
           <h1 className="text-3xl font-bold tracking-tight">Forward Contracts</h1>
           <p className="text-muted-foreground mt-1">Forwards Contracts Engine — AI pricing, blockchain tokenization &amp; automated settlement</p>
         </div>
-        <Button onClick={() => setTab("New Contract")} className="gap-2 text-white" style={{ backgroundColor: "#0A2A2A" }}>
-          <Plus className="w-4 h-4" /> New Contract
-        </Button>
+        <div className="flex items-center gap-2">
+          <button onClick={handleDownloadPDF}
+            className="flex items-center gap-1.5 text-sm border rounded-md px-3 py-1.5 hover:bg-muted/50 transition-colors text-muted-foreground hover:text-foreground">
+            <FileDown className="w-4 h-4" /> Download PDF
+          </button>
+          <Button onClick={() => setTab("New Contract")} className="gap-2 text-white" style={{ backgroundColor: "#0A2A2A" }}>
+            <Plus className="w-4 h-4" /> New Contract
+          </Button>
+        </div>
       </div>
 
       {/* Workflow Steps Banner */}

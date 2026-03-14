@@ -6,11 +6,12 @@ import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui";
 import { cn } from "@/lib/utils";
+import { downloadPDF } from "@/lib/pdf-report";
 import {
   FileCheck2, Lock, Coins, ChevronDown, ChevronRight,
   CheckCircle2, Clock, AlertTriangle, BarChart3, CalendarDays,
   Building2, User, Link2, Package, ArrowRightLeft, ScrollText,
-  ClipboardCheck, Plus, Warehouse, Activity, TrendingUp, Search,
+  ClipboardCheck, Plus, Warehouse, Activity, TrendingUp, Search, FileDown,
   ShieldCheck, RefreshCw, Leaf,
 } from "lucide-react";
 
@@ -680,6 +681,36 @@ export default function ReceiptsPage() {
     { key: "audit",     label: "Audit Log",   icon: ScrollText },
   ];
 
+  const handleDownloadPDF = () => {
+    downloadPDF({
+      title: "Digital Warehouse Receipts — Receipt Register",
+      subtitle: `${filtered.length} receipts · ${new Date().toLocaleDateString("en-KE")}`,
+      filename: `dwr-register-${Date.now()}.pdf`,
+      summary: [
+        ["Total", String(stats.total ?? 0)],
+        ["Active", String(stats.active ?? 0)],
+        ["Locked", String(stats.collateralLocked ?? 0)],
+        ["Expired", String(stats.expired ?? 0)],
+        ["Total Tonnage", `${((stats.totalKg ?? 0) / 1000).toFixed(1)} MT`],
+      ],
+      sections: [{
+        heading: "Warehouse Receipt Register",
+        columns: ["Receipt No.", "Commodity", "Owner", "Warehouse", "Quantity (kg)", "Grade", "Token ID", "Issued", "Status"],
+        rows: filtered.map((r: any) => [
+          r.receiptNo ?? r.id?.slice(0, 10),
+          `${r.commodity}${r.variety ? ` (${r.variety})` : ""}`,
+          r.ownerName ?? "—",
+          r.warehouseName ?? "—",
+          r.netWeightKg != null ? Number(r.netWeightKg).toLocaleString() : "—",
+          r.grade ?? "—",
+          r.tokenId ? r.tokenId.slice(0, 12) + "…" : "Not tokenized",
+          r.issuedAt ? new Date(r.issuedAt).toLocaleDateString("en-KE") : "—",
+          r.status,
+        ]),
+      }],
+    })
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -690,10 +721,16 @@ export default function ReceiptsPage() {
             Verifiable proof of commodity ownership, quality, and storage — the collateral instrument
           </p>
         </div>
-        <Button className="gap-2" onClick={() => setActiveTab("issue")}>
-          <Plus className="w-4 h-4" />
-          Issue Receipt
-        </Button>
+        <div className="flex items-center gap-2">
+          <button onClick={handleDownloadPDF}
+            className="flex items-center gap-1.5 text-sm border rounded-md px-3 py-1.5 hover:bg-muted/50 transition-colors text-muted-foreground hover:text-foreground">
+            <FileDown className="w-4 h-4" /> Download PDF
+          </button>
+          <Button className="gap-2" onClick={() => setActiveTab("issue")}>
+            <Plus className="w-4 h-4" />
+            Issue Receipt
+          </Button>
+        </div>
       </div>
 
       {/* Stats */}

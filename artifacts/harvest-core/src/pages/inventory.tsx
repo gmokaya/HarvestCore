@@ -9,6 +9,7 @@ import {
   Progress,
 } from "@/components/ui"
 import { cn, formatWeight } from "@/lib/utils"
+import { downloadPDF } from "@/lib/pdf-report"
 import {
   Scale, Plus, CheckCircle2, XCircle, Droplets, Tag, ClipboardList,
   Warehouse, ChevronRight, AlertCircle, Link2, Leaf, Hash,
@@ -299,6 +300,35 @@ export default function Inventory() {
     </div>
   )
 
+  const handleDownloadPDF = () => {
+    downloadPDF({
+      title: "Logistics & Inventory — Intake Register",
+      subtitle: `${intakes.length} intake records · ${new Date().toLocaleDateString("en-KE")}`,
+      filename: `inventory-register-${Date.now()}.pdf`,
+      summary: [
+        ["Total Intakes", String(intakes.length)],
+        ["Graded", String(stageCounts["graded"] ?? 0)],
+        ["GRN Issued", String(stageCounts["weighed"] ?? 0)],
+        ["Verified", String(stageCounts["verified"] ?? 0)],
+        ["Anchored", String(stageCounts["anchored"] ?? 0)],
+      ],
+      sections: [{
+        heading: "Commodity Intake Register",
+        columns: ["ID", "Commodity", "Warehouse", "Weight (kg)", "Grade", "Moisture %", "Stage", "Date"],
+        rows: intakes.map((i: any) => [
+          i.id?.slice(0, 8) ?? "—",
+          `${i.commodity}${i.variety ? ` (${i.variety})` : ""}`,
+          i.warehouseName ?? "—",
+          i.confirmedWeightKg ?? i.weightKg ?? "—",
+          i.grade ?? "—",
+          i.moisturePercent != null ? `${i.moisturePercent}%` : "—",
+          i.stage ?? "—",
+          new Date(i.createdAt).toLocaleDateString("en-KE"),
+        ]),
+      }],
+    })
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -307,9 +337,15 @@ export default function Inventory() {
           <h1 className="text-3xl font-bold tracking-tight">Logistics & Inventory</h1>
           <p className="text-muted-foreground mt-1">Commodity intake pipeline — Intake → Grading → GRN → Verification → IOTA Anchor</p>
         </div>
-        <Button onClick={() => setShowNewIntake(true)}>
-          <Plus className="w-4 h-4 mr-2" /> New Intake
-        </Button>
+        <div className="flex items-center gap-2">
+          <button onClick={handleDownloadPDF}
+            className="flex items-center gap-1.5 text-sm border rounded-md px-3 py-1.5 hover:bg-muted/50 transition-colors text-muted-foreground hover:text-foreground">
+            <Download className="w-4 h-4" /> Download PDF
+          </button>
+          <Button onClick={() => setShowNewIntake(true)}>
+            <Plus className="w-4 h-4 mr-2" /> New Intake
+          </Button>
+        </div>
       </div>
 
       {/* Stage counters */}

@@ -9,8 +9,9 @@ import {
   ArrowLeftRight, DollarSign, Building2, Activity,
   Link2, ShieldAlert, Users, FileCheck2, BadgePercent,
   TriangleAlert, Zap, AlertOctagon, ArrowRight, PhoneCall,
-  CreditCard, Send, Wifi, WifiOff, GitMerge,
+  CreditCard, Send, Wifi, WifiOff, GitMerge, FileDown,
 } from "lucide-react";
+import { downloadPDF } from "@/lib/pdf-report";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 const AUTH = { Authorization: "Bearer mock-token-admin-001" };
@@ -536,6 +537,34 @@ export default function FinanceHubPage() {
     ledgerGroups.push(filteredLedger.filter((e) => e.txnGroupId === entry.txnGroupId));
   }
 
+  const handleDownloadLedgerPDF = () => {
+    downloadPDF({
+      title: "Finance Engine — Double-Entry Ledger Journal",
+      subtitle: `${filteredLedger.length} entries${filterType ? ` · ${filterType}s only` : ""} · ${new Date().toLocaleDateString("en-KE")}`,
+      filename: `ledger-journal-${Date.now()}.pdf`,
+      summary: reconciliation ? [
+        ["KES Debits", `KES ${fmt(reconciliation.kes.totalDebits)}`],
+        ["KES Credits", `KES ${fmt(reconciliation.kes.totalCredits)}`],
+        ["KES Balanced", reconciliation.kes.balanced ? "Yes" : "NO"],
+        ["Total Entries", String(reconciliation.totalEntries)],
+        ["System Status", reconciliation.systemBalanced ? "All Clear" : "Action Required"],
+      ] : undefined,
+      sections: [{
+        heading: "Ledger Journal Entries",
+        columns: ["Txn Group", "Account", "Type", "Amount", "Currency", "Reference", "Date"],
+        rows: filteredLedger.map((e) => [
+          e.txnGroupId?.slice(0, 8) ?? "—",
+          e.accountId?.replace("PA-", "").replace("LP-", "LP-") ?? "—",
+          e.entryType.toUpperCase(),
+          fmt(e.amount),
+          e.currency ?? "KES",
+          e.referenceType ?? "—",
+          e.createdAt ? new Date(e.createdAt).toLocaleDateString("en-KE") : "—",
+        ]),
+      }],
+    })
+  }
+
   return (
     <div className="p-6 space-y-6 max-w-6xl mx-auto">
       {/* Toast */}
@@ -1009,7 +1038,11 @@ export default function FinanceHubPage() {
               <option value="debit">Debits only</option>
               <option value="credit">Credits only</option>
             </select>
-            <span className="ml-auto text-xs text-muted-foreground">{ledgerTotal} total entries · showing {filteredLedger.length}</span>
+            <button onClick={handleDownloadLedgerPDF}
+              className="ml-auto flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground border border-border rounded-md px-2.5 py-1.5 hover:bg-muted/50 transition-colors">
+              <FileDown className="w-3.5 h-3.5" /> Download PDF
+            </button>
+            <span className="text-xs text-muted-foreground">{ledgerTotal} total entries · showing {filteredLedger.length}</span>
           </div>
           {loading ? (
             <div className="h-40 bg-muted/30 rounded-xl animate-pulse" />
