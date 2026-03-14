@@ -7,9 +7,8 @@ import {
 } from "@/components/ui"
 import { cn, formatCurrency } from "@/lib/utils"
 import {
-  ShieldCheck, Banknote, CheckCircle2, Clock, AlertTriangle, ChevronDown, ChevronRight,
-  TrendingUp, Activity, ArrowRight, UserCheck, Lock, Wallet, RotateCcw,
-  Plus, BarChart3, Users, FileText, ClipboardList,
+  CheckCircle2, ChevronDown, ChevronRight,
+  Plus, Users,
 } from "lucide-react"
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "")
@@ -44,26 +43,17 @@ interface Stats {
 
 // ── Workflow Stages ──────────────────────────────────────────────────────────
 const WORKFLOW_STEPS = [
-  { key: "submitted",           label: "Application",        icon: FileText },
-  { key: "collateral_verified", label: "Collateral Verify",  icon: ShieldCheck },
-  { key: "valuation_complete",  label: "Commodity Valuation", icon: BarChart3 },
-  { key: "credit_approved",     label: "Credit Assessment",  icon: UserCheck },
-  { key: "risk_approved",       label: "Risk Approval",      icon: AlertTriangle },
-  { key: "finance_approved",    label: "Finance Auth",       icon: Banknote },
-  { key: "collateral_locked",   label: "Collateral Lock",    icon: Lock },
-  { key: "disbursed",           label: "Disbursement",       icon: Wallet },
-  { key: "monitoring",          label: "Monitoring",         icon: Activity },
-  { key: "repaid",              label: "Repaid",             icon: CheckCircle2 },
+  { key: "submitted",           label: "Application" },
+  { key: "collateral_verified", label: "Collateral Verify" },
+  { key: "valuation_complete",  label: "Commodity Valuation" },
+  { key: "credit_approved",     label: "Credit Assessment" },
+  { key: "risk_approved",       label: "Risk Approval" },
+  { key: "finance_approved",    label: "Finance Auth" },
+  { key: "collateral_locked",   label: "Collateral Lock" },
+  { key: "disbursed",           label: "Disbursement" },
+  { key: "monitoring",          label: "Monitoring" },
+  { key: "repaid",              label: "Repaid" },
 ]
-
-const STAGE_ORDER = WORKFLOW_STEPS.map(s => s.key)
-
-function stageIndex(stage: string) {
-  const idx = STAGE_ORDER.indexOf(stage)
-  if (idx !== -1) return idx
-  if (stage === "defaulted") return -1
-  return 0
-}
 
 const ROLE_LABELS: Record<string, string> = {
   collateral_manager: "Collateral Manager",
@@ -153,41 +143,6 @@ function fmt(d: string) {
   return new Date(d).toLocaleDateString("en-KE", { day: "numeric", month: "short", year: "numeric" })
 }
 
-// ── Workflow Pipeline Banner ──────────────────────────────────────────────────
-function WorkflowBanner({ stage }: { stage?: string }) {
-  const idx = stageIndex(stage ?? "submitted")
-  return (
-    <div className="flex items-start gap-0 overflow-x-auto pb-2">
-      {WORKFLOW_STEPS.map((step, i) => {
-        const Icon = step.icon
-        const done = i < idx
-        const active = i === idx
-        const isLast = i === WORKFLOW_STEPS.length - 1
-        return (
-          <div key={step.key} className="flex items-center shrink-0">
-            <div className={cn(
-              "flex flex-col items-center gap-1 px-2 py-1.5 rounded-lg min-w-[76px]",
-              done && "opacity-70",
-              active && "bg-[#0A2A2A]/8 ring-1 ring-[#0A2A2A]/20",
-            )}>
-              <div className={cn(
-                "w-7 h-7 rounded-full flex items-center justify-center",
-                done ? "bg-emerald-100 text-emerald-700" : active ? "bg-[#0A2A2A] text-white" : "bg-muted text-muted-foreground",
-              )}>
-                {done ? <CheckCircle2 className="w-4 h-4" /> : <Icon className="w-3.5 h-3.5" />}
-              </div>
-              <span className={cn("text-[9px] font-medium text-center leading-tight",
-                active ? "text-[#0A2A2A]" : done ? "text-emerald-700" : "text-muted-foreground")}>
-                {step.label}
-              </span>
-            </div>
-            {!isLast && <ArrowRight className="w-3 h-3 text-muted-foreground/40 shrink-0 mx-0.5 mt-[-4px]" />}
-          </div>
-        )
-      })}
-    </div>
-  )
-}
 
 // ── Main Component ───────────────────────────────────────────────────────────
 export default function Loans() {
@@ -320,12 +275,6 @@ export default function Loans() {
         </div>
       )}
 
-      {/* Workflow Pipeline */}
-      <Card className="px-5 pt-4 pb-3">
-        <p className="text-xs font-semibold text-muted-foreground mb-3 uppercase tracking-wider">Financing Approval Pipeline</p>
-        <WorkflowBanner />
-      </Card>
-
       {/* Tabs */}
       <div className="flex gap-1 border-b">
         {TABS.map(t => (
@@ -444,11 +393,6 @@ export default function Loans() {
                               </div>
                             )}
                           </div>
-                          {/* Mini pipeline for this loan */}
-                          <div className="mt-4 pt-4 border-t">
-                            <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-2">Loan Pipeline Progress</p>
-                            <WorkflowBanner stage={loan.workflowStage} />
-                          </div>
                         </TableCell>
                       </TableRow>
                     )}
@@ -499,9 +443,6 @@ export default function Loans() {
                             <p className="text-[10px] text-muted-foreground">Awaiting</p>
                             <p className="font-medium">{next.label}</p>
                           </div>
-                        </div>
-                        <div className="pt-1">
-                          <WorkflowBanner stage={loan.workflowStage} />
                         </div>
                       </div>
                       <div className="flex flex-col gap-2 shrink-0">
