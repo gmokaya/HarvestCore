@@ -1,6 +1,7 @@
 import { pgTable, text, timestamp, pgEnum } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
+import { generateId } from "../utils/id";
 
 export const roleEnum = pgEnum("role", ["farmer", "trader", "collateral_manager", "processor", "warehouse_op", "checker", "lender", "admin"]);
 export const kycStatusEnum = pgEnum("kyc_status", ["pending", "approved", "rejected"]);
@@ -8,7 +9,7 @@ export const kycTypeEnum = pgEnum("kyc_type", ["individual", "company", "coopera
 export const idTypeEnum = pgEnum("id_type", ["national_id", "passport", "driving_license"]);
 
 export const usersTable = pgTable("users", {
-  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  id: text("id").primaryKey().$defaultFn(() => generateId("USR")),
   email: text("email").notNull().unique(),
   name: text("name").notNull(),
   passwordHash: text("password_hash").notNull(),
@@ -22,7 +23,7 @@ export const usersTable = pgTable("users", {
 });
 
 export const kycRecordsTable = pgTable("kyc_records", {
-  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  id: text("id").primaryKey().$defaultFn(() => generateId("KYC")),
   userId: text("user_id").notNull().references(() => usersTable.id),
   kycType: kycTypeEnum("kyc_type").notNull(),
   idNumber: text("id_number").notNull(),

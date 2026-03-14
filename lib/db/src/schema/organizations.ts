@@ -1,6 +1,7 @@
 import { pgTable, text, timestamp, pgEnum, integer } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
+import { generateId } from "../utils/id";
 
 export const orgTypeEnum = pgEnum("org_type", [
   "cooperative",
@@ -13,7 +14,7 @@ export const orgTypeEnum = pgEnum("org_type", [
 export const orgStatusEnum = pgEnum("org_status", ["active", "suspended", "pending"]);
 
 export const organizationsTable = pgTable("organizations", {
-  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  id: text("id").primaryKey().$defaultFn(() => generateId("ORG")),
   name: text("name").notNull(),
   type: orgTypeEnum("type").notNull(),
   registrationNumber: text("registration_number"),

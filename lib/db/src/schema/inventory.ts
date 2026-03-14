@@ -2,13 +2,14 @@ import { pgTable, text, numeric, timestamp, pgEnum } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 import { usersTable } from "./users";
+import { generateId } from "../utils/id";
 
 export const intakeStatusEnum = pgEnum("intake_status", ["pending", "graded", "weighed", "verified", "anchored", "rejected"]);
 export const gradeEnum = pgEnum("grade", ["A", "B", "C", "D"]);
 export const ewrsStatusEnum = pgEnum("ewrs_status", ["not_submitted", "pending", "verified", "rejected", "sync_error"]);
 
 export const warehousesTable = pgTable("warehouses", {
-  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  id: text("id").primaryKey().$defaultFn(() => generateId("WHR")),
   name: text("name").notNull(),
   location: text("location").notNull(),
   capacity: numeric("capacity", { precision: 12, scale: 2 }).notNull(),
@@ -18,7 +19,7 @@ export const warehousesTable = pgTable("warehouses", {
 });
 
 export const intakesTable = pgTable("intakes", {
-  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  id: text("id").primaryKey().$defaultFn(() => generateId("INT")),
   farmerId: text("farmer_id").notNull().references(() => usersTable.id),
   warehouseId: text("warehouse_id").notNull().references(() => warehousesTable.id),
   commodity: text("commodity").notNull(),

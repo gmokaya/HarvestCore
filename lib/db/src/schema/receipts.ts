@@ -4,6 +4,7 @@ import { z } from "zod/v4";
 import { usersTable } from "./users";
 import { warehousesTable, intakesTable } from "./inventory";
 import { inspectionsTable } from "./inspection";
+import { generateId } from "../utils/id";
 
 export const receiptStatusEnum = pgEnum("receipt_status", [
   "draft",
@@ -16,7 +17,7 @@ export const receiptStatusEnum = pgEnum("receipt_status", [
 ]);
 
 export const warehouseReceiptsTable = pgTable("warehouse_receipts", {
-  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  id: text("id").primaryKey().$defaultFn(() => generateId("WR")),
   receiptNumber: text("receipt_number").notNull().unique(),
   registryRefId: text("registry_ref_id"),
 
@@ -51,7 +52,7 @@ export const warehouseReceiptsTable = pgTable("warehouse_receipts", {
 });
 
 export const dwrAuditLogTable = pgTable("dwr_audit_log", {
-  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  id: text("id").primaryKey().$defaultFn(() => generateId("AUD")),
   receiptId: text("receipt_id").notNull().references(() => warehouseReceiptsTable.id),
   receiptNumber: text("receipt_number").notNull(),
   action: text("action").notNull(),

@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
 import { organizationsTable, usersTable } from "@workspace/db/schema";
+import { generateId, ORG_ID_PREFIX } from "@workspace/db";
 import { eq, sql, desc } from "drizzle-orm";
 
 const router = Router();
@@ -49,7 +50,11 @@ router.get("/:id", async (req, res) => {
 
 router.post("/", async (req, res) => {
   try {
-    const [org] = await db.insert(organizationsTable).values(req.body).returning();
+    const prefix = ORG_ID_PREFIX[req.body.type as string] ?? "ORG";
+    const [org] = await db.insert(organizationsTable).values({
+      id: generateId(prefix),
+      ...req.body,
+    }).returning();
     res.status(201).json(org);
   } catch (err: any) {
     res.status(500).json({ error: err.message });

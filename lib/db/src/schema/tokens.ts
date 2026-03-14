@@ -3,11 +3,12 @@ import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 import { usersTable } from "./users";
 import { intakesTable, warehousesTable } from "./inventory";
+import { generateId } from "../utils/id";
 
 export const tokenStateEnum = pgEnum("token_state", ["free", "pledged", "financed", "locked", "in_liquidation", "released"]);
 
 export const tokensTable = pgTable("tokens", {
-  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  id: text("id").primaryKey().$defaultFn(() => generateId("TKN")),
   intakeId: text("intake_id").notNull().references(() => intakesTable.id),
   ownerId: text("owner_id").notNull().references(() => usersTable.id),
   warehouseId: text("warehouse_id").notNull().references(() => warehousesTable.id),

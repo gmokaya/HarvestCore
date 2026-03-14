@@ -3,6 +3,7 @@ import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 import { usersTable } from "./users";
 import { tokensTable } from "./tokens";
+import { generateId } from "../utils/id";
 
 export const loanStatusEnum = pgEnum("loan_status", ["pending", "approved", "active", "repaid", "defaulted", "in_liquidation"]);
 export const riskScoreEnum = pgEnum("risk_score", ["low", "medium", "high"]);
@@ -13,7 +14,7 @@ export const approverRoleEnum = pgEnum("approver_role", ["collateral_manager", "
 export const approvalDecisionEnum = pgEnum("approval_decision", ["approved", "rejected", "escalated", "reinspection_requested", "info_requested"]);
 
 export const loansTable = pgTable("loans", {
-  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  id: text("id").primaryKey().$defaultFn(() => generateId("LN")),
   borrowerId: text("borrower_id").notNull().references(() => usersTable.id),
   lenderId: text("lender_id").references(() => usersTable.id),
   tokenId: text("token_id").notNull().references(() => tokensTable.id),
@@ -47,7 +48,7 @@ export const loansTable = pgTable("loans", {
 });
 
 export const loanApproversTable = pgTable("loan_approvers", {
-  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  id: text("id").primaryKey().$defaultFn(() => generateId("APR")),
   name: text("name").notNull(),
   email: text("email").notNull(),
   phone: text("phone"),
@@ -59,7 +60,7 @@ export const loanApproversTable = pgTable("loan_approvers", {
 });
 
 export const loanApprovalsTable = pgTable("loan_approvals", {
-  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  id: text("id").primaryKey().$defaultFn(() => generateId("APV")),
   loanId: text("loan_id").notNull().references(() => loansTable.id),
   approverId: text("approver_id").references(() => loanApproversTable.id),
   approverName: text("approver_name").notNull(),
@@ -71,7 +72,7 @@ export const loanApprovalsTable = pgTable("loan_approvals", {
 });
 
 export const repaymentsTable = pgTable("repayments", {
-  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  id: text("id").primaryKey().$defaultFn(() => generateId("RPY")),
   loanId: text("loan_id").notNull().references(() => loansTable.id),
   amount: numeric("amount", { precision: 15, scale: 2 }).notNull(),
   paymentMethod: paymentMethodEnum("payment_method").notNull(),
@@ -80,7 +81,7 @@ export const repaymentsTable = pgTable("repayments", {
 });
 
 export const settlementsTable = pgTable("settlements", {
-  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  id: text("id").primaryKey().$defaultFn(() => generateId("SET")),
   loanId: text("loan_id").notNull().references(() => loansTable.id),
   stage: settlementStageEnum("stage").notNull().default("at_risk"),
   salePrice: numeric("sale_price", { precision: 15, scale: 2 }),

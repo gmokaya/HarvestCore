@@ -2,6 +2,7 @@ import { pgTable, text, numeric, timestamp, pgEnum, boolean } from "drizzle-orm/
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 import { usersTable } from "./users";
+import { generateId } from "../utils/id";
 
 export const forwardContractStatusEnum = pgEnum("forward_contract_status", [
   "draft", "open", "accepted", "active", "settled", "cancelled", "defaulted",
@@ -20,7 +21,7 @@ export const forwardContractDeliveryMethodEnum = pgEnum("forward_contract_delive
 ]);
 
 export const forwardContractsTable = pgTable("forward_contracts", {
-  id: text("id").primaryKey().$defaultFn(() => `FC-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 90000) + 10000)}`),
+  id: text("id").primaryKey().$defaultFn(() => generateId("FC")),
   blockchainHash: text("blockchain_hash"),
   status: forwardContractStatusEnum("status").notNull().default("draft"),
 
@@ -85,7 +86,7 @@ export const forwardContractsTable = pgTable("forward_contracts", {
 });
 
 export const forwardContractEventsTable = pgTable("forward_contract_events", {
-  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  id: text("id").primaryKey().$defaultFn(() => generateId("FCE")),
   contractId: text("contract_id").notNull().references(() => forwardContractsTable.id),
   event: text("event").notNull(),
   actor: text("actor").notNull(),

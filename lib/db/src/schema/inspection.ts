@@ -3,6 +3,7 @@ import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 import { usersTable } from "./users";
 import { warehousesTable, intakesTable } from "./inventory";
+import { generateId } from "../utils/id";
 
 export const inspectionTypeEnum = pgEnum("inspection_type", [
   "intake",
@@ -32,7 +33,7 @@ export const inspectionStatusEnum = pgEnum("inspection_status", [
 ]);
 
 export const inspectionsTable = pgTable("inspections", {
-  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  id: text("id").primaryKey().$defaultFn(() => generateId("RPT")),
   intakeId: text("intake_id").references(() => intakesTable.id),
   warehouseId: text("warehouse_id").notNull().references(() => warehousesTable.id),
   inspectorId: text("inspector_id").notNull().references(() => usersTable.id),

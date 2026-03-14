@@ -3,6 +3,7 @@ import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 import { usersTable } from "./users";
 import { tokensTable } from "./tokens";
+import { generateId } from "../utils/id";
 
 export const listingStatusEnum = pgEnum("listing_status", ["active", "sold", "cancelled", "expired"]);
 export const listingTypeEnum = pgEnum("listing_type", ["fixed", "auction"]);
@@ -10,7 +11,7 @@ export const bidStatusEnum = pgEnum("bid_status", ["active", "accepted", "reject
 export const financingStatusEnum = pgEnum("financing_status", ["open", "funded", "closed"]);
 
 export const listingsTable = pgTable("listings", {
-  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  id: text("id").primaryKey().$defaultFn(() => generateId("LST")),
   tokenId: text("token_id").notNull().references(() => tokensTable.id),
   sellerId: text("seller_id").notNull().references(() => usersTable.id),
   commodity: text("commodity").notNull(),
@@ -26,7 +27,7 @@ export const listingsTable = pgTable("listings", {
 });
 
 export const bidsTable = pgTable("bids", {
-  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  id: text("id").primaryKey().$defaultFn(() => generateId("BID")),
   listingId: text("listing_id").notNull().references(() => listingsTable.id),
   bidderId: text("bidder_id").notNull().references(() => usersTable.id),
   amount: numeric("amount", { precision: 15, scale: 2 }).notNull(),
@@ -35,7 +36,7 @@ export const bidsTable = pgTable("bids", {
 });
 
 export const financingRequestsTable = pgTable("financing_requests", {
-  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  id: text("id").primaryKey().$defaultFn(() => generateId("FIN")),
   farmerId: text("farmer_id").notNull().references(() => usersTable.id),
   tokenId: text("token_id").notNull().references(() => tokensTable.id),
   commodity: text("commodity").notNull(),
@@ -48,7 +49,7 @@ export const financingRequestsTable = pgTable("financing_requests", {
 });
 
 export const activityLogTable = pgTable("activity_log", {
-  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  id: text("id").primaryKey().$defaultFn(() => generateId("ACT")),
   type: text("type").notNull(),
   description: text("description").notNull(),
   actorId: text("actor_id").references(() => usersTable.id),

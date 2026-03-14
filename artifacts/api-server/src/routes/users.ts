@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
 import { usersTable, kycRecordsTable } from "@workspace/db/schema";
+import { generateId, USER_ID_PREFIX } from "@workspace/db";
 import { eq, and, sql } from "drizzle-orm";
 import {
   CreateUserBody, UpdateUserBody, SubmitKycBody
@@ -43,7 +44,9 @@ router.post("/", async (req, res) => {
       return;
     }
     const { password, ...rest } = body.data;
+    const prefix = USER_ID_PREFIX[rest.role ?? "farmer"] ?? "USR";
     const [user] = await db.insert(usersTable).values({
+      id: generateId(prefix),
       ...rest,
       passwordHash: password,
     }).returning();
