@@ -111,17 +111,17 @@ export default function LoginPage() {
             <div className="mb-3">
               <span className="text-xs font-semibold tracking-widest uppercase px-3 py-1 rounded-full border"
                 style={{ color: "#c7d7da", borderColor: "rgba(199,215,218,0.25)", background: "rgba(199,215,218,0.08)" }}>
-                Kenyan Agricultural Finance
+                Agricultural Trade Finance
               </span>
             </div>
             <h1 className="text-4xl xl:text-5xl font-bold leading-tight mb-5"
               style={{ color: "rgba(255,255,255,0.95)" }}>
               Commodity-Backed<br />
               <span style={{ color: "#c7d7da" }}>Digital Finance</span><br />
-              for Kenya
+              for Africa
             </h1>
             <p className="text-base leading-relaxed mb-10 max-w-md" style={{ color: "rgba(255,255,255,0.5)" }}>
-              Tokenize warehouse receipts, access working capital, and trade agricultural commodities — all in one secure platform.
+              Tokenize warehouse receipts, access working capital, and trade agricultural commodities, all in one secure platform.
             </p>
 
             {/* Platform stats */}
