@@ -568,15 +568,33 @@ export default function ForwardContracts() {
                   </FormSection>
 
                   <FormSection title="Pricing Terms" icon={Coins}>
+                    {/* AI suggestion callout */}
+                    {AI_PRICES[form.commodity] && (
+                      <div className="flex items-center justify-between gap-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 mb-3">
+                        <div className="flex items-center gap-2">
+                          <Brain className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                          <span className="text-xs text-amber-800">
+                            AI suggests <span className="font-semibold">KES {AI_PRICES[form.commodity]?.price}/unit</span>
+                            <span className={cn("ml-1.5", (AI_PRICES[form.commodity]?.trend ?? "+").startsWith("+") ? "text-green-700" : "text-red-700")}>
+                              {AI_PRICES[form.commodity]?.trend}
+                            </span>
+                            <span className="ml-1 text-amber-600">— this is a reference only.</span>
+                          </span>
+                        </div>
+                        <button type="button"
+                          className="shrink-0 text-xs font-medium text-amber-700 border border-amber-300 rounded px-2 py-0.5 hover:bg-amber-100 transition-colors"
+                          onClick={() => setForm((f) => ({ ...f, forwardPrice: String(AI_PRICES[form.commodity]?.price ?? "") }))}>
+                          Apply
+                        </button>
+                      </div>
+                    )}
                     <div className="grid grid-cols-2 gap-4">
                       <Field label="Forward Price (KES per unit) *">
-                        <div className="relative">
-                          <input type="number" min="0" step="0.01" required
-                            className="w-full border border-border rounded-md px-3 py-2 text-sm bg-background"
-                            placeholder={`AI suggests KES ${AI_PRICES[form.commodity]?.price ?? "—"}`}
-                            value={form.forwardPrice}
-                            onChange={(e) => setForm((f) => ({ ...f, forwardPrice: e.target.value }))} />
-                        </div>
+                        <input type="number" min="0" step="0.01" required
+                          className="w-full border border-border rounded-md px-3 py-2 text-sm bg-background"
+                          placeholder="Enter your price"
+                          value={form.forwardPrice}
+                          onChange={(e) => setForm((f) => ({ ...f, forwardPrice: e.target.value }))} />
                       </Field>
                       <Field label="Total Contract Value">
                         <div className="w-full border border-border rounded-md px-3 py-2 text-sm bg-secondary text-muted-foreground">
@@ -588,14 +606,6 @@ export default function ForwardContracts() {
                           value={form.paymentMethod} onChange={(e) => setForm((f) => ({ ...f, paymentMethod: e.target.value }))}>
                           {PAYMENT_METHODS.map((m) => <option key={m.value} value={m.value}>{m.label}</option>)}
                         </select>
-                      </Field>
-                      <Field label="AI Suggested Price">
-                        <div className="w-full border border-border rounded-md px-3 py-2 text-sm bg-secondary">
-                          <span className="font-medium">KES {AI_PRICES[form.commodity]?.price ?? "—"}/kg</span>
-                          <span className={cn("ml-2 text-xs", (AI_PRICES[form.commodity]?.trend ?? "+").startsWith("+") ? "text-green-600" : "text-red-600")}>
-                            {AI_PRICES[form.commodity]?.trend}
-                          </span>
-                        </div>
                       </Field>
                     </div>
                   </FormSection>
