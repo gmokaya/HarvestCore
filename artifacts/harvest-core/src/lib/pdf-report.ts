@@ -42,16 +42,23 @@ export function downloadPDF(opts: PDFReportOptions) {
 
   // ── Header bar ──────────────────────────────────────────────────────────────
   doc.setFillColor(BRAND);
-  doc.rect(0, 0, pageW, 18, "F");
+  doc.rect(0, 0, pageW, 22, "F");
 
-  doc.setFontSize(13);
+  doc.setFontSize(12);
   doc.setTextColor("#ffffff");
   doc.setFont("helvetica", "bold");
-  doc.text("TokenHarvest", margin, 11);
+  doc.text("TokenHarvest", margin, 10);
+
+  doc.setFontSize(5);
+  doc.setFont("helvetica", "normal");
+  doc.setTextColor("#c7d7da");
+  doc.setCharSpace(2);
+  doc.text("TRADE FINANCE", margin, 16);
+  doc.setCharSpace(0);
 
   doc.setFontSize(10);
-  doc.setFont("helvetica", "normal");
-  doc.text(opts.title, margin + 44, 11);
+  doc.setTextColor("#ffffff");
+  doc.text(opts.title, margin + 46, 10);
 
   doc.setFontSize(8);
   doc.setTextColor("#c7d7da");
@@ -126,14 +133,20 @@ export function downloadPDF(opts: PDFReportOptions) {
       alternateRowStyles: { fillColor: "#f9fafb" },
       didDrawPage: () => {
         doc.setFillColor(BRAND);
-        doc.rect(0, 0, pageW, 18, "F");
-        doc.setFontSize(13);
+        doc.rect(0, 0, pageW, 22, "F");
+        doc.setFontSize(12);
         doc.setTextColor("#ffffff");
         doc.setFont("helvetica", "bold");
-        doc.text("TokenHarvest", margin, 11);
-        doc.setFontSize(10);
+        doc.text("TokenHarvest", margin, 10);
+        doc.setFontSize(5);
         doc.setFont("helvetica", "normal");
-        doc.text(opts.title, margin + 44, 11);
+        doc.setTextColor("#c7d7da");
+        doc.setCharSpace(2);
+        doc.text("TRADE FINANCE", margin, 16);
+        doc.setCharSpace(0);
+        doc.setFontSize(10);
+        doc.setTextColor("#ffffff");
+        doc.text(opts.title, margin + 46, 10);
       },
     });
 

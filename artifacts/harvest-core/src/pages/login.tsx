@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import {
   Eye, EyeOff, ArrowRight, Tractor, BarChart3, Lock,
   Briefcase, Warehouse, Eye as EyeIcon, Landmark, ShieldCheck,
-  TrendingUp, Wheat, Leaf,
+  TrendingUp, Wheat,
 } from "lucide-react";
 
 const ROLE_META: Record<string, { label: string; color: string; bg: string; icon: any }> = {
@@ -96,13 +96,12 @@ export default function LoginPage() {
 
         <div className="relative flex flex-col h-full px-12 py-10">
           {/* Logo */}
-          <div className="flex items-center gap-3 mb-16">
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center"
-              style={{ background: "rgba(199,215,218,0.15)", border: "1px solid rgba(199,215,218,0.25)" }}>
-              <Leaf className="w-5 h-5" style={{ color: "#c7d7da" }} />
-            </div>
-            <span style={{ fontFamily: "'Belleza', serif", fontSize: "26px", color: "rgba(255,255,255,0.92)", letterSpacing: "0.01em" }}>
+          <div className="flex flex-col mb-16">
+            <span style={{ fontFamily: "'Belleza', serif", fontSize: "26px", lineHeight: 1.2, color: "rgba(255,255,255,0.92)", letterSpacing: "0.01em" }}>
               TokenHarvest
+            </span>
+            <span style={{ fontFamily: "'Josefin Sans', 'Futura', 'Century Gothic', sans-serif", fontSize: "7.5px", letterSpacing: "0.196em", lineHeight: 1.4, color: "rgba(199,215,218,0.7)", textTransform: "uppercase", marginTop: "3px" }}>
+              TRADE FINANCE
             </span>
           </div>
 
@@ -170,11 +169,11 @@ export default function LoginPage() {
       {/* ── RIGHT PANEL ─ login form ── */}
       <div className="flex-1 flex flex-col items-center justify-center px-6 sm:px-12 bg-white min-h-screen">
         {/* Mobile logo */}
-        <div className="lg:hidden mb-8 flex items-center gap-2">
-          <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ backgroundColor: "#0A2A2A" }}>
-            <Leaf className="w-4 h-4 text-white" />
-          </div>
-          <span style={{ fontFamily: "'Belleza', serif", fontSize: "22px", color: "#0A2A2A" }}>TokenHarvest</span>
+        <div className="lg:hidden mb-8 flex flex-col">
+          <span style={{ fontFamily: "'Belleza', serif", fontSize: "22px", lineHeight: 1.2, color: "#0A2A2A" }}>TokenHarvest</span>
+          <span style={{ fontFamily: "'Josefin Sans', 'Futura', 'Century Gothic', sans-serif", fontSize: "7px", letterSpacing: "0.196em", lineHeight: 1.4, color: "#0A2A2A", textTransform: "uppercase", opacity: 0.55, marginTop: "2px" }}>
+            TRADE FINANCE
+          </span>
         </div>
 
         <div className="w-full max-w-[400px]">
