@@ -6,6 +6,7 @@ export interface AuthUser {
   email: string;
   role: string;
   token: string;
+  orgId: string | null;
 }
 
 interface AuthContextValue {
@@ -15,14 +16,14 @@ interface AuthContextValue {
 }
 
 const MOCK_CREDENTIALS: Array<AuthUser & { password: string }> = [
-  { userId: "admin-001",   name: "Admin User",        email: "admin@harvestcore.io",        role: "admin",               password: "admin123",  token: "mock-token-admin-001" },
-  { userId: "farmer-001",  name: "James Mwangi",       email: "james.mwangi@farm.ke",        role: "farmer",              password: "Demo@2025", token: "mock-token-farmer-001" },
-  { userId: "trader-001",  name: "Ali Hassan",         email: "ali.hassan@egta.co.ke",       role: "trader",              password: "Demo@2025", token: "mock-token-trader-001" },
-  { userId: "colmgr-001",  name: "Margaret Kamau",     email: "margaret.kamau@kcb.co.ke",    role: "collateral_manager",  password: "Demo@2025", token: "mock-token-colmgr-001" },
-  { userId: "proc-001",    name: "Daniel Njoroge",     email: "daniel.njoroge@mcpl.co.ke",   role: "processor",           password: "Demo@2025", token: "mock-token-proc-001" },
-  { userId: "wop-001",     name: "David Ochieng",      email: "warehouse@nairobistore.ke",    role: "warehouse_op",        password: "Demo@2025", token: "mock-token-wop-001" },
-  { userId: "checker-001", name: "Sarah Otieno",       email: "checker@harvestcore.io",       role: "checker",             password: "Demo@2025", token: "mock-token-checker-001" },
-  { userId: "lender-001",  name: "Equity Bank Kenya",  email: "equity@bank.ke",              role: "lender",              password: "Demo@2025", token: "mock-token-lender-001" },
+  { userId: "admin-001",   name: "Admin User",        email: "admin@harvestcore.io",        role: "admin",               password: "admin123",  token: "mock-token-admin-001",   orgId: null },
+  { userId: "farmer-001",  name: "James Mwangi",       email: "james.mwangi@farm.ke",        role: "farmer",              password: "Demo@2025", token: "mock-token-farmer-001",  orgId: "org-001" },
+  { userId: "trader-001",  name: "Ali Hassan",         email: "ali.hassan@egta.co.ke",       role: "trader",              password: "Demo@2025", token: "mock-token-trader-001",  orgId: "org-004" },
+  { userId: "colmgr-001",  name: "Margaret Kamau",     email: "margaret.kamau@kcb.co.ke",    role: "collateral_manager",  password: "Demo@2025", token: "mock-token-colmgr-001",  orgId: "org-003" },
+  { userId: "proc-001",    name: "Daniel Njoroge",     email: "daniel.njoroge@mcpl.co.ke",   role: "processor",           password: "Demo@2025", token: "mock-token-proc-001",    orgId: "org-002" },
+  { userId: "wop-001",     name: "David Ochieng",      email: "warehouse@nairobistore.ke",    role: "warehouse_op",        password: "Demo@2025", token: "mock-token-wop-001",     orgId: null },
+  { userId: "checker-001", name: "Sarah Otieno",       email: "checker@harvestcore.io",       role: "checker",             password: "Demo@2025", token: "mock-token-checker-001", orgId: null },
+  { userId: "lender-001",  name: "Equity Bank Kenya",  email: "equity@bank.ke",              role: "lender",              password: "Demo@2025", token: "mock-token-lender-001",  orgId: null },
 ];
 
 const SESSION_KEY = "th_session";

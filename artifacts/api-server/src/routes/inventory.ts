@@ -1,8 +1,19 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
 import { intakesTable, warehousesTable, usersTable, activityLogTable } from "@workspace/db/schema";
-import { eq, and, sql, desc } from "drizzle-orm";
+import { eq, and, sql, desc, inArray } from "drizzle-orm";
 import { CreateIntakeBody } from "@workspace/api-zod";
+
+async function resolveOrgFarmerIds(reqUser?: Express.Request["user"]): Promise<string[] | null> {
+  if (!reqUser) return null;
+  if (reqUser.role === "admin") return null; // null = no filter
+  if (reqUser.orgId) {
+    const members = await db.select({ id: usersTable.id }).from(usersTable).where(eq(usersTable.orgId, reqUser.orgId));
+    return members.map((m) => m.id);
+  }
+  // No org — scope to own records only
+  return [reqUser.userId];
+}
 
 const router = Router();
 
@@ -29,9 +40,14 @@ router.get("/intakes", async (req, res) => {
     const limitNum = parseInt(limit);
     const offset = (pageNum - 1) * limitNum;
 
+    // Resolve org-scoped farmer IDs
+    const farmerIds = await resolveOrgFarmerIds(req.user);
+    const orgScoped = farmerIds !== null && farmerIds.length > 0;
+
     const conditions: any[] = [];
     if (status) conditions.push(eq(intakesTable.status, status as any));
     if (warehouseId) conditions.push(eq(intakesTable.warehouseId, warehouseId));
+    if (orgScoped) conditions.push(inArray(intakesTable.farmerId, farmerIds!));
 
     const [intakes, countResult] = await Promise.all([
       db.select().from(intakesTable)
@@ -56,7 +72,9 @@ router.get("/intakes", async (req, res) => {
     const stageCounts = await db.select({
       status: intakesTable.status,
       count: sql<number>`count(*)`
-    }).from(intakesTable).groupBy(intakesTable.status);
+    }).from(intakesTable)
+      .where(orgScoped ? inArray(intakesTable.farmerId, farmerIds!) : undefined)
+      .groupBy(intakesTable.status);
 
     res.json({
       intakes: formatted,
