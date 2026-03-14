@@ -9,6 +9,8 @@ export const riskScoreEnum = pgEnum("risk_score", ["low", "medium", "high"]);
 export const ltvStatusEnum = pgEnum("ltv_status", ["healthy", "monitoring", "margin_call", "liquidation"]);
 export const paymentMethodEnum = pgEnum("payment_method", ["mpesa", "bank_transfer", "stablecoin", "pesalink", "swift"]);
 export const settlementStageEnum = pgEnum("settlement_stage", ["at_risk", "grace_period", "notice_sent", "for_sale", "settled"]);
+export const approverRoleEnum = pgEnum("approver_role", ["collateral_manager", "credit_officer", "risk_manager", "finance_officer", "platform_admin"]);
+export const approvalDecisionEnum = pgEnum("approval_decision", ["approved", "rejected", "escalated", "reinspection_requested", "info_requested"]);
 
 export const loansTable = pgTable("loans", {
   id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
@@ -30,8 +32,42 @@ export const loansTable = pgTable("loans", {
   dueDate: timestamp("due_date"),
   repaidAt: timestamp("repaid_at"),
   isOnNegativeList: boolean("is_on_negative_list").notNull().default(false),
+  // Workflow fields
+  workflowStage: text("workflow_stage").default("submitted"),
+  collateralValue: numeric("collateral_value", { precision: 15, scale: 2 }),
+  maxLtv: numeric("max_ltv", { precision: 5, scale: 2 }),
+  maxLoanEligible: numeric("max_loan_eligible", { precision: 15, scale: 2 }),
+  disbursementMethod: text("disbursement_method").default("mpesa"),
+  collateralVerifiedAt: timestamp("collateral_verified_at"),
+  creditApprovedAt: timestamp("credit_approved_at"),
+  riskApprovedAt: timestamp("risk_approved_at"),
+  financeApprovedAt: timestamp("finance_approved_at"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const loanApproversTable = pgTable("loan_approvers", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  name: text("name").notNull(),
+  email: text("email").notNull(),
+  phone: text("phone"),
+  organization: text("organization").notNull().default("TokenHarvest Finance"),
+  role: approverRoleEnum("role").notNull(),
+  approvalLimit: numeric("approval_limit", { precision: 15, scale: 2 }),
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const loanApprovalsTable = pgTable("loan_approvals", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  loanId: text("loan_id").notNull().references(() => loansTable.id),
+  approverId: text("approver_id").references(() => loanApproversTable.id),
+  approverName: text("approver_name").notNull(),
+  approverRole: text("approver_role").notNull(),
+  stage: text("stage").notNull(),
+  decision: approvalDecisionEnum("decision").notNull(),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
 export const repaymentsTable = pgTable("repayments", {

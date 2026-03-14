@@ -13,6 +13,7 @@ import settlementRouter from "./settlement";
 import dashboardRouter from "./dashboard";
 import ewrsRouter from "./ewrs";
 import forwardContractsRouter from "./forward_contracts";
+import loanWorkflowRouter from "./loan-workflow";
 
 const router: IRouter = Router();
 
@@ -30,5 +31,6 @@ router.use("/settlement", settlementRouter);
 router.use("/dashboard", dashboardRouter);
 router.use("/ewrs", ewrsRouter);
 router.use("/forward-contracts", forwardContractsRouter);
+router.use("/loan-workflow", loanWorkflowRouter);
 
 export default router;

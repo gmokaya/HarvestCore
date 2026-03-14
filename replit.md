@@ -58,7 +58,7 @@ Every package extends `tsconfig.base.json` which sets `composite: true`. The roo
 | `/inspection` | Inspection & Quality | Commodity grading, quality params, risk flags, approve/reject |
 | `/receipts` | Digital Warehouse Receipts | DWR lifecycle, collateral locking, tokenization |
 | `/tokens` | Tokens | NFT state machine (free→pledged→financed→locked→liquidation) |
-| `/loans` | Credit & Loans | LTV monitoring, collateral engine |
+| `/loans` | Credit & Loans | Multi-stage approval workflow, LTV monitoring, audit trail, approver management |
 | `/marketplace` | Marketplace | Commodity listings, trade |
 | `/settlement` | Settlement & Liquidation | Settlement processing |
 
@@ -72,7 +72,9 @@ Every package extends `tsconfig.base.json` which sets `composite: true`. The roo
 - `inspections` — quality inspection records with grading params and risk flags
 - `warehouse_receipts` — Digital Warehouse Receipts (DWR) with lifecycle status
 - `tokens` — NFT-backed commodity tokens
-- `loans` — collateralized lending with LTV thresholds
+- `loans` — collateralized lending with 10-stage approval workflow, LTV thresholds, workflow fields
+- `loan_approvers` — authorized approvers (Collateral Manager, Credit Officer, Risk Manager, Finance Officer) with approval limits
+- `loan_approvals` — immutable audit trail of every approval action across the pipeline
 - `marketplace_listings` — commodity trade listings
 - `activity_log` — platform audit trail
 
