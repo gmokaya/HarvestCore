@@ -13,8 +13,7 @@ import {
   FileCheck2,
   Warehouse,
 } from "lucide-react"
-import logoFull from "@assets/TokenHarvest_(9)_1773476792512.png"
-import logoIcon from "@assets/image_1773476795625.png"
+import logo from "@assets/image_1773477544450.png"
 
 const navGroups = [
   {
@@ -51,28 +50,13 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       {/* Sidebar — brand dark */}
       <aside className="w-60 flex-shrink-0 hidden md:flex flex-col" style={{ backgroundColor: "#0A2A2A" }}>
         {/* Logo */}
-        <div className="flex flex-col items-center justify-center pt-5 pb-4 px-4 border-b border-white/10 gap-1">
+        <div className="border-b border-white/10">
           <img
-            src={logoIcon}
-            alt="TokenHarvest icon"
-            className="w-10 h-10 rounded-xl object-cover"
+            src={logo}
+            alt="TokenHarvest"
+            className="w-full object-cover"
+            style={{ maxHeight: "120px", objectPosition: "center" }}
           />
-          <div style={{ width: "148px", height: "48px", overflow: "hidden", position: "relative" }}>
-            <img
-              src={logoFull}
-              alt="TokenHarvest Trade Finance"
-              style={{
-                position: "absolute",
-                width: "296px",
-                height: "296px",
-                left: "50%",
-                top: "50%",
-                transform: "translate(-50%, -44%)",
-                filter: "brightness(20)",
-                mixBlendMode: "screen",
-              }}
-            />
-          </div>
         </div>
 
         {/* Navigation */}
@@ -125,8 +109,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         {/* Top header */}
         <header className="h-14 flex-shrink-0 border-b border-border bg-background flex items-center justify-between px-6 sticky top-0 z-10">
           <div className="flex items-center gap-2 md:hidden">
-            <img src={logoIcon} alt="TokenHarvest" className="w-7 h-7 rounded-lg object-cover" />
-            <span className="font-display font-bold text-base text-foreground">TokenHarvest</span>
+            <img src={logo} alt="TokenHarvest" className="h-8 w-auto rounded-lg object-cover" />
           </div>
 
           <div className="flex-1" />
