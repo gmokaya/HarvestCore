@@ -10,8 +10,8 @@ import {
   FileSignature, TrendingUp, CheckCircle2, Clock, AlertTriangle,
   ChevronDown, ChevronRight, Plus, Package, MapPin,
   Coins, ShieldCheck, Activity, Brain, Link2,
-  ArrowRight, Database, Zap,
-  BarChart3, Layers, Lock,
+  ArrowRight, Zap,
+  Layers, Lock,
 } from "lucide-react";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
@@ -225,27 +225,6 @@ export default function ForwardContracts() {
       {/* ── Contract Management & Monitoring ── */}
       {tab === "Contract Management" && (
         <div className="space-y-4">
-          <div className="grid grid-cols-3 gap-4">
-            <ModuleInfoCard
-              title="Track Contract Status"
-              icon={Activity}
-              color="green"
-              items={["Monitor lifecycle from Draft → Settled", "Real-time status transitions", "Milestone completion tracking"]}
-            />
-            <ModuleInfoCard
-              title="Monitor Milestones"
-              icon={BarChart3}
-              color="blue"
-              items={["Delivery date tracking", "Collateral lock verification", "Payment schedule milestones"]}
-            />
-            <ModuleInfoCard
-              title="Schedule Settlements"
-              icon={Clock}
-              color="purple"
-              items={["Auto-trigger on delivery confirmation", "M-PESA / PesaLink disbursement", "Escrow release on conditions met"]}
-            />
-          </div>
-
           {/* Filter */}
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-sm text-muted-foreground">Filter:</span>
@@ -376,15 +355,6 @@ export default function ForwardContracts() {
       {/* ── AI Pricing Module ── */}
       {tab === "AI Pricing" && (
         <div className="space-y-5">
-          <div className="grid grid-cols-3 gap-4">
-            <ModuleInfoCard title="Price Suggestion via AI" icon={Brain} color="orange"
-              items={["ML-based pricing model", "Historical market data analysis", "Real-time index feed integration"]} />
-            <ModuleInfoCard title="Analyze Market Trends" icon={TrendingUp} color="blue"
-              items={["Supply / demand forecasting", "Seasonal pattern recognition", "Regional price correlation"]} />
-            <ModuleInfoCard title="Forecast Supply / Demand" icon={BarChart3} color="green"
-              items={["Harvest outlook modelling", "Weather-adjusted predictions", "Export market signals"]} />
-          </div>
-
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
@@ -465,13 +435,6 @@ export default function ForwardContracts() {
       {/* ── Blockchain Module ── */}
       {tab === "Blockchain" && (
         <div className="space-y-5">
-          <div className="grid grid-cols-2 gap-4">
-            <ModuleInfoCard title="Tokenization on IOTA / BNC" icon={Link2} color="indigo"
-              items={["Each contract tokenized as NFT", "Immutable on-chain proof of agreement", "Counterparty verification via DID"]} />
-            <ModuleInfoCard title="Immutable Contract Records" icon={Database} color="teal"
-              items={["Blockchain hash per contract event", "Audit trail on distributed ledger", "Tamper-proof delivery confirmation"]} />
-          </div>
-
           <div className="grid grid-cols-3 gap-4">
             <Card>
               <CardContent className="pt-5 pb-5">
@@ -567,15 +530,6 @@ export default function ForwardContracts() {
       {/* ── New Contract (Contract Creation Module) ── */}
       {tab === "New Contract" && (
         <div className="space-y-5">
-          <div className="grid grid-cols-3 gap-4">
-            <ModuleInfoCard title="Create Forward Contracts" icon={FileSignature} color="blue"
-              items={["Farmer or cooperative initiates contract", "Defines commodity, quantity, price", "Attaches warehouse receipt as collateral"]} />
-            <ModuleInfoCard title="Set Price, Qty, Delivery Date" icon={Coins} color="green"
-              items={["AI suggests fair market price", "Delivery window and location set", "Payment method selected upfront"]} />
-            <ModuleInfoCard title="Validate Inventory &amp; Collateral" icon={ShieldCheck} color="orange"
-              items={["Tokenized receipt locks commodity", "Prevents double-selling", "Collateral verified on IOTA ledger"]} />
-          </div>
-
           <div className="max-w-3xl">
             <Card>
               <CardHeader>
@@ -705,34 +659,6 @@ export default function ForwardContracts() {
   );
 }
 
-function ModuleInfoCard({ title, icon: Icon, color, items }: {
-  title: string; icon: React.ElementType; color: string; items: string[];
-}) {
-  const colorMap: Record<string, { bg: string; text: string; border: string }> = {
-    orange: { bg: "bg-orange-500/10", text: "text-orange-600", border: "border-orange-200" },
-    blue:   { bg: "bg-blue-500/10",   text: "text-blue-600",   border: "border-blue-200" },
-    green:  { bg: "bg-green-500/10",  text: "text-green-700",  border: "border-green-200" },
-    indigo: { bg: "bg-indigo-500/10", text: "text-indigo-600", border: "border-indigo-200" },
-    teal:   { bg: "bg-teal-500/10",   text: "text-teal-600",   border: "border-teal-200" },
-    purple: { bg: "bg-purple-500/10", text: "text-purple-600", border: "border-purple-200" },
-  };
-  const c = colorMap[color] ?? colorMap.blue;
-  return (
-    <div className={cn("rounded-lg border p-3", c.border, c.bg)}>
-      <div className="flex items-center gap-2 mb-2">
-        <Icon className={cn("w-4 h-4", c.text)} />
-        <span className={cn("text-xs font-semibold", c.text)}>{title}</span>
-      </div>
-      <ul className="space-y-1">
-        {items.map((item) => (
-          <li key={item} className="flex items-start gap-1.5 text-xs text-muted-foreground">
-            <span className={cn("mt-0.5 shrink-0", c.text)}>·</span>{item}
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
 
 function FormSection({ title, icon: Icon, children }: { title: string; icon: React.ElementType; children: React.ReactNode }) {
   return (
