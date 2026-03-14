@@ -2,14 +2,16 @@ import { useState, Fragment } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Card, CardContent, CardHeader, CardTitle,
-  Badge, Button,
+  Button,
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui";
 import { cn, formatCurrency } from "@/lib/utils";
 import {
   FileSignature, TrendingUp, CheckCircle2, Clock, AlertTriangle,
-  ChevronDown, ChevronRight, Plus, Package, MapPin, Calendar,
-  Coins, ShieldCheck, Activity, BarChart3, User, X,
+  ChevronDown, ChevronRight, Plus, Package, MapPin,
+  Coins, ShieldCheck, Activity, X, Brain, Link2,
+  Banknote, Bell, ArrowRight, Cpu, Database, Zap,
+  RefreshCw, BarChart3, Layers, Lock,
 } from "lucide-react";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
@@ -41,14 +43,28 @@ const COLLATERAL_TYPES = [
   { value: "loan_backed", label: "Loan-backed Commodity" },
 ];
 
-const STATUS_CONFIG: Record<string, { label: string; class: string; icon: React.ElementType }> = {
-  draft:     { label: "Draft",     class: "bg-secondary text-muted-foreground border-border",              icon: Clock },
-  open:      { label: "Open",      class: "bg-blue-500/15 text-blue-600 border-blue-500/30",              icon: FileSignature },
-  accepted:  { label: "Accepted",  class: "bg-indigo-500/15 text-indigo-600 border-indigo-500/30",        icon: CheckCircle2 },
-  active:    { label: "Active",    class: "bg-green-500/15 text-green-600 border-green-500/30",           icon: Activity },
-  settled:   { label: "Settled",   class: "bg-teal-500/15 text-teal-600 border-teal-500/30",              icon: CheckCircle2 },
-  cancelled: { label: "Cancelled", class: "bg-secondary text-muted-foreground border-border",              icon: X },
-  defaulted: { label: "Defaulted", class: "bg-red-500/15 text-red-600 border-red-500/30",                 icon: AlertTriangle },
+// Simulated AI price data
+const AI_PRICES: Record<string, { price: number; trend: string; confidence: number; forecast: string }> = {
+  Maize:   { price: 38.5,  trend: "+2.1%", confidence: 87, forecast: "Slight upward pressure due to reduced Eastern Africa rainfall" },
+  Coffee:  { price: 620,   trend: "+5.4%", confidence: 91, forecast: "Global demand rising; supply constraints from Brazil" },
+  Wheat:   { price: 42,    trend: "-0.8%", confidence: 78, forecast: "Stable; Ukraine supply recovering" },
+  Rice:    { price: 55,    trend: "+1.2%", confidence: 83, forecast: "Seasonal demand increase expected Q3" },
+  Sorghum: { price: 35,    trend: "+0.5%", confidence: 74, forecast: "Steady demand from regional breweries" },
+  Beans:   { price: 90,    trend: "+3.2%", confidence: 85, forecast: "Protein demand driving prices; limited supply in Rift Valley" },
+  Tea:     { price: 280,   trend: "+1.8%", confidence: 89, forecast: "Export volumes to UK and Pakistan increasing" },
+  Cotton:  { price: 95,    trend: "-1.1%", confidence: 72, forecast: "Synthetic fibre competition keeping prices soft" },
+  Sesame:  { price: 120,   trend: "+4.0%", confidence: 80, forecast: "Asian demand remains strong; Kenyan exports growing" },
+  Millet:  { price: 38,    trend: "+0.9%", confidence: 76, forecast: "Stable with minor seasonal variation" },
+};
+
+const STATUS_CONFIG: Record<string, { label: string; class: string }> = {
+  draft:     { label: "Draft",     class: "bg-secondary text-muted-foreground border-border" },
+  open:      { label: "Open",      class: "bg-blue-500/15 text-blue-600 border-blue-500/30" },
+  accepted:  { label: "Accepted",  class: "bg-indigo-500/15 text-indigo-600 border-indigo-500/30" },
+  active:    { label: "Active",    class: "bg-green-500/15 text-green-600 border-green-500/30" },
+  settled:   { label: "Settled",   class: "bg-teal-500/15 text-teal-600 border-teal-500/30" },
+  cancelled: { label: "Cancelled", class: "bg-secondary text-muted-foreground border-border" },
+  defaulted: { label: "Defaulted", class: "bg-red-500/15 text-red-600 border-red-500/30" },
 };
 
 const NEXT_STATUSES: Record<string, string[]> = {
@@ -57,6 +73,15 @@ const NEXT_STATUSES: Record<string, string[]> = {
   accepted: ["active", "cancelled"],
   active:   ["settled", "defaulted"],
 };
+
+// Workflow step config — maps each status to a step index
+const WORKFLOW_STEPS = [
+  { label: "Create Contract",        desc: "Farmer / Trader",           icon: FileSignature, step: 1 },
+  { label: "AI Price Suggestion",    desc: "Pricing Engine",            icon: Brain,         step: 2 },
+  { label: "Accept Contract",        desc: "Commodity Processor",       icon: CheckCircle2,  step: 3 },
+  { label: "Blockchain Tokenization",desc: "IOTA / BNC",                icon: Link2,         step: 4 },
+  { label: "Automate Settlement",    desc: "On Delivery Confirmation",  icon: Zap,           step: 5 },
+];
 
 function StatusBadge({ status }: { status: string }) {
   const cfg = STATUS_CONFIG[status] ?? STATUS_CONFIG.draft;
@@ -68,14 +93,15 @@ function StatusBadge({ status }: { status: string }) {
   );
 }
 
-const TABS = ["Contracts", "New Contract"] as const;
+const TABS = ["Contract Management", "AI Pricing", "Blockchain", "New Contract"] as const;
 type Tab = typeof TABS[number];
 
 export default function ForwardContracts() {
   const qc = useQueryClient();
-  const [tab, setTab] = useState<Tab>("Contracts");
+  const [tab, setTab] = useState<Tab>("Contract Management");
   const [expanded, setExpanded] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState("all");
+  const [aiCommodity, setAiCommodity] = useState("Maize");
 
   const { data, isLoading } = useQuery({
     queryKey: ["forward-contracts", statusFilter],
@@ -112,12 +138,13 @@ export default function ForwardContracts() {
       api("/forward-contracts", { method: "POST", body: JSON.stringify(body) }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["forward-contracts"] });
-      setTab("Contracts");
+      setTab("Contract Management");
       setForm((f) => ({ ...f, quantity: "", forwardPrice: "", deliveryDate: "", deliveryLocation: "", grade: "" }));
     },
   });
 
   const totalContractValue = Number(form.quantity || 0) * Number(form.forwardPrice || 0);
+  const aiData = AI_PRICES[aiCommodity] ?? AI_PRICES.Maize;
 
   return (
     <div className="space-y-6">
@@ -125,18 +152,39 @@ export default function ForwardContracts() {
       <div className="flex items-start justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Forward Contracts</h1>
-          <p className="text-muted-foreground mt-1">
-            Manage commodity forward contracts, delivery terms, and settlement
-          </p>
+          <p className="text-muted-foreground mt-1">Forwards Contracts Engine — AI pricing, blockchain tokenization &amp; automated settlement</p>
         </div>
-        <Button
-          onClick={() => setTab("New Contract")}
-          className="gap-2 text-white"
-          style={{ backgroundColor: "#0A2A2A" }}
-        >
+        <Button onClick={() => setTab("New Contract")} className="gap-2 text-white" style={{ backgroundColor: "#0A2A2A" }}>
           <Plus className="w-4 h-4" /> New Contract
         </Button>
       </div>
+
+      {/* Workflow Steps Banner */}
+      <Card className="border-border">
+        <CardContent className="py-4 px-5">
+          <div className="flex items-center gap-0">
+            {WORKFLOW_STEPS.map((step, idx) => (
+              <div key={step.step} className="flex items-center flex-1 min-w-0">
+                <div className="flex flex-col items-center flex-1 min-w-0 px-2">
+                  <div className="flex items-center justify-center w-9 h-9 rounded-full mb-1.5 border-2"
+                    style={{ backgroundColor: "#0A2A2A22", borderColor: "#0A2A2A55" }}>
+                    <step.icon className="w-4 h-4" style={{ color: "#0A2A2A" }} />
+                  </div>
+                  <div className="text-xs font-semibold text-center leading-tight">{step.label}</div>
+                  <div className="text-[10px] text-muted-foreground text-center mt-0.5">{step.desc}</div>
+                  <div className="mt-1 text-[10px] font-bold rounded-full px-1.5 py-0.5 border"
+                    style={{ backgroundColor: "#0A2A2A11", borderColor: "#0A2A2A33", color: "#0A2A2A" }}>
+                    Step {step.step}
+                  </div>
+                </div>
+                {idx < WORKFLOW_STEPS.length - 1 && (
+                  <ArrowRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                )}
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -162,41 +210,50 @@ export default function ForwardContracts() {
         ))}
       </div>
 
-      {/* Tabs */}
+      {/* Engine Module Tabs */}
       <div className="flex gap-1 border-b border-border">
         {TABS.map((t) => (
-          <button
-            key={t}
-            onClick={() => setTab(t)}
-            className={cn(
-              "px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors",
-              tab === t
-                ? "border-foreground text-foreground"
-                : "border-transparent text-muted-foreground hover:text-foreground"
-            )}
-          >
+          <button key={t} onClick={() => setTab(t)}
+            className={cn("px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors",
+              tab === t ? "border-foreground text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"
+            )}>
             {t}
           </button>
         ))}
       </div>
 
-      {/* Contracts List */}
-      {tab === "Contracts" && (
+      {/* ── Contract Management & Monitoring ── */}
+      {tab === "Contract Management" && (
         <div className="space-y-4">
+          <div className="grid grid-cols-3 gap-4">
+            <ModuleInfoCard
+              title="Track Contract Status"
+              icon={Activity}
+              color="green"
+              items={["Monitor lifecycle from Draft → Settled", "Real-time status transitions", "Milestone completion tracking"]}
+            />
+            <ModuleInfoCard
+              title="Monitor Milestones"
+              icon={BarChart3}
+              color="blue"
+              items={["Delivery date tracking", "Collateral lock verification", "Payment schedule milestones"]}
+            />
+            <ModuleInfoCard
+              title="Schedule Settlements"
+              icon={Clock}
+              color="purple"
+              items={["Auto-trigger on delivery confirmation", "M-PESA / PesaLink disbursement", "Escrow release on conditions met"]}
+            />
+          </div>
+
           {/* Filter */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <span className="text-sm text-muted-foreground">Filter:</span>
             {["all", "draft", "open", "accepted", "active", "settled", "cancelled", "defaulted"].map((s) => (
-              <button
-                key={s}
-                onClick={() => setStatusFilter(s)}
-                className={cn(
-                  "px-3 py-1 rounded-full text-xs font-medium border transition-colors",
-                  statusFilter === s
-                    ? "border-foreground bg-foreground text-background"
-                    : "border-border text-muted-foreground hover:border-foreground"
-                )}
-              >
+              <button key={s} onClick={() => setStatusFilter(s)}
+                className={cn("px-3 py-1 rounded-full text-xs font-medium border transition-colors",
+                  statusFilter === s ? "border-foreground bg-foreground text-background" : "border-border text-muted-foreground hover:border-foreground"
+                )}>
                 {s === "all" ? "All" : STATUS_CONFIG[s]?.label ?? s}
               </button>
             ))}
@@ -228,18 +285,16 @@ export default function ForwardContracts() {
                     <TableHead className="text-right">Quantity</TableHead>
                     <TableHead className="text-right">Forward Price</TableHead>
                     <TableHead className="text-right">Total Value</TableHead>
-                    <TableHead>Delivery Date</TableHead>
+                    <TableHead>Delivery</TableHead>
                     <TableHead className="text-center">Status</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                    <TableHead className="text-right">Advance</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {contracts.map((c: any) => (
                     <Fragment key={c.id}>
-                      <TableRow
-                        className="cursor-pointer hover:bg-secondary/40"
-                        onClick={() => setExpanded(expanded === c.id ? null : c.id)}
-                      >
+                      <TableRow className="cursor-pointer hover:bg-secondary/40"
+                        onClick={() => setExpanded(expanded === c.id ? null : c.id)}>
                         <TableCell>
                           {expanded === c.id
                             ? <ChevronDown className="w-4 h-4 text-muted-foreground" />
@@ -250,86 +305,61 @@ export default function ForwardContracts() {
                           <div className="font-medium">{c.commodity}</div>
                           {c.grade && <div className="text-xs text-muted-foreground">{c.grade}</div>}
                         </TableCell>
-                        <TableCell className="text-muted-foreground">{c.sellerName}</TableCell>
-                        <TableCell className="text-muted-foreground">{c.buyerName ?? <span className="italic text-xs">TBD</span>}</TableCell>
-                        <TableCell className="text-right font-display">
-                          {Number(c.quantity).toLocaleString()} {c.unit}
-                        </TableCell>
-                        <TableCell className="text-right font-display">
-                          KES {Number(c.forwardPrice).toLocaleString()}/{c.unit}
-                        </TableCell>
-                        <TableCell className="text-right font-display font-semibold">
-                          {formatCurrency(c.totalValue)}
-                        </TableCell>
+                        <TableCell className="text-muted-foreground text-sm">{c.sellerName}</TableCell>
+                        <TableCell className="text-muted-foreground text-sm">{c.buyerName ?? <span className="italic text-xs">TBD</span>}</TableCell>
+                        <TableCell className="text-right font-display">{Number(c.quantity).toLocaleString()} {c.unit}</TableCell>
+                        <TableCell className="text-right font-display">KES {Number(c.forwardPrice).toLocaleString()}/{c.unit}</TableCell>
+                        <TableCell className="text-right font-display font-semibold">{formatCurrency(c.totalValue)}</TableCell>
                         <TableCell className="text-sm">
                           {c.deliveryDate ? new Date(c.deliveryDate).toLocaleDateString("en-KE", { day: "numeric", month: "short", year: "numeric" }) : "—"}
                         </TableCell>
-                        <TableCell className="text-center">
-                          <StatusBadge status={c.status} />
-                        </TableCell>
+                        <TableCell className="text-center"><StatusBadge status={c.status} /></TableCell>
                         <TableCell className="text-right">
                           <div className="flex gap-1 justify-end" onClick={(e) => e.stopPropagation()}>
                             {(NEXT_STATUSES[c.status] ?? []).map((next) => (
-                              <Button
-                                key={next}
-                                size="sm"
-                                variant="outline"
-                                className="text-xs h-7"
+                              <Button key={next} size="sm" variant="outline" className="text-xs h-7"
                                 disabled={updateStatus.isPending}
-                                onClick={() => updateStatus.mutate({ id: c.id, status: next })}
-                              >
-                                → {STATUS_CONFIG[next]?.label ?? next}
+                                onClick={() => updateStatus.mutate({ id: c.id, status: next })}>
+                                {STATUS_CONFIG[next]?.label ?? next}
                               </Button>
                             ))}
                           </div>
                         </TableCell>
                       </TableRow>
 
-                      {/* Expanded Detail */}
                       {expanded === c.id && (
                         <TableRow className="bg-secondary/20">
                           <TableCell colSpan={11} className="py-4">
                             <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 px-4">
-                              <div className="space-y-3">
-                                <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Commodity Details</h4>
+                              <div className="space-y-2">
+                                <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Commodity</h4>
                                 <DetailRow label="Type" value={c.commodity} />
                                 <DetailRow label="Grade" value={c.grade ?? "—"} />
                                 <DetailRow label="Quantity" value={`${Number(c.quantity).toLocaleString()} ${c.unit}`} />
-                                <DetailRow label="Packaging" value={c.packagingType ?? "—"} />
-                                <DetailRow label="Moisture" value={c.moistureContent ? `${c.moistureContent}%` : "—"} />
                                 <DetailRow label="Origin" value={c.originLocation ?? "—"} />
-                                {c.warehouseReceiptId && <DetailRow label="Receipt ID" value={c.warehouseReceiptId} mono />}
+                                {c.warehouseReceiptId && <DetailRow label="Receipt" value={c.warehouseReceiptId} mono />}
                               </div>
-                              <div className="space-y-3">
+                              <div className="space-y-2">
                                 <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Pricing</h4>
                                 <DetailRow label="Forward Price" value={`KES ${Number(c.forwardPrice).toLocaleString()}/${c.unit}`} />
                                 <DetailRow label="Total Value" value={formatCurrency(c.totalValue)} />
                                 <DetailRow label="AI Suggested" value={c.aiSuggestedPrice ? `KES ${Number(c.aiSuggestedPrice).toLocaleString()}` : "—"} />
-                                <DetailRow label="Currency" value={c.currency} />
                                 <DetailRow label="Payment" value={c.paymentMethod?.replace(/_/g, " ")} />
-                                <DetailRow label="Schedule" value={c.paymentSchedule?.replace(/_/g, " ")} />
                               </div>
-                              <div className="space-y-3">
+                              <div className="space-y-2">
                                 <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Delivery</h4>
                                 <DetailRow label="Date" value={c.deliveryDate ? new Date(c.deliveryDate).toLocaleDateString("en-KE", { day: "numeric", month: "short", year: "numeric" }) : "—"} />
                                 <DetailRow label="Location" value={c.deliveryLocation} />
                                 <DetailRow label="Method" value={c.deliveryMethod?.replace(/_/g, " ")} />
-                                <DetailRow label="Partial Delivery" value={c.partialDeliveryAllowed ? "Yes" : "No"} />
+                                <DetailRow label="Partial OK" value={c.partialDeliveryAllowed ? "Yes" : "No"} />
                               </div>
-                              <div className="space-y-3">
-                                <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Collateral & Risk</h4>
+                              <div className="space-y-2">
+                                <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Collateral &amp; Blockchain</h4>
                                 <DetailRow label="Collateral" value={c.collateralType?.replace(/_/g, " ") ?? "—"} />
-                                <DetailRow label="Collateral Value" value={c.collateralValue ? formatCurrency(c.collateralValue) : "—"} />
                                 <DetailRow label="Locked" value={c.collateralLocked ? "Yes" : "No"} />
-                                <DetailRow label="Buyer Risk" value={c.buyerRiskScore ?? "—"} />
-                                <DetailRow label="Seller Risk" value={c.sellerRiskScore ?? "—"} />
-                                <DetailRow label="Blockchain" value={c.blockchainNetwork ?? "IOTA"} />
+                                <DetailRow label="Network" value={c.blockchainNetwork ?? "IOTA"} />
                                 {c.blockchainHash && <DetailRow label="Tx Hash" value={c.blockchainHash} mono />}
                               </div>
-                            </div>
-                            <div className="mt-3 px-4 flex items-center gap-3 text-xs text-muted-foreground">
-                              <span>Created: {new Date(c.createdAt).toLocaleString("en-KE")}</span>
-                              {c.settledAt && <span>• Settled: {new Date(c.settledAt).toLocaleString("en-KE")}</span>}
                             </div>
                           </TableCell>
                         </TableRow>
@@ -343,187 +373,435 @@ export default function ForwardContracts() {
         </div>
       )}
 
-      {/* New Contract Form */}
-      {tab === "New Contract" && (
-        <div className="max-w-3xl">
+      {/* ── AI Pricing Module ── */}
+      {tab === "AI Pricing" && (
+        <div className="space-y-5">
+          <div className="grid grid-cols-3 gap-4">
+            <ModuleInfoCard title="Price Suggestion via AI" icon={Brain} color="orange"
+              items={["ML-based pricing model", "Historical market data analysis", "Real-time index feed integration"]} />
+            <ModuleInfoCard title="Analyze Market Trends" icon={TrendingUp} color="blue"
+              items={["Supply / demand forecasting", "Seasonal pattern recognition", "Regional price correlation"]} />
+            <ModuleInfoCard title="Forecast Supply / Demand" icon={BarChart3} color="green"
+              items={["Harvest outlook modelling", "Weather-adjusted predictions", "Export market signals"]} />
+          </div>
+
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <FileSignature className="w-5 h-5" />
-                Create Forward Contract
+              <CardTitle className="flex items-center gap-2 text-base">
+                <Brain className="w-4 h-4" /> AI Price Intelligence
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  createContract.mutate(form);
-                }}
-                className="space-y-6"
-              >
-                {/* Commodity */}
-                <Section title="Commodity Details" icon={Package}>
-                  <div className="grid grid-cols-2 gap-4">
-                    <Field label="Commodity *">
-                      <select
-                        className="w-full border border-border rounded-md px-3 py-2 text-sm bg-background"
-                        value={form.commodity}
-                        onChange={(e) => setForm((f) => ({ ...f, commodity: e.target.value }))}
-                      >
-                        {COMMODITIES.map((c) => <option key={c}>{c}</option>)}
-                      </select>
-                    </Field>
-                    <Field label="Grade / Quality">
-                      <input
-                        className="w-full border border-border rounded-md px-3 py-2 text-sm bg-background"
-                        placeholder="e.g. Grade A, Export Grade"
-                        value={form.grade}
-                        onChange={(e) => setForm((f) => ({ ...f, grade: e.target.value }))}
-                      />
-                    </Field>
-                    <Field label="Quantity *">
-                      <input
-                        type="number"
-                        min="1"
-                        required
-                        className="w-full border border-border rounded-md px-3 py-2 text-sm bg-background"
-                        placeholder="e.g. 50000"
-                        value={form.quantity}
-                        onChange={(e) => setForm((f) => ({ ...f, quantity: e.target.value }))}
-                      />
-                    </Field>
-                    <Field label="Unit">
-                      <select
-                        className="w-full border border-border rounded-md px-3 py-2 text-sm bg-background"
-                        value={form.unit}
-                        onChange={(e) => setForm((f) => ({ ...f, unit: e.target.value }))}
-                      >
-                        {UNITS.map((u) => <option key={u}>{u}</option>)}
-                      </select>
-                    </Field>
-                  </div>
-                </Section>
+            <CardContent className="space-y-4">
+              <div className="flex items-center gap-3">
+                <label className="text-sm font-medium shrink-0">Select Commodity</label>
+                <select
+                  className="border border-border rounded-md px-3 py-1.5 text-sm bg-background"
+                  value={aiCommodity}
+                  onChange={(e) => setAiCommodity(e.target.value)}
+                >
+                  {COMMODITIES.map((c) => <option key={c}>{c}</option>)}
+                </select>
+              </div>
 
-                {/* Pricing */}
-                <Section title="Pricing Terms" icon={Coins}>
-                  <div className="grid grid-cols-2 gap-4">
-                    <Field label="Forward Price (KES per unit) *">
-                      <input
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        required
-                        className="w-full border border-border rounded-md px-3 py-2 text-sm bg-background"
-                        placeholder="e.g. 42.00"
-                        value={form.forwardPrice}
-                        onChange={(e) => setForm((f) => ({ ...f, forwardPrice: e.target.value }))}
-                      />
-                    </Field>
-                    <Field label="Total Contract Value">
-                      <div className="w-full border border-border rounded-md px-3 py-2 text-sm bg-secondary text-muted-foreground">
-                        {totalContractValue > 0 ? formatCurrency(totalContractValue) : "—"}
-                      </div>
-                    </Field>
-                    <Field label="Payment Method">
-                      <select
-                        className="w-full border border-border rounded-md px-3 py-2 text-sm bg-background"
-                        value={form.paymentMethod}
-                        onChange={(e) => setForm((f) => ({ ...f, paymentMethod: e.target.value }))}
-                      >
-                        {PAYMENT_METHODS.map((m) => <option key={m.value} value={m.value}>{m.label}</option>)}
-                      </select>
-                    </Field>
-                  </div>
-                </Section>
-
-                {/* Delivery */}
-                <Section title="Delivery Terms" icon={MapPin}>
-                  <div className="grid grid-cols-2 gap-4">
-                    <Field label="Delivery Date *">
-                      <input
-                        type="date"
-                        required
-                        className="w-full border border-border rounded-md px-3 py-2 text-sm bg-background"
-                        value={form.deliveryDate}
-                        onChange={(e) => setForm((f) => ({ ...f, deliveryDate: e.target.value }))}
-                      />
-                    </Field>
-                    <Field label="Delivery Method">
-                      <select
-                        className="w-full border border-border rounded-md px-3 py-2 text-sm bg-background"
-                        value={form.deliveryMethod}
-                        onChange={(e) => setForm((f) => ({ ...f, deliveryMethod: e.target.value }))}
-                      >
-                        {DELIVERY_METHODS.map((m) => <option key={m.value} value={m.value}>{m.label}</option>)}
-                      </select>
-                    </Field>
-                    <Field label="Delivery Location *" className="col-span-2">
-                      <input
-                        required
-                        className="w-full border border-border rounded-md px-3 py-2 text-sm bg-background"
-                        placeholder="e.g. Kitale Grain Warehouse, Trans Nzoia"
-                        value={form.deliveryLocation}
-                        onChange={(e) => setForm((f) => ({ ...f, deliveryLocation: e.target.value }))}
-                      />
-                    </Field>
-                    <div className="col-span-2 flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        id="partial"
-                        checked={form.partialDeliveryAllowed}
-                        onChange={(e) => setForm((f) => ({ ...f, partialDeliveryAllowed: e.target.checked }))}
-                        className="rounded"
-                      />
-                      <label htmlFor="partial" className="text-sm text-muted-foreground">Allow partial delivery</label>
-                    </div>
-                  </div>
-                </Section>
-
-                {/* Collateral */}
-                <Section title="Collateral" icon={ShieldCheck}>
-                  <div className="grid grid-cols-2 gap-4">
-                    <Field label="Collateral Type" className="col-span-2">
-                      <select
-                        className="w-full border border-border rounded-md px-3 py-2 text-sm bg-background"
-                        value={form.collateralType}
-                        onChange={(e) => setForm((f) => ({ ...f, collateralType: e.target.value }))}
-                      >
-                        {COLLATERAL_TYPES.map((m) => <option key={m.value} value={m.value}>{m.label}</option>)}
-                      </select>
-                    </Field>
-                  </div>
-                </Section>
-
-                {createContract.isError && (
-                  <div className="text-sm text-red-500 bg-red-50 border border-red-200 rounded-md px-4 py-2">
-                    Failed to create contract. Please check the form and try again.
-                  </div>
-                )}
-
-                <div className="flex gap-3 pt-2">
-                  <Button
-                    type="submit"
-                    disabled={createContract.isPending}
-                    className="text-white gap-2"
-                    style={{ backgroundColor: "#0A2A2A" }}
-                  >
-                    <FileSignature className="w-4 h-4" />
-                    {createContract.isPending ? "Creating…" : "Create Contract"}
-                  </Button>
-                  <Button type="button" variant="outline" onClick={() => setTab("Contracts")}>
-                    Cancel
-                  </Button>
+              <div className="grid grid-cols-3 gap-4">
+                <div className="rounded-lg border border-border p-4 text-center">
+                  <div className="text-xs text-muted-foreground mb-1">AI Suggested Price</div>
+                  <div className="text-2xl font-bold">KES {aiData.price}</div>
+                  <div className="text-xs text-muted-foreground mt-0.5">per kg</div>
                 </div>
-              </form>
+                <div className="rounded-lg border border-border p-4 text-center">
+                  <div className="text-xs text-muted-foreground mb-1">7-Day Trend</div>
+                  <div className={cn("text-2xl font-bold", aiData.trend.startsWith("+") ? "text-green-600" : "text-red-600")}>
+                    {aiData.trend}
+                  </div>
+                  <div className="text-xs text-muted-foreground mt-0.5">vs last week</div>
+                </div>
+                <div className="rounded-lg border border-border p-4 text-center">
+                  <div className="text-xs text-muted-foreground mb-1">Model Confidence</div>
+                  <div className="text-2xl font-bold">{aiData.confidence}%</div>
+                  <div className="w-full bg-secondary rounded-full h-1.5 mt-2">
+                    <div className="h-1.5 rounded-full bg-green-500" style={{ width: `${aiData.confidence}%` }} />
+                  </div>
+                </div>
+              </div>
+
+              <div className="rounded-lg border border-amber-200 bg-amber-50 p-4">
+                <div className="flex items-start gap-2">
+                  <Brain className="w-4 h-4 text-amber-600 mt-0.5 shrink-0" />
+                  <div>
+                    <div className="text-sm font-medium text-amber-800">Market Forecast — {aiCommodity}</div>
+                    <div className="text-sm text-amber-700 mt-1">{aiData.forecast}</div>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <div className="text-sm font-medium mb-3">All Commodity Index</div>
+                <div className="space-y-2">
+                  {Object.entries(AI_PRICES).map(([commodity, d]) => (
+                    <div key={commodity} className="flex items-center gap-3">
+                      <div className="w-20 text-xs font-medium shrink-0">{commodity}</div>
+                      <div className="flex-1 bg-secondary rounded-full h-2">
+                        <div className="h-2 rounded-full" style={{
+                          width: `${Math.min((d.price / 700) * 100, 100)}%`,
+                          backgroundColor: "#0A2A2A",
+                          opacity: 0.7,
+                        }} />
+                      </div>
+                      <div className="w-20 text-xs font-display text-right">KES {d.price}/kg</div>
+                      <div className={cn("w-14 text-xs text-right font-medium",
+                        d.trend.startsWith("+") ? "text-green-600" : "text-red-600")}>
+                        {d.trend}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </CardContent>
           </Card>
         </div>
       )}
+
+      {/* ── Blockchain Module ── */}
+      {tab === "Blockchain" && (
+        <div className="space-y-5">
+          <div className="grid grid-cols-2 gap-4">
+            <ModuleInfoCard title="Tokenization on IOTA / BNC" icon={Link2} color="indigo"
+              items={["Each contract tokenized as NFT", "Immutable on-chain proof of agreement", "Counterparty verification via DID"]} />
+            <ModuleInfoCard title="Immutable Contract Records" icon={Database} color="teal"
+              items={["Blockchain hash per contract event", "Audit trail on distributed ledger", "Tamper-proof delivery confirmation"]} />
+          </div>
+
+          <div className="grid grid-cols-3 gap-4">
+            <Card>
+              <CardContent className="pt-5 pb-5">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                  <span className="text-sm font-medium">IOTA Network</span>
+                  <span className="ml-auto text-xs text-green-600 font-medium">Connected</span>
+                </div>
+                <div className="space-y-1.5 text-xs text-muted-foreground">
+                  <div className="flex justify-between"><span>Network</span><span className="font-mono font-medium text-foreground">IOTA Mainnet</span></div>
+                  <div className="flex justify-between"><span>Protocol</span><span className="font-mono font-medium text-foreground">Tangle v2</span></div>
+                  <div className="flex justify-between"><span>Finality</span><span className="font-medium text-foreground">~10s</span></div>
+                  <div className="flex justify-between"><span>Tx Fee</span><span className="font-medium text-foreground">Zero</span></div>
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="pt-5 pb-5">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                  <span className="text-sm font-medium">BNC Chain</span>
+                  <span className="ml-auto text-xs text-green-600 font-medium">Connected</span>
+                </div>
+                <div className="space-y-1.5 text-xs text-muted-foreground">
+                  <div className="flex justify-between"><span>Network</span><span className="font-mono font-medium text-foreground">BNC Mainnet</span></div>
+                  <div className="flex justify-between"><span>Standard</span><span className="font-mono font-medium text-foreground">ERC-20 / DRC-20</span></div>
+                  <div className="flex justify-between"><span>Contracts</span><span className="font-medium text-foreground">Solidity v0.8</span></div>
+                  <div className="flex justify-between"><span>Avg Gas</span><span className="font-medium text-foreground">0.002 BNC</span></div>
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="pt-5 pb-5">
+                <div className="flex items-center gap-2 mb-3">
+                  <Lock className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-sm font-medium">Secure Ledger</span>
+                </div>
+                <div className="space-y-1.5 text-xs text-muted-foreground">
+                  <div className="flex justify-between"><span>Tokenized</span><span className="font-medium text-foreground">{stats.total} contracts</span></div>
+                  <div className="flex justify-between"><span>Active Tokens</span><span className="font-medium text-foreground">{stats.active}</span></div>
+                  <div className="flex justify-between"><span>Settled On-chain</span><span className="font-medium text-foreground">{stats.settled}</span></div>
+                  <div className="flex justify-between"><span>Ledger State</span><span className="text-green-600 font-medium">Verified</span></div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Tokenized contracts table */}
+          {contracts.filter((c: any) => c.status === "active" || c.status === "settled").length > 0 ? (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Layers className="w-4 h-4" /> Tokenized Contracts
+                </CardTitle>
+              </CardHeader>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Contract ID</TableHead>
+                    <TableHead>Commodity</TableHead>
+                    <TableHead className="text-right">Quantity</TableHead>
+                    <TableHead className="text-right">Value</TableHead>
+                    <TableHead>Network</TableHead>
+                    <TableHead>Tx Hash</TableHead>
+                    <TableHead className="text-center">Status</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {contracts.filter((c: any) => c.status === "active" || c.status === "settled").map((c: any) => (
+                    <TableRow key={c.id}>
+                      <TableCell className="font-mono text-xs">{c.id}</TableCell>
+                      <TableCell>{c.commodity}</TableCell>
+                      <TableCell className="text-right">{Number(c.quantity).toLocaleString()} {c.unit}</TableCell>
+                      <TableCell className="text-right font-medium">{formatCurrency(c.totalValue)}</TableCell>
+                      <TableCell className="text-sm">{c.blockchainNetwork ?? "IOTA"}</TableCell>
+                      <TableCell className="font-mono text-xs text-muted-foreground">{c.blockchainHash ?? "Pending…"}</TableCell>
+                      <TableCell className="text-center"><StatusBadge status={c.status} /></TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </Card>
+          ) : (
+            <Card>
+              <CardContent className="py-10 text-center text-muted-foreground text-sm">
+                No tokenized contracts yet. Contracts become tokenized when their status reaches <strong>Active</strong>.
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      )}
+
+      {/* ── New Contract (Contract Creation Module) ── */}
+      {tab === "New Contract" && (
+        <div className="space-y-5">
+          <div className="grid grid-cols-3 gap-4">
+            <ModuleInfoCard title="Create Forward Contracts" icon={FileSignature} color="blue"
+              items={["Farmer or cooperative initiates contract", "Defines commodity, quantity, price", "Attaches warehouse receipt as collateral"]} />
+            <ModuleInfoCard title="Set Price, Qty, Delivery Date" icon={Coins} color="green"
+              items={["AI suggests fair market price", "Delivery window and location set", "Payment method selected upfront"]} />
+            <ModuleInfoCard title="Validate Inventory &amp; Collateral" icon={ShieldCheck} color="orange"
+              items={["Tokenized receipt locks commodity", "Prevents double-selling", "Collateral verified on IOTA ledger"]} />
+          </div>
+
+          <div className="max-w-3xl">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <FileSignature className="w-5 h-5" /> Create Forward Contract
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={(e) => { e.preventDefault(); createContract.mutate(form); }} className="space-y-6">
+                  <FormSection title="Commodity Details" icon={Package}>
+                    <div className="grid grid-cols-2 gap-4">
+                      <Field label="Commodity *">
+                        <select className="w-full border border-border rounded-md px-3 py-2 text-sm bg-background"
+                          value={form.commodity} onChange={(e) => setForm((f) => ({ ...f, commodity: e.target.value }))}>
+                          {COMMODITIES.map((c) => <option key={c}>{c}</option>)}
+                        </select>
+                      </Field>
+                      <Field label="Grade / Quality">
+                        <input className="w-full border border-border rounded-md px-3 py-2 text-sm bg-background"
+                          placeholder="e.g. Grade A, Export Grade" value={form.grade}
+                          onChange={(e) => setForm((f) => ({ ...f, grade: e.target.value }))} />
+                      </Field>
+                      <Field label="Quantity *">
+                        <input type="number" min="1" required
+                          className="w-full border border-border rounded-md px-3 py-2 text-sm bg-background"
+                          placeholder="e.g. 50000" value={form.quantity}
+                          onChange={(e) => setForm((f) => ({ ...f, quantity: e.target.value }))} />
+                      </Field>
+                      <Field label="Unit">
+                        <select className="w-full border border-border rounded-md px-3 py-2 text-sm bg-background"
+                          value={form.unit} onChange={(e) => setForm((f) => ({ ...f, unit: e.target.value }))}>
+                          {UNITS.map((u) => <option key={u}>{u}</option>)}
+                        </select>
+                      </Field>
+                    </div>
+                  </FormSection>
+
+                  <FormSection title="Pricing Terms" icon={Coins}>
+                    <div className="grid grid-cols-2 gap-4">
+                      <Field label="Forward Price (KES per unit) *">
+                        <div className="relative">
+                          <input type="number" min="0" step="0.01" required
+                            className="w-full border border-border rounded-md px-3 py-2 text-sm bg-background"
+                            placeholder={`AI suggests KES ${AI_PRICES[form.commodity]?.price ?? "—"}`}
+                            value={form.forwardPrice}
+                            onChange={(e) => setForm((f) => ({ ...f, forwardPrice: e.target.value }))} />
+                        </div>
+                      </Field>
+                      <Field label="Total Contract Value">
+                        <div className="w-full border border-border rounded-md px-3 py-2 text-sm bg-secondary text-muted-foreground">
+                          {totalContractValue > 0 ? formatCurrency(totalContractValue) : "—"}
+                        </div>
+                      </Field>
+                      <Field label="Payment Method">
+                        <select className="w-full border border-border rounded-md px-3 py-2 text-sm bg-background"
+                          value={form.paymentMethod} onChange={(e) => setForm((f) => ({ ...f, paymentMethod: e.target.value }))}>
+                          {PAYMENT_METHODS.map((m) => <option key={m.value} value={m.value}>{m.label}</option>)}
+                        </select>
+                      </Field>
+                      <Field label="AI Suggested Price">
+                        <div className="w-full border border-border rounded-md px-3 py-2 text-sm bg-secondary">
+                          <span className="font-medium">KES {AI_PRICES[form.commodity]?.price ?? "—"}/kg</span>
+                          <span className={cn("ml-2 text-xs", (AI_PRICES[form.commodity]?.trend ?? "+").startsWith("+") ? "text-green-600" : "text-red-600")}>
+                            {AI_PRICES[form.commodity]?.trend}
+                          </span>
+                        </div>
+                      </Field>
+                    </div>
+                  </FormSection>
+
+                  <FormSection title="Delivery Terms" icon={MapPin}>
+                    <div className="grid grid-cols-2 gap-4">
+                      <Field label="Delivery Date *">
+                        <input type="date" required
+                          className="w-full border border-border rounded-md px-3 py-2 text-sm bg-background"
+                          value={form.deliveryDate} onChange={(e) => setForm((f) => ({ ...f, deliveryDate: e.target.value }))} />
+                      </Field>
+                      <Field label="Delivery Method">
+                        <select className="w-full border border-border rounded-md px-3 py-2 text-sm bg-background"
+                          value={form.deliveryMethod} onChange={(e) => setForm((f) => ({ ...f, deliveryMethod: e.target.value }))}>
+                          {DELIVERY_METHODS.map((m) => <option key={m.value} value={m.value}>{m.label}</option>)}
+                        </select>
+                      </Field>
+                      <Field label="Delivery Location *" className="col-span-2">
+                        <input required className="w-full border border-border rounded-md px-3 py-2 text-sm bg-background"
+                          placeholder="e.g. Kitale Grain Warehouse, Trans Nzoia" value={form.deliveryLocation}
+                          onChange={(e) => setForm((f) => ({ ...f, deliveryLocation: e.target.value }))} />
+                      </Field>
+                      <div className="col-span-2 flex items-center gap-2">
+                        <input type="checkbox" id="partial" checked={form.partialDeliveryAllowed}
+                          onChange={(e) => setForm((f) => ({ ...f, partialDeliveryAllowed: e.target.checked }))} className="rounded" />
+                        <label htmlFor="partial" className="text-sm text-muted-foreground">Allow partial delivery</label>
+                      </div>
+                    </div>
+                  </FormSection>
+
+                  <FormSection title="Collateral" icon={ShieldCheck}>
+                    <Field label="Collateral Type" className="max-w-sm">
+                      <select className="w-full border border-border rounded-md px-3 py-2 text-sm bg-background"
+                        value={form.collateralType} onChange={(e) => setForm((f) => ({ ...f, collateralType: e.target.value }))}>
+                        {COLLATERAL_TYPES.map((m) => <option key={m.value} value={m.value}>{m.label}</option>)}
+                      </select>
+                    </Field>
+                  </FormSection>
+
+                  {createContract.isError && (
+                    <div className="text-sm text-red-500 bg-red-50 border border-red-200 rounded-md px-4 py-2">
+                      Failed to create contract. Please check the form and try again.
+                    </div>
+                  )}
+
+                  <div className="flex gap-3 pt-2">
+                    <Button type="submit" disabled={createContract.isPending} className="text-white gap-2" style={{ backgroundColor: "#0A2A2A" }}>
+                      <FileSignature className="w-4 h-4" />
+                      {createContract.isPending ? "Creating…" : "Create Contract"}
+                    </Button>
+                    <Button type="button" variant="outline" onClick={() => setTab("Contract Management")}>Cancel</Button>
+                  </div>
+                </form>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      )}
+
+      {/* ── Integration Status Bar ── */}
+      <div className="grid grid-cols-5 gap-3 pt-2">
+        {[
+          {
+            title: "AI / Prediction Engine",
+            icon: Cpu,
+            color: "text-orange-600",
+            bg: "bg-orange-500/10",
+            status: "Active",
+            statusColor: "text-green-600",
+            items: ["ML-based Pricing Model", "Trend Analysis"],
+          },
+          {
+            title: "Blockchain",
+            icon: Link2,
+            color: "text-indigo-600",
+            bg: "bg-indigo-500/10",
+            status: "Connected",
+            statusColor: "text-green-600",
+            items: ["IOTA + BNC", "Tokenized Contracts", "Secure Ledger"],
+          },
+          {
+            title: "Wallet / Payment",
+            icon: Banknote,
+            color: "text-blue-600",
+            bg: "bg-blue-500/10",
+            status: "Ready",
+            statusColor: "text-green-600",
+            items: ["M-PESA", "Paystack", "PesaLink", "Pesapal"],
+          },
+          {
+            title: "Auto Settlement",
+            icon: Zap,
+            color: "text-teal-600",
+            bg: "bg-teal-500/10",
+            status: "On Delivery",
+            statusColor: "text-blue-600",
+            items: ["Automatic Funds Transfer", "KES / Stablecoin Support"],
+          },
+          {
+            title: "Notifications & Risk",
+            icon: Bell,
+            color: "text-purple-600",
+            bg: "bg-purple-500/10",
+            status: "Monitoring",
+            statusColor: "text-green-600",
+            items: ["Push & SMS Alerts", "Counterparty Risk Assessment"],
+          },
+        ].map(({ title, icon: Icon, color, bg, status, statusColor, items }) => (
+          <Card key={title} className="border-border">
+            <CardContent className="py-3 px-3">
+              <div className="flex items-center gap-2 mb-2">
+                <div className={cn("p-1.5 rounded-md", bg)}>
+                  <Icon className={cn("w-3.5 h-3.5", color)} />
+                </div>
+                <span className="text-xs font-semibold leading-tight">{title}</span>
+              </div>
+              <div className={cn("text-[10px] font-semibold mb-1.5", statusColor)}>● {status}</div>
+              <ul className="space-y-0.5">
+                {items.map((item) => (
+                  <li key={item} className="text-[10px] text-muted-foreground">· {item}</li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
     </div>
   );
 }
 
-function Section({ title, icon: Icon, children }: { title: string; icon: React.ElementType; children: React.ReactNode }) {
+function ModuleInfoCard({ title, icon: Icon, color, items }: {
+  title: string; icon: React.ElementType; color: string; items: string[];
+}) {
+  const colorMap: Record<string, { bg: string; text: string; border: string }> = {
+    orange: { bg: "bg-orange-500/10", text: "text-orange-600", border: "border-orange-200" },
+    blue:   { bg: "bg-blue-500/10",   text: "text-blue-600",   border: "border-blue-200" },
+    green:  { bg: "bg-green-500/10",  text: "text-green-700",  border: "border-green-200" },
+    indigo: { bg: "bg-indigo-500/10", text: "text-indigo-600", border: "border-indigo-200" },
+    teal:   { bg: "bg-teal-500/10",   text: "text-teal-600",   border: "border-teal-200" },
+    purple: { bg: "bg-purple-500/10", text: "text-purple-600", border: "border-purple-200" },
+  };
+  const c = colorMap[color] ?? colorMap.blue;
+  return (
+    <div className={cn("rounded-lg border p-3", c.border, c.bg)}>
+      <div className="flex items-center gap-2 mb-2">
+        <Icon className={cn("w-4 h-4", c.text)} />
+        <span className={cn("text-xs font-semibold", c.text)}>{title}</span>
+      </div>
+      <ul className="space-y-1">
+        {items.map((item) => (
+          <li key={item} className="flex items-start gap-1.5 text-xs text-muted-foreground">
+            <span className={cn("mt-0.5 shrink-0", c.text)}>·</span>{item}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function FormSection({ title, icon: Icon, children }: { title: string; icon: React.ElementType; children: React.ReactNode }) {
   return (
     <div>
       <div className="flex items-center gap-2 mb-3">
@@ -531,7 +809,7 @@ function Section({ title, icon: Icon, children }: { title: string; icon: React.E
         <h3 className="text-sm font-semibold">{title}</h3>
         <div className="flex-1 h-px bg-border" />
       </div>
-      <div>{children}</div>
+      {children}
     </div>
   );
 }
@@ -549,7 +827,7 @@ function DetailRow({ label, value, mono }: { label: string; value: string; mono?
   return (
     <div className="flex justify-between text-xs gap-2">
       <span className="text-muted-foreground shrink-0">{label}</span>
-      <span className={cn("text-right font-medium truncate max-w-[120px]", mono && "font-mono text-[10px]")} title={value}>{value}</span>
+      <span className={cn("text-right font-medium truncate max-w-[130px]", mono && "font-mono text-[10px]")} title={value}>{value}</span>
     </div>
   );
 }
