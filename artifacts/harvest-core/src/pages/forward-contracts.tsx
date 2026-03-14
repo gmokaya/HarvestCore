@@ -1,4 +1,4 @@
-import { useState, Fragment } from "react";
+import { useState, useEffect, Fragment } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Card, CardContent, CardHeader, CardTitle,
@@ -132,6 +132,26 @@ export default function ForwardContracts() {
     grade: "",
     partialDeliveryAllowed: false,
   });
+
+  const [aiForecast, setAiForecast] = useState<{
+    aiSuggestedPrice: number; currentSpotPrice: number; changePct: number;
+    confidence: number; daysAhead: number; method: string;
+  } | null>(null);
+  const [forecastLoading, setForecastLoading] = useState(false);
+
+  useEffect(() => {
+    if (!form.commodity) return;
+    setForecastLoading(true);
+    const params = new URLSearchParams({ commodity: form.commodity, unit: form.unit });
+    if (form.deliveryDate) params.set("deliveryDate", form.deliveryDate);
+    fetch(`${BASE}/api/forward-contracts/meta/ai-price?${params}`, {
+      headers: { Authorization: "Bearer mock-token-admin-001" },
+    })
+      .then(r => r.json())
+      .then(d => setAiForecast(d))
+      .catch(() => setAiForecast(null))
+      .finally(() => setForecastLoading(false));
+  }, [form.commodity, form.unit, form.deliveryDate]);
 
   const createContract = useMutation({
     mutationFn: (body: typeof form) =>
@@ -568,27 +588,56 @@ export default function ForwardContracts() {
                   </FormSection>
 
                   <FormSection title="Pricing Terms" icon={Coins}>
-                    {/* AI suggestion callout */}
-                    {AI_PRICES[form.commodity] && (
-                      <div className="flex items-center justify-between gap-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 mb-3">
+                    {/* AI forecast callout */}
+                    <div className={cn(
+                      "rounded-lg border px-3 py-2.5 mb-3 transition-opacity",
+                      forecastLoading ? "opacity-50" : "opacity-100",
+                      aiForecast ? "border-amber-200 bg-amber-50" : "border-muted bg-muted/40",
+                    )}>
+                      {!form.deliveryDate ? (
                         <div className="flex items-center gap-2">
-                          <Brain className="w-3.5 h-3.5 text-amber-600 shrink-0" />
-                          <span className="text-xs text-amber-800">
-                            AI suggests <span className="font-semibold">KES {AI_PRICES[form.commodity]?.price}/unit</span>
-                            <span className={cn("ml-1.5", (AI_PRICES[form.commodity]?.trend ?? "+").startsWith("+") ? "text-green-700" : "text-red-700")}>
-                              {AI_PRICES[form.commodity]?.trend}
-                            </span>
-                            <span className="ml-1 text-amber-600">— this is a reference only.</span>
+                          <Brain className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                          <span className="text-xs text-muted-foreground">
+                            Set a delivery date to get an AI-forecasted price for that date.
                           </span>
                         </div>
-                        <button type="button"
-                          className="shrink-0 text-xs font-medium text-amber-700 border border-amber-300 rounded px-2 py-0.5 hover:bg-amber-100 transition-colors"
-                          onClick={() => setForm((f) => ({ ...f, forwardPrice: String(AI_PRICES[form.commodity]?.price ?? "") }))}>
-                          Apply
-                        </button>
-                      </div>
-                    )}
+                      ) : forecastLoading ? (
+                        <div className="flex items-center gap-2">
+                          <Brain className="w-3.5 h-3.5 text-amber-500 shrink-0 animate-pulse" />
+                          <span className="text-xs text-amber-700">Calculating forecast…</span>
+                        </div>
+                      ) : aiForecast ? (
+                        <div className="flex items-center justify-between gap-3">
+                          <div className="flex items-start gap-2">
+                            <Brain className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
+                            <div className="space-y-0.5">
+                              <div className="text-xs text-amber-800">
+                                <span className="font-semibold">KES {aiForecast.aiSuggestedPrice.toLocaleString()}/{form.unit}</span>
+                                {" "}forecasted at delivery
+                                <span className={cn("ml-1.5 font-medium", aiForecast.changePct >= 0 ? "text-green-700" : "text-red-700")}>
+                                  ({aiForecast.changePct >= 0 ? "+" : ""}{aiForecast.changePct}% vs today's KES {aiForecast.currentSpotPrice.toLocaleString()})
+                                </span>
+                              </div>
+                              <div className="text-[10px] text-amber-600">
+                                {aiForecast.daysAhead} day{aiForecast.daysAhead !== 1 ? "s" : ""} ahead · {aiForecast.confidence}% confidence · reference only
+                              </div>
+                            </div>
+                          </div>
+                          <button type="button"
+                            className="shrink-0 text-xs font-medium text-amber-700 border border-amber-300 rounded px-2 py-0.5 hover:bg-amber-100 transition-colors"
+                            onClick={() => setForm((f) => ({ ...f, forwardPrice: String(aiForecast.aiSuggestedPrice) }))}>
+                            Apply
+                          </button>
+                        </div>
+                      ) : null}
+                    </div>
                     <div className="grid grid-cols-2 gap-4">
+                      <Field label="Delivery Date *">
+                        <input type="date" required
+                          className="w-full border border-border rounded-md px-3 py-2 text-sm bg-background"
+                          value={form.deliveryDate}
+                          onChange={(e) => setForm((f) => ({ ...f, deliveryDate: e.target.value }))} />
+                      </Field>
                       <Field label="Forward Price (KES per unit) *">
                         <input type="number" min="0" step="0.01" required
                           className="w-full border border-border rounded-md px-3 py-2 text-sm bg-background"
@@ -612,11 +661,6 @@ export default function ForwardContracts() {
 
                   <FormSection title="Delivery Terms" icon={MapPin}>
                     <div className="grid grid-cols-2 gap-4">
-                      <Field label="Delivery Date *">
-                        <input type="date" required
-                          className="w-full border border-border rounded-md px-3 py-2 text-sm bg-background"
-                          value={form.deliveryDate} onChange={(e) => setForm((f) => ({ ...f, deliveryDate: e.target.value }))} />
-                      </Field>
                       <Field label="Delivery Method">
                         <select className="w-full border border-border rounded-md px-3 py-2 text-sm bg-background"
                           value={form.deliveryMethod} onChange={(e) => setForm((f) => ({ ...f, deliveryMethod: e.target.value }))}>

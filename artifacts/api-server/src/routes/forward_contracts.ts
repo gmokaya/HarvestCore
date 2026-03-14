@@ -165,11 +165,69 @@ router.patch("/:id/status", async (req, res) => {
   }
 });
 
+// Monthly drift rates per commodity (annualised trend / 12)
+const MONTHLY_DRIFT: Record<string, number> = {
+  Maize:   0.021 / 12,
+  Coffee:  0.054 / 12,
+  Wheat:  -0.008 / 12,
+  Rice:    0.012 / 12,
+  Sorghum: 0.005 / 12,
+  Beans:   0.032 / 12,
+  Tea:     0.018 / 12,
+  Cotton: -0.011 / 12,
+  Sesame:  0.040 / 12,
+  Millet:  0.009 / 12,
+};
+
+// Seasonal adjustment by month (harvest vs lean season)
+const SEASONAL_FACTOR: Record<number, number> = {
+  1: -0.02, 2: -0.01, 3:  0.01, 4:  0.02,
+  5:  0.03, 6:  0.02, 7: -0.01, 8: -0.03,
+  9: -0.04, 10: -0.02, 11: 0.01, 12: 0.02,
+};
+
 router.get("/meta/ai-price", async (req, res) => {
-  const { commodity, unit } = req.query as Record<string, string>;
+  const { commodity, unit, deliveryDate } = req.query as Record<string, string>;
   const base = MARKET_PRICES[commodity] ?? 40;
-  const price = unit === "ton" ? base * 1000 : unit === "bag" ? base * 90 : base;
-  res.json({ aiSuggestedPrice: price, commodity, unit: unit ?? "kg" });
+
+  // Days until delivery
+  const today = new Date();
+  const delivery = deliveryDate ? new Date(deliveryDate) : null;
+  const daysAhead = delivery ? Math.max(0, Math.round((delivery.getTime() - today.getTime()) / 86400000)) : 0;
+  const monthsAhead = daysAhead / 30.44;
+
+  // Compounded forward price: base × (1 + monthly_drift)^months
+  const drift = MONTHLY_DRIFT[commodity] ?? 0.01;
+  let forecasted = base * Math.pow(1 + drift, monthsAhead);
+
+  // Add seasonal adjustment for the delivery month
+  if (delivery) {
+    const deliveryMonth = delivery.getMonth() + 1;
+    const seasonal = SEASONAL_FACTOR[deliveryMonth] ?? 0;
+    forecasted = forecasted * (1 + seasonal);
+  }
+
+  // Unit conversion
+  const unitPrice = unit === "ton" ? forecasted * 1000 : unit === "bag" ? forecasted * 90 : forecasted;
+  const baseUnitPrice = unit === "ton" ? base * 1000 : unit === "bag" ? base * 90 : base;
+
+  // Confidence decays with time: starts ~90%, loses ~1% per 10 days
+  const confidence = Math.max(50, Math.round(90 - (daysAhead / 10)));
+
+  // Price change vs today
+  const changePct = ((unitPrice - baseUnitPrice) / baseUnitPrice) * 100;
+
+  res.json({
+    aiSuggestedPrice: Math.round(unitPrice * 100) / 100,
+    currentSpotPrice: Math.round(baseUnitPrice * 100) / 100,
+    commodity,
+    unit: unit ?? "kg",
+    daysAhead,
+    deliveryDate: deliveryDate ?? null,
+    changePct: Math.round(changePct * 10) / 10,
+    confidence,
+    method: daysAhead > 0 ? "forward_projection" : "spot",
+  });
 });
 
 export default router;
