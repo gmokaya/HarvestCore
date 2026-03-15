@@ -156,8 +156,8 @@ export default function WarehouseManagement() {
       {/* ── Header ── */}
       <div className="flex justify-between items-start gap-4">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Warehouse Management</h1>
-          <p className="text-muted-foreground text-sm mt-0.5">Monitor capacity, stock, and reconciliation across your warehouse network</p>
+          <h1 className="text-3xl font-bold tracking-tight">Warehouse Management</h1>
+          <p className="text-muted-foreground mt-1">Monitor capacity, stock, and reconciliation across your warehouse network</p>
         </div>
         <Button size="sm" variant="outline" onClick={() => { refetchList(); if (mainTab === "network") { setNetworkData(null); setMainTab("warehouses"); setTimeout(() => setMainTab("network"), 50) } }}>
           <RefreshCw className="w-4 h-4 mr-1.5" /> Refresh
