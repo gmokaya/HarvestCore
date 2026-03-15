@@ -1,5 +1,7 @@
 import { useState, Fragment } from "react"
-import { useListIntakes, useApproveIntake, useRejectIntake, useListWarehouses } from "@workspace/api-client-react"
+import { useListIntakes, useApproveIntake, useRejectIntake, useListWarehouses, useCreateWarehouse, useListUsers } from "@workspace/api-client-react"
+import { useAuth } from "@/contexts/auth"
+import { useQueryClient } from "@tanstack/react-query"
 import {
   Card, CardHeader, CardTitle, CardContent,
   Badge, Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
@@ -71,12 +73,19 @@ function StatCard({ label, value, color }: { label: string; value: number; color
 }
 
 export default function Inventory() {
+  const { user } = useAuth()
+  const queryClient = useQueryClient()
   const { data, isLoading, refetch } = useListIntakes()
-  const { data: warehouseData } = useListWarehouses()
+  const { data: warehouseData, refetch: refetchWarehouses } = useListWarehouses()
+  const { data: usersData } = useListUsers()
   const approveIntake = useApproveIntake()
   const rejectIntake = useRejectIntake()
+  const createWarehouse = useCreateWarehouse()
 
   const [showNewIntake, setShowNewIntake] = useState(false)
+  const [showNewWarehouse, setShowNewWarehouse] = useState(false)
+  const [warehouseForm, setWarehouseForm] = useState({ name: "", location: "", capacity: "", operatorId: "" })
+  const [warehouseError, setWarehouseError] = useState("")
   const [gradeDialog, setGradeDialog] = useState<string | null>(null)
   const [weighDialog, setWeighDialog] = useState<string | null>(null)
   const [rejectDialog, setRejectDialog] = useState<string | null>(null)
@@ -130,6 +139,27 @@ export default function Inventory() {
       console.error(err)
     } finally {
       setRegistryLoading(false)
+    }
+  }
+
+  const handleCreateWarehouse = async () => {
+    setWarehouseError("")
+    if (!warehouseForm.name || !warehouseForm.location || !warehouseForm.capacity || !warehouseForm.operatorId) {
+      setWarehouseError("All fields are required.")
+      return
+    }
+    try {
+      await createWarehouse.mutateAsync({ data: {
+        name: warehouseForm.name,
+        location: warehouseForm.location,
+        capacity: parseFloat(warehouseForm.capacity),
+        operatorId: warehouseForm.operatorId,
+      }})
+      setShowNewWarehouse(false)
+      setWarehouseForm({ name: "", location: "", capacity: "", operatorId: "" })
+      refetchWarehouses()
+    } catch (e: any) {
+      setWarehouseError(e?.message ?? "Failed to create warehouse")
     }
   }
 
@@ -512,7 +542,19 @@ export default function Inventory() {
 
         {/* ─── WAREHOUSES TAB ─── */}
         <TabsContent value="warehouses">
+          <div className="flex justify-end mb-4">
+            {(user?.role === "admin" || user?.role === "collateral_manager") && (
+              <Button size="sm" onClick={() => setShowNewWarehouse(true)}>
+                <Plus className="w-4 h-4 mr-1.5" /> Add Warehouse
+              </Button>
+            )}
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+            {warehouses.length === 0 && (
+              <div className="col-span-3 text-center py-12 text-muted-foreground">
+                No warehouses yet. Click "Add Warehouse" to register one.
+              </div>
+            )}
             {warehouses.map((wh: any) => (
               <Card key={wh.id}>
                 <CardHeader className="pb-3">
@@ -918,6 +960,66 @@ export default function Inventory() {
               <Button type="submit" variant="destructive" disabled={submitting}>{submitting ? "Rejecting..." : "Confirm Rejection"}</Button>
             </div>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* ─── NEW WAREHOUSE DIALOG ─── */}
+      <Dialog open={showNewWarehouse} onOpenChange={(open) => { setShowNewWarehouse(open); setWarehouseError("") }}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Warehouse className="w-5 h-5 text-emerald-500" /> Register New Warehouse
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 pt-2">
+            <div className="space-y-2">
+              <Label>Warehouse Name *</Label>
+              <Input
+                placeholder="e.g. Nairobi Central Grain Store"
+                value={warehouseForm.name}
+                onChange={(e) => setWarehouseForm(f => ({ ...f, name: e.target.value }))}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Location *</Label>
+              <Input
+                placeholder="e.g. Nairobi, Kenya"
+                value={warehouseForm.location}
+                onChange={(e) => setWarehouseForm(f => ({ ...f, location: e.target.value }))}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Capacity (kg) *</Label>
+              <Input
+                type="number"
+                min="1"
+                placeholder="e.g. 500000"
+                value={warehouseForm.capacity}
+                onChange={(e) => setWarehouseForm(f => ({ ...f, capacity: e.target.value }))}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Warehouse Operator *</Label>
+              <select
+                aria-label="Select warehouse operator"
+                className="w-full h-9 rounded-md border border-input bg-background px-3 py-1 text-sm"
+                value={warehouseForm.operatorId}
+                onChange={(e) => setWarehouseForm(f => ({ ...f, operatorId: e.target.value }))}
+              >
+                <option value="">— Select operator —</option>
+                {(usersData?.users ?? []).map((u: any) => (
+                  <option key={u.id} value={u.id}>{u.name} ({u.role})</option>
+                ))}
+              </select>
+            </div>
+            {warehouseError && <p className="text-sm text-red-500">{warehouseError}</p>}
+            <div className="flex justify-end gap-2 pt-2">
+              <Button variant="outline" onClick={() => setShowNewWarehouse(false)}>Cancel</Button>
+              <Button onClick={handleCreateWarehouse} disabled={createWarehouse.isPending}>
+                {createWarehouse.isPending ? "Creating..." : "Create Warehouse"}
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

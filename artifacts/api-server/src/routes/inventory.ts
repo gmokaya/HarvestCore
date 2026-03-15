@@ -297,6 +297,31 @@ router.get("/warehouses", async (req, res) => {
   }
 });
 
+router.post("/warehouses", async (req, res) => {
+  try {
+    const { name, location, capacity, operatorId } = req.body;
+    if (!name || !location || !capacity || !operatorId) {
+      res.status(400).json({ error: "name, location, capacity and operatorId are required" });
+      return;
+    }
+    const [operator] = await db.select({ id: usersTable.id, name: usersTable.name })
+      .from(usersTable).where(eq(usersTable.id, operatorId)).limit(1);
+    if (!operator) { res.status(404).json({ error: "Operator user not found" }); return; }
+
+    const [warehouse] = await db.insert(warehousesTable).values({
+      name,
+      location,
+      capacity: String(capacity),
+      operatorId,
+    }).returning();
+
+    res.status(201).json({ ...warehouse, capacity: Number(warehouse.capacity), currentStock: 0, operatorName: operator.name });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 router.get("/warehouses/:warehouseId", async (req, res) => {
   try {
     const [warehouse] = await db.select().from(warehousesTable).where(eq(warehousesTable.id, req.params.warehouseId)).limit(1);

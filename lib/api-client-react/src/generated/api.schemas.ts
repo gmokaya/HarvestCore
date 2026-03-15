@@ -156,6 +156,13 @@ export interface WarehouseListResponse {
   warehouses: Warehouse[];
 }
 
+export interface CreateWarehouseRequest {
+  name: string;
+  location: string;
+  capacity: number;
+  operatorId: string;
+}
+
 export type IntakeRecordGrade =
   | (typeof IntakeRecordGrade)[keyof typeof IntakeRecordGrade]
   | null;

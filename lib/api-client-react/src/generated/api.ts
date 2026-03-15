@@ -25,6 +25,7 @@ import type {
   CreateListingRequest,
   CreateLoanRequest,
   CreateUserRequest,
+  CreateWarehouseRequest,
   DashboardStats,
   DefaultedLoanListResponse,
   FinalizeSettlementRequest,
@@ -65,6 +66,7 @@ import type {
   UpdateUserRequest,
   User,
   UserListResponse,
+  Warehouse,
   WarehouseListResponse,
   WaterfallBreakdown,
 } from "./api.schemas";
@@ -1576,6 +1578,75 @@ export function useListWarehouses<
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+export const getCreateWarehouseUrl = () => `/api/inventory/warehouses`;
+
+export const createWarehouse = async (
+  createWarehouseRequest: CreateWarehouseRequest,
+  options?: RequestInit,
+): Promise<Warehouse> => {
+  return customFetch<Warehouse>(getCreateWarehouseUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(createWarehouseRequest),
+  });
+};
+
+export const getCreateWarehouseMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createWarehouse>>,
+    TError,
+    { data: BodyType<CreateWarehouseRequest> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof createWarehouse>>,
+  TError,
+  { data: BodyType<CreateWarehouseRequest> },
+  TContext
+> => {
+  const mutationKey = ["createWarehouse"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation && "mutationKey" in options.mutation && options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof createWarehouse>>,
+    { data: BodyType<CreateWarehouseRequest> }
+  > = (props) => {
+    const { data } = props ?? {};
+    return createWarehouse(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export const useCreateWarehouse = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createWarehouse>>,
+    TError,
+    { data: BodyType<CreateWarehouseRequest> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof createWarehouse>>,
+  TError,
+  { data: BodyType<CreateWarehouseRequest> },
+  TContext
+> => {
+  return useMutation(getCreateWarehouseMutationOptions(options));
+};
 
 /**
  * @summary List tokens
