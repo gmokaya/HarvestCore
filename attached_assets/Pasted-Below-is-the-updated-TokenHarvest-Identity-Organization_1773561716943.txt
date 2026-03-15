@@ -1,0 +1,411 @@
+Below is the **updated TokenHarvest Identity & Organization Hierarchy Model with Warehouses fully integrated as a first-class entity**. This reflects how **large fintech supply-chain platforms structure identity, organizations, and physical infrastructure** such as **warehouse networks**.
+
+This allows TokenHarvest to manage:
+
+* **parent organizations**
+* **subsidiaries**
+* **cooperatives**
+* **warehouse operators**
+* **individual warehouses**
+* **farmers and traders**
+* **commodity processors**
+
+while maintaining **strict data segregation and role-based access**.
+
+---
+
+# TokenHarvest Identity & Organization Hierarchy Model (Including Warehouses)
+
+---
+
+# 1. Core Platform Hierarchy
+
+The platform hierarchy includes **organizations and physical warehouse infrastructure**.
+
+```text
+TokenHarvest Platform
+│
+├ Parent Organization
+│   │
+│   ├ Subsidiary Organization
+│   │   ├ Users
+│   │   ├ Warehouses
+│   │   └ Assets
+│   │
+│   ├ Cooperative / Farmer Group
+│   │   ├ Farmers
+│   │   └ Commodity Deposits
+│   │
+│   └ Processing Company
+│       ├ Buyers
+│       └ Procurement Teams
+│
+└ Warehouse Network
+    ├ Warehouse Operator Organization
+    │   ├ Warehouse 1
+    │   ├ Warehouse 2
+    │   └ Warehouse 3
+```
+
+This structure ensures **warehouses are clearly linked to organizations but remain independent operational entities**.
+
+---
+
+# 2. Organization Types
+
+Organizations can represent **different participants in the commodity ecosystem**.
+
+| Organization Type        | Description                     |
+| ------------------------ | ------------------------------- |
+| Individual               | Single farmer or trader         |
+| Cooperative              | Farmer cooperative              |
+| Warehouse Operator       | Warehouse management company    |
+| Processor / Manufacturer | Commodity processing companies  |
+| Trader / Aggregator      | Commodity traders               |
+| Financial Institution    | Banks or lenders                |
+| Investor                 | Liquidity providers             |
+| Platform Admin           | TokenHarvest platform operators |
+
+Example:
+
+```
+Organization: TransNzoia Storage Ltd
+Type: Warehouse Operator
+```
+
+---
+
+# 3. Warehouse Entity
+
+Warehouses are **separate operational units linked to organizations**.
+
+Example:
+
+```
+Organization: TransNzoia Storage Ltd
+│
+├ Warehouse Kitale
+├ Warehouse Endebess
+└ Warehouse Eldoret
+```
+
+Each warehouse can:
+
+* receive commodities
+* issue warehouse receipts
+* conduct inspections
+* manage storage capacity
+
+---
+
+# 4. Warehouse Data Structure
+
+Each warehouse must store the following information.
+
+| Field           | Description                   |
+| --------------- | ----------------------------- |
+| warehouse_id    | Unique warehouse identifier   |
+| organization_id | Owner organization            |
+| warehouse_name  | Name of warehouse             |
+| location        | Physical location             |
+| capacity        | Storage capacity              |
+| warehouse_type  | Grain / Tea / Multi-commodity |
+| status          | Active / Suspended            |
+
+Example:
+
+```json
+{
+ "warehouse_id": "WH-KTL-001",
+ "organization_id": "ORG-200",
+ "warehouse_name": "Kitale Central Warehouse",
+ "location": "Kitale, Kenya",
+ "capacity": "20000 tons",
+ "warehouse_type": "Grain",
+ "status": "Active"
+}
+```
+
+---
+
+# 5. Warehouse Roles
+
+Users can belong to a warehouse.
+
+Example roles:
+
+| Role                     | Function                      |
+| ------------------------ | ----------------------------- |
+| Warehouse Manager        | Oversees warehouse operations |
+| Inspection Officer       | Performs quality inspection   |
+| Commodity Intake Officer | Records commodity deposits    |
+| Warehouse Auditor        | Verifies stock levels         |
+
+Example hierarchy:
+
+```
+Warehouse Kitale
+│
+├ Warehouse Manager
+├ Inspection Officers
+└ Commodity Intake Officers
+```
+
+---
+
+# 6. Warehouse Access Control
+
+Warehouse users can **only access data for their warehouse**.
+
+Example rule:
+
+```
+User.warehouse_id = Data.warehouse_id
+```
+
+If mismatch:
+
+```
+Access denied
+```
+
+---
+
+# 7. Warehouse and Commodity Relationship
+
+Each warehouse manages **commodity batches**.
+
+Example:
+
+```
+Warehouse Kitale
+│
+├ Commodity Batch 1 – Maize
+├ Commodity Batch 2 – Beans
+└ Commodity Batch 3 – Green Gram
+```
+
+Commodity batches link to:
+
+* inspection reports
+* warehouse receipts
+* tokenized assets
+
+---
+
+# 8. Warehouse and Receipt System
+
+When commodities are deposited:
+
+```
+Commodity Intake
+      ↓
+Inspection
+      ↓
+Digital Warehouse Receipt
+      ↓
+Tokenization
+```
+
+Example receipt:
+
+```
+Receipt ID: WR-2026-0042
+Warehouse: WH-KTL-001
+Commodity: White Maize
+Quantity: 50 Tons
+Owner: Farmer_0092
+```
+
+---
+
+# 9. Warehouse Network Model
+
+Multiple warehouses can form **warehouse networks**.
+
+Example:
+
+```
+East Africa Storage Network
+│
+├ TransNzoia Storage Ltd
+│   ├ Kitale Warehouse
+│   └ Endebess Warehouse
+│
+└ Rift Valley Storage Ltd
+    ├ Eldoret Warehouse
+    └ Turbo Warehouse
+```
+
+This allows:
+
+* regional storage coordination
+* aggregated commodity trading
+* multi-warehouse collateralization
+
+---
+
+# 10. Organization – Warehouse Relationship
+
+Structure:
+
+```
+Organization
+      ↓
+Warehouse
+      ↓
+Commodity Storage
+      ↓
+Warehouse Receipts
+```
+
+Example:
+
+```
+TransNzoia Storage Ltd
+│
+└ Kitale Warehouse
+   │
+   ├ Maize Storage
+   ├ Beans Storage
+   └ Soybean Storage
+```
+
+---
+
+# 11. Data Segregation Model
+
+Every record contains:
+
+```
+organization_id
+warehouse_id
+```
+
+Access rules:
+
+```
+User.organization_id = Data.organization_id
+AND
+User.warehouse_id = Data.warehouse_id
+```
+
+Parent organizations may access **all child warehouses**.
+
+---
+
+# 12. API Access Enforcement
+
+All API calls from mobile/web must include:
+
+```json
+{
+"user_id": "USR-224",
+"organization_id": "ORG-200",
+"warehouse_id": "WH-KTL-001",
+"role": "Warehouse Manager"
+}
+```
+
+Backend verifies:
+
+* organization ownership
+* warehouse permissions
+* role access
+
+---
+
+# 13. Database Tables
+
+New table introduced for warehouses.
+
+### Warehouses Table
+
+```
+warehouses
+```
+
+| Field           |
+| --------------- |
+| warehouse_id    |
+| organization_id |
+| warehouse_name  |
+| location        |
+| capacity        |
+| status          |
+
+---
+
+### Warehouse Users Table
+
+```
+warehouse_users
+```
+
+| Field        |
+| ------------ |
+| user_id      |
+| warehouse_id |
+| role         |
+
+---
+
+### Commodity Storage Table
+
+```
+commodity_batches
+```
+
+| Field          |
+| -------------- |
+| batch_id       |
+| warehouse_id   |
+| commodity_type |
+| quantity       |
+| owner_id       |
+
+---
+
+# 14. Updated System Hierarchy
+
+```
+TokenHarvest Platform
+│
+├ Farmers & Traders
+│
+├ Cooperatives
+│
+├ Warehouse Operators
+│   ├ Warehouse Kitale
+│   ├ Warehouse Eldoret
+│   └ Warehouse Endebess
+│
+├ Commodity Processors
+│
+└ Financial Institutions
+```
+
+---
+
+# 15. Strategic Benefits for TokenHarvest
+
+Adding warehouses into the hierarchy allows:
+
+* **true warehouse receipt financing**
+* **multi-warehouse collateral systems**
+* **regional commodity aggregation**
+* **traceable commodity storage**
+
+This is essential for scaling TokenHarvest into a **full digital commodity finance infrastructure**.
+
+---
+
+If you want, I can next design the **TokenHarvest Warehouse Management Module**, which will define:
+
+* warehouse dashboards
+* commodity intake workflows
+* stock reconciliation
+* capacity management
+* multi-warehouse inventory tracking
+
+This module is **critical for warehouse receipt systems and collateral control**.

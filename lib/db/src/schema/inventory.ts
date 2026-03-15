@@ -2,11 +2,15 @@ import { pgTable, text, numeric, timestamp, pgEnum } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 import { usersTable } from "./users";
+import { organizationsTable } from "./organizations";
 import { generateId } from "../utils/id";
 
 export const intakeStatusEnum = pgEnum("intake_status", ["pending", "graded", "weighed", "verified", "anchored", "rejected"]);
 export const gradeEnum = pgEnum("grade", ["A", "B", "C", "D"]);
 export const ewrsStatusEnum = pgEnum("ewrs_status", ["not_submitted", "pending", "verified", "rejected", "sync_error"]);
+
+export const warehouseTypeEnum = pgEnum("warehouse_type_enum", ["grain", "tea", "multi_commodity"]);
+export const warehouseStatusEnum = pgEnum("warehouse_status_enum", ["active", "suspended"]);
 
 export const warehousesTable = pgTable("warehouses", {
   id: text("id").primaryKey().$defaultFn(() => generateId("WHR")),
@@ -15,6 +19,9 @@ export const warehousesTable = pgTable("warehouses", {
   capacity: numeric("capacity", { precision: 12, scale: 2 }).notNull(),
   currentStock: numeric("current_stock", { precision: 12, scale: 2 }).notNull().default("0"),
   operatorId: text("operator_id").notNull().references(() => usersTable.id),
+  organizationId: text("organization_id").references(() => organizationsTable.id),
+  warehouseType: text("warehouse_type").notNull().default("multi_commodity"),
+  status: text("status").notNull().default("active"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 

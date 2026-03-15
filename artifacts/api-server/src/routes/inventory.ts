@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { intakesTable, warehousesTable, usersTable, activityLogTable } from "@workspace/db/schema";
+import { intakesTable, warehousesTable, usersTable, activityLogTable, organizationsTable } from "@workspace/db/schema";
 import { eq, and, sql, desc, inArray } from "drizzle-orm";
 import { CreateIntakeBody } from "@workspace/api-zod";
 
@@ -276,6 +276,13 @@ router.get("/warehouses", async (req, res) => {
       const [operator] = await db.select({ name: usersTable.name, email: usersTable.email })
         .from(usersTable).where(eq(usersTable.id, w.operatorId)).limit(1);
 
+      let orgName: string | null = null;
+      if (w.organizationId) {
+        const [org] = await db.select({ name: organizationsTable.name })
+          .from(organizationsTable).where(eq(organizationsTable.id, w.organizationId)).limit(1);
+        orgName = org?.name ?? null;
+      }
+
       const utilizationPct = Number(w.capacity) > 0
         ? Math.round((Number(w.currentStock) / Number(w.capacity)) * 100)
         : 0;
@@ -286,6 +293,7 @@ router.get("/warehouses", async (req, res) => {
         currentStock: Number(w.currentStock),
         utilizationPct,
         operatorName: operator?.name ?? "Unknown",
+        organizationName: orgName,
         intakeCounts: Object.fromEntries(intakeCounts.map(c => [c.status, Number(c.count)])),
       };
     }));
@@ -299,7 +307,7 @@ router.get("/warehouses", async (req, res) => {
 
 router.post("/warehouses", async (req, res) => {
   try {
-    const { name, location, capacity, operatorId } = req.body;
+    const { name, location, capacity, operatorId, organizationId, warehouseType, status } = req.body;
     if (!name || !location || !capacity || !operatorId) {
       res.status(400).json({ error: "name, location, capacity and operatorId are required" });
       return;
@@ -308,14 +316,31 @@ router.post("/warehouses", async (req, res) => {
       .from(usersTable).where(eq(usersTable.id, operatorId)).limit(1);
     if (!operator) { res.status(404).json({ error: "Operator user not found" }); return; }
 
+    let orgName: string | null = null;
+    if (organizationId) {
+      const [org] = await db.select({ name: organizationsTable.name })
+        .from(organizationsTable).where(eq(organizationsTable.id, organizationId)).limit(1);
+      if (!org) { res.status(404).json({ error: "Organization not found" }); return; }
+      orgName = org.name;
+    }
+
     const [warehouse] = await db.insert(warehousesTable).values({
       name,
       location,
       capacity: String(capacity),
       operatorId,
+      organizationId: organizationId ?? null,
+      warehouseType: warehouseType ?? "multi_commodity",
+      status: status ?? "active",
     }).returning();
 
-    res.status(201).json({ ...warehouse, capacity: Number(warehouse.capacity), currentStock: 0, operatorName: operator.name });
+    res.status(201).json({
+      ...warehouse,
+      capacity: Number(warehouse.capacity),
+      currentStock: 0,
+      operatorName: operator.name,
+      organizationName: orgName,
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Internal server error" });
@@ -330,6 +355,13 @@ router.get("/warehouses/:warehouseId", async (req, res) => {
     const [operator] = await db.select({ name: usersTable.name, email: usersTable.email })
       .from(usersTable).where(eq(usersTable.id, warehouse.operatorId)).limit(1);
 
+    let orgName: string | null = null;
+    if (warehouse.organizationId) {
+      const [org] = await db.select({ name: organizationsTable.name })
+        .from(organizationsTable).where(eq(organizationsTable.id, warehouse.organizationId)).limit(1);
+      orgName = org?.name ?? null;
+    }
+
     const intakes = await db.select().from(intakesTable).where(eq(intakesTable.warehouseId, req.params.warehouseId));
 
     res.json({
@@ -338,6 +370,7 @@ router.get("/warehouses/:warehouseId", async (req, res) => {
       currentStock: Number(warehouse.currentStock),
       utilizationPct: Math.round((Number(warehouse.currentStock) / Number(warehouse.capacity)) * 100),
       operatorName: operator?.name ?? "Unknown",
+      organizationName: orgName,
       totalIntakes: intakes.length,
     });
   } catch (err) {

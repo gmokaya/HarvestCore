@@ -150,6 +150,13 @@ export interface Warehouse {
   capacity: number;
   currentStock: number;
   operatorId: string;
+  operatorName?: string;
+  organizationId?: string | null;
+  organizationName?: string | null;
+  warehouseType: string;
+  status: string;
+  utilizationPct?: number;
+  intakeCounts?: Record<string, number>;
 }
 
 export interface WarehouseListResponse {
@@ -161,6 +168,9 @@ export interface CreateWarehouseRequest {
   location: string;
   capacity: number;
   operatorId: string;
+  organizationId?: string;
+  warehouseType?: string;
+  status?: string;
 }
 
 export type IntakeRecordGrade =
@@ -809,3 +819,24 @@ export type GetWaterfallCalculationParams = {
 export type GetRecentActivityParams = {
   limit?: number;
 };
+
+export interface Organization {
+  id: string;
+  name: string;
+  type: string;
+  registrationNumber?: string | null;
+  kraPin?: string | null;
+  county?: string | null;
+  contactEmail?: string | null;
+  contactPhone?: string | null;
+  adminId?: string | null;
+  adminName?: string | null;
+  memberCount: number;
+  status: string;
+  createdAt: string;
+}
+
+export interface OrganizationListResponse {
+  organizations: Organization[];
+  stats: Record<string, number>;
+}

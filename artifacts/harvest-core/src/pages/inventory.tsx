@@ -1,5 +1,5 @@
 import { useState, Fragment } from "react"
-import { useListIntakes, useApproveIntake, useRejectIntake, useListWarehouses, useCreateWarehouse, useListUsers } from "@workspace/api-client-react"
+import { useListIntakes, useApproveIntake, useRejectIntake, useListWarehouses, useCreateWarehouse, useListUsers, useListOrganizations } from "@workspace/api-client-react"
 import { useAuth } from "@/contexts/auth"
 import { useQueryClient } from "@tanstack/react-query"
 import {
@@ -78,13 +78,14 @@ export default function Inventory() {
   const { data, isLoading, refetch } = useListIntakes()
   const { data: warehouseData, refetch: refetchWarehouses } = useListWarehouses()
   const { data: usersData } = useListUsers()
+  const { data: orgsData } = useListOrganizations()
   const approveIntake = useApproveIntake()
   const rejectIntake = useRejectIntake()
   const createWarehouse = useCreateWarehouse()
 
   const [showNewIntake, setShowNewIntake] = useState(false)
   const [showNewWarehouse, setShowNewWarehouse] = useState(false)
-  const [warehouseForm, setWarehouseForm] = useState({ name: "", location: "", capacity: "", operatorId: "" })
+  const [warehouseForm, setWarehouseForm] = useState({ name: "", location: "", capacity: "", operatorId: "", organizationId: "", warehouseType: "multi_commodity", status: "active" })
   const [warehouseError, setWarehouseError] = useState("")
   const [gradeDialog, setGradeDialog] = useState<string | null>(null)
   const [weighDialog, setWeighDialog] = useState<string | null>(null)
@@ -145,7 +146,7 @@ export default function Inventory() {
   const handleCreateWarehouse = async () => {
     setWarehouseError("")
     if (!warehouseForm.name || !warehouseForm.location || !warehouseForm.capacity || !warehouseForm.operatorId) {
-      setWarehouseError("All fields are required.")
+      setWarehouseError("Name, location, capacity and operator are required.")
       return
     }
     try {
@@ -154,9 +155,12 @@ export default function Inventory() {
         location: warehouseForm.location,
         capacity: parseFloat(warehouseForm.capacity),
         operatorId: warehouseForm.operatorId,
+        organizationId: warehouseForm.organizationId || undefined,
+        warehouseType: warehouseForm.warehouseType,
+        status: warehouseForm.status,
       }})
       setShowNewWarehouse(false)
-      setWarehouseForm({ name: "", location: "", capacity: "", operatorId: "" })
+      setWarehouseForm({ name: "", location: "", capacity: "", operatorId: "", organizationId: "", warehouseType: "multi_commodity", status: "active" })
       refetchWarehouses()
     } catch (e: any) {
       setWarehouseError(e?.message ?? "Failed to create warehouse")
@@ -556,16 +560,21 @@ export default function Inventory() {
               </div>
             )}
             {warehouses.map((wh: any) => (
-              <Card key={wh.id}>
+              <Card key={wh.id} className={wh.status === "suspended" ? "opacity-60" : ""}>
                 <CardHeader className="pb-3">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <CardTitle className="text-base">{wh.name}</CardTitle>
+                  <div className="flex justify-between items-start gap-2">
+                    <div className="min-w-0">
+                      <CardTitle className="text-base truncate">{wh.name}</CardTitle>
                       <p className="text-muted-foreground text-sm mt-0.5">{wh.location}</p>
                     </div>
-                    <Badge variant={wh.utilizationPct > 80 ? "warning" : "success"} className="text-xs">
-                      {wh.utilizationPct}% full
-                    </Badge>
+                    <div className="flex flex-col items-end gap-1 shrink-0">
+                      <Badge variant={wh.utilizationPct > 80 ? "warning" : "success"} className="text-xs">
+                        {wh.utilizationPct}% full
+                      </Badge>
+                      <Badge variant={wh.status === "active" ? "outline" : "destructive"} className="text-xs capitalize">
+                        {wh.status}
+                      </Badge>
+                    </div>
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -579,12 +588,22 @@ export default function Inventory() {
                   <div className="grid grid-cols-2 gap-2 text-sm">
                     <div className="rounded-lg bg-secondary/40 px-3 py-2">
                       <p className="text-muted-foreground text-xs">Operator</p>
-                      <p className="font-medium text-xs mt-0.5">{wh.operatorName ?? "—"}</p>
+                      <p className="font-medium text-xs mt-0.5 truncate">{wh.operatorName ?? "—"}</p>
                     </div>
                     <div className="rounded-lg bg-secondary/40 px-3 py-2">
-                      <p className="text-muted-foreground text-xs">Active Intakes</p>
+                      <p className="text-muted-foreground text-xs">Type</p>
+                      <p className="font-medium text-xs mt-0.5 capitalize">{(wh.warehouseType ?? "multi_commodity").replace(/_/g, " ")}</p>
+                    </div>
+                    {wh.organizationName && (
+                      <div className="rounded-lg bg-secondary/40 px-3 py-2 col-span-2">
+                        <p className="text-muted-foreground text-xs">Organization</p>
+                        <p className="font-medium text-xs mt-0.5 truncate">{wh.organizationName}</p>
+                      </div>
+                    )}
+                    <div className="rounded-lg bg-secondary/40 px-3 py-2 col-span-2">
+                      <p className="text-muted-foreground text-xs">Total Intakes</p>
                       <p className="font-medium text-xs mt-0.5">
-                        {Object.values(wh.intakeCounts ?? {}).reduce((a: number, b) => a + Number(b), 0)} records
+                        {String(Object.values(wh.intakeCounts ?? {}).reduce((a: number, b: unknown) => a + Number(b), 0))} records
                       </p>
                     </div>
                   </div>
@@ -965,58 +984,99 @@ export default function Inventory() {
 
       {/* ─── NEW WAREHOUSE DIALOG ─── */}
       <Dialog open={showNewWarehouse} onOpenChange={(open) => { setShowNewWarehouse(open); setWarehouseError("") }}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-lg">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Warehouse className="w-5 h-5 text-emerald-500" /> Register New Warehouse
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 pt-2">
-            <div className="space-y-2">
-              <Label>Warehouse Name *</Label>
-              <Input
-                placeholder="e.g. Nairobi Central Grain Store"
-                value={warehouseForm.name}
-                onChange={(e) => setWarehouseForm(f => ({ ...f, name: e.target.value }))}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Location *</Label>
-              <Input
-                placeholder="e.g. Nairobi, Kenya"
-                value={warehouseForm.location}
-                onChange={(e) => setWarehouseForm(f => ({ ...f, location: e.target.value }))}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Capacity (kg) *</Label>
-              <Input
-                type="number"
-                min="1"
-                placeholder="e.g. 500000"
-                value={warehouseForm.capacity}
-                onChange={(e) => setWarehouseForm(f => ({ ...f, capacity: e.target.value }))}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Warehouse Operator *</Label>
-              <select
-                aria-label="Select warehouse operator"
-                className="w-full h-9 rounded-md border border-input bg-background px-3 py-1 text-sm"
-                value={warehouseForm.operatorId}
-                onChange={(e) => setWarehouseForm(f => ({ ...f, operatorId: e.target.value }))}
-              >
-                <option value="">— Select operator —</option>
-                {(usersData?.users ?? []).map((u: any) => (
-                  <option key={u.id} value={u.id}>{u.name} ({u.role})</option>
-                ))}
-              </select>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2 col-span-2">
+                <Label>Warehouse Name *</Label>
+                <Input
+                  placeholder="e.g. Kitale Central Grain Store"
+                  value={warehouseForm.name}
+                  onChange={(e) => setWarehouseForm(f => ({ ...f, name: e.target.value }))}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Location *</Label>
+                <Input
+                  placeholder="e.g. Kitale, Kenya"
+                  value={warehouseForm.location}
+                  onChange={(e) => setWarehouseForm(f => ({ ...f, location: e.target.value }))}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Capacity (kg) *</Label>
+                <Input
+                  type="number"
+                  min="1"
+                  placeholder="e.g. 500000"
+                  value={warehouseForm.capacity}
+                  onChange={(e) => setWarehouseForm(f => ({ ...f, capacity: e.target.value }))}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Commodity Type</Label>
+                <select
+                  aria-label="Select warehouse commodity type"
+                  className="w-full h-9 rounded-md border border-input bg-background px-3 py-1 text-sm"
+                  value={warehouseForm.warehouseType}
+                  onChange={(e) => setWarehouseForm(f => ({ ...f, warehouseType: e.target.value }))}
+                >
+                  <option value="multi_commodity">Multi-Commodity</option>
+                  <option value="grain">Grain</option>
+                  <option value="tea">Tea</option>
+                </select>
+              </div>
+              <div className="space-y-2">
+                <Label>Status</Label>
+                <select
+                  aria-label="Select warehouse status"
+                  className="w-full h-9 rounded-md border border-input bg-background px-3 py-1 text-sm"
+                  value={warehouseForm.status}
+                  onChange={(e) => setWarehouseForm(f => ({ ...f, status: e.target.value }))}
+                >
+                  <option value="active">Active</option>
+                  <option value="suspended">Suspended</option>
+                </select>
+              </div>
+              <div className="space-y-2 col-span-2">
+                <Label>Owner Organization <span className="text-muted-foreground text-xs">(optional)</span></Label>
+                <select
+                  aria-label="Select owner organization"
+                  className="w-full h-9 rounded-md border border-input bg-background px-3 py-1 text-sm"
+                  value={warehouseForm.organizationId}
+                  onChange={(e) => setWarehouseForm(f => ({ ...f, organizationId: e.target.value }))}
+                >
+                  <option value="">— Unaffiliated / Platform-managed —</option>
+                  {(orgsData?.organizations ?? []).map((o: any) => (
+                    <option key={o.id} value={o.id}>{o.name} ({o.type.replace(/_/g, " ")})</option>
+                  ))}
+                </select>
+              </div>
+              <div className="space-y-2 col-span-2">
+                <Label>Warehouse Operator *</Label>
+                <select
+                  aria-label="Select warehouse operator"
+                  className="w-full h-9 rounded-md border border-input bg-background px-3 py-1 text-sm"
+                  value={warehouseForm.operatorId}
+                  onChange={(e) => setWarehouseForm(f => ({ ...f, operatorId: e.target.value }))}
+                >
+                  <option value="">— Select operator user —</option>
+                  {(usersData?.users ?? []).map((u: any) => (
+                    <option key={u.id} value={u.id}>{u.name} ({u.role})</option>
+                  ))}
+                </select>
+              </div>
             </div>
             {warehouseError && <p className="text-sm text-red-500">{warehouseError}</p>}
             <div className="flex justify-end gap-2 pt-2">
               <Button variant="outline" onClick={() => setShowNewWarehouse(false)}>Cancel</Button>
               <Button onClick={handleCreateWarehouse} disabled={createWarehouse.isPending}>
-                {createWarehouse.isPending ? "Creating..." : "Create Warehouse"}
+                {createWarehouse.isPending ? "Creating..." : "Register Warehouse"}
               </Button>
             </div>
           </div>

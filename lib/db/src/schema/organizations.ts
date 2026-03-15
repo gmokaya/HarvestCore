@@ -9,6 +9,7 @@ export const orgTypeEnum = pgEnum("org_type", [
   "lender",
   "trader",
   "admin_entity",
+  "warehouse_operator",
 ]);
 
 export const orgStatusEnum = pgEnum("org_status", ["active", "suspended", "pending"]);

@@ -69,6 +69,8 @@ import type {
   Warehouse,
   WarehouseListResponse,
   WaterfallBreakdown,
+  Organization,
+  OrganizationListResponse,
 } from "./api.schemas";
 
 import { customFetch } from "../custom-fetch";
@@ -3884,5 +3886,45 @@ export function useGetRecentActivity<
     queryKey: QueryKey;
   };
 
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary List all organizations
+ */
+export const getListOrganizationsUrl = () => `/api/organizations`;
+
+export const listOrganizations = async (
+  options?: RequestInit,
+): Promise<OrganizationListResponse> => {
+  return customFetch<OrganizationListResponse>(getListOrganizationsUrl(), {
+    method: "GET",
+    ...options,
+  });
+};
+
+export const getListOrganizationsQueryKey = () => ["organizations"] as const;
+
+export const getListOrganizationsQueryOptions = (options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof listOrganizations>>, ErrorType<unknown>, OrganizationListResponse>;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+  return {
+    queryKey: getListOrganizationsQueryKey(),
+    queryFn: async () => listOrganizations(requestOptions),
+    ...queryOptions,
+  } satisfies UseQueryOptions<Awaited<ReturnType<typeof listOrganizations>>, ErrorType<unknown>, OrganizationListResponse>;
+};
+
+export function useListOrganizations<
+  TData = Awaited<ReturnType<typeof listOrganizations>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof listOrganizations>>, TError, TData>;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListOrganizationsQueryOptions(options);
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & { queryKey: QueryKey };
   return { ...query, queryKey: queryOptions.queryKey };
 }
