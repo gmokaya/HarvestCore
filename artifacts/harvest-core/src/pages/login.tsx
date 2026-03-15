@@ -163,8 +163,27 @@ export default function LoginPage() {
             </div>
           </div>
 
+          {/* Partner organisation */}
+          <div className="mt-10 pt-8" style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }}>
+            <p className="text-[10px] font-semibold uppercase tracking-widest mb-4" style={{ color: "rgba(255,255,255,0.25)" }}>
+              Supported by
+            </p>
+            <div className="flex items-start gap-4">
+              <div className="flex-shrink-0 w-14 h-14 rounded-lg overflow-hidden bg-white flex items-center justify-center">
+                <img src="/knwpwa-logo.png" alt="KeNaWPWA Logo" className="w-full h-full object-contain" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-bold leading-tight" style={{ color: "rgba(255,255,255,0.88)" }}>KeNaWPWA</p>
+                <p className="text-xs mt-0.5 mb-2" style={{ color: "#c7d7da" }}>Waste Pickers Welfare</p>
+                <p className="text-xs leading-relaxed" style={{ color: "rgba(255,255,255,0.38)" }}>
+                  The national voice of waste pickers in Kenya, representing 48,000+ workers building an inclusive, sustainable future.
+                </p>
+              </div>
+            </div>
+          </div>
+
           {/* Bottom attribution */}
-          <div className="mt-10">
+          <div className="mt-6">
             <p className="text-xs" style={{ color: "rgba(255,255,255,0.2)" }}>
               © 2026 TokenHarvest Ltd · Regulated by CBK & CMA Kenya · ISO 27001 Certified
             </p>
