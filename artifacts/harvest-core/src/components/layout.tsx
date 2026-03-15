@@ -20,6 +20,7 @@ import {
   Layers,
   Menu,
   X,
+  LayoutGrid,
 } from "lucide-react"
 
 const NAV_GROUPS = [
@@ -33,9 +34,10 @@ const NAV_GROUPS = [
   {
     label: "Commodity Operations",
     items: [
-      { href: "/inventory",   label: "Inventory & Logistics", icon: Warehouse },
-      { href: "/inspection",  label: "Inspection & Quality",  icon: ClipboardCheck },
-      { href: "/receipts",    label: "Warehouse Receipts",    icon: FileCheck2 },
+      { href: "/inventory",            label: "Inventory & Logistics",   icon: Warehouse },
+      { href: "/warehouse-management", label: "Warehouse Management",     icon: LayoutGrid },
+      { href: "/inspection",           label: "Inspection & Quality",     icon: ClipboardCheck },
+      { href: "/receipts",             label: "Warehouse Receipts",       icon: FileCheck2 },
     ],
   },
   {

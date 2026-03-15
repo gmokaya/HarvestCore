@@ -13,6 +13,7 @@ export const ROUTE_PERMISSIONS: Record<string, AppRole[] | "*"> = {
   "/":                  "*",
   "/users":             ["admin"],
   "/inventory":         ["admin", "farmer", "trader", "collateral_manager", "processor", "warehouse_op", "checker"],
+  "/warehouse-management": ["admin", "collateral_manager", "warehouse_op", "checker"],
   "/inspection":        ["admin", "collateral_manager", "warehouse_op", "checker"],
   "/receipts":          ["admin", "collateral_manager", "warehouse_op"],
   "/tokens":            ["admin", "collateral_manager"],

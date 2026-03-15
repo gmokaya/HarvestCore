@@ -13,6 +13,7 @@ import NotFound from "@/pages/not-found";
 import Dashboard from "@/pages/dashboard";
 import Users from "@/pages/users";
 import Inventory from "@/pages/inventory";
+import WarehouseManagement from "@/pages/warehouse-management";
 import Inspection from "@/pages/inspection";
 import Receipts from "@/pages/receipts";
 import Tokens from "@/pages/tokens";
@@ -48,6 +49,7 @@ function protect(routePath: string, Page: React.ComponentType) {
 // Create guarded versions once — stable references, no re-mounting
 const PUsers            = protect("/users",             Users);
 const PInventory        = protect("/inventory",         Inventory);
+const PWarehouseMgmt    = protect("/warehouse-management", WarehouseManagement);
 const PInspection       = protect("/inspection",        Inspection);
 const PReceipts         = protect("/receipts",          Receipts);
 const PTokens           = protect("/tokens",            Tokens);
@@ -65,6 +67,7 @@ function AuthenticatedApp() {
         <Route path="/"                  component={Dashboard} />
         <Route path="/users"             component={PUsers} />
         <Route path="/inventory"         component={PInventory} />
+        <Route path="/warehouse-management" component={PWarehouseMgmt} />
         <Route path="/inspection"        component={PInspection} />
         <Route path="/receipts"          component={PReceipts} />
         <Route path="/tokens"            component={PTokens} />

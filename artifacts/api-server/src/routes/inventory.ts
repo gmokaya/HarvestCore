@@ -379,4 +379,215 @@ router.get("/warehouses/:warehouseId", async (req, res) => {
   }
 });
 
+/* ─────────────────────────────────────────────
+   WAREHOUSE MANAGEMENT MODULE
+──────────────────────────────────────────────── */
+
+// GET /warehouses/:warehouseId/dashboard
+router.get("/warehouses/:warehouseId/dashboard", async (req, res) => {
+  try {
+    const { warehouseId } = req.params;
+    const [warehouse] = await db.select().from(warehousesTable)
+      .where(eq(warehousesTable.id, warehouseId)).limit(1);
+    if (!warehouse) { res.status(404).json({ error: "Warehouse not found" }); return; }
+
+    const [operator] = await db.select({ name: usersTable.name })
+      .from(usersTable).where(eq(usersTable.id, warehouse.operatorId)).limit(1);
+
+    let orgName: string | null = null;
+    if (warehouse.organizationId) {
+      const [org] = await db.select({ name: organizationsTable.name })
+        .from(organizationsTable).where(eq(organizationsTable.id, warehouse.organizationId)).limit(1);
+      orgName = org?.name ?? null;
+    }
+
+    // Stock by commodity (verified/anchored intakes)
+    const stockByCommodityRes = await db.execute(sql`
+      SELECT commodity, SUM(weight_kg) as total_kg, COUNT(*) as batch_count
+      FROM intakes
+      WHERE warehouse_id = ${warehouseId}
+        AND status IN ('verified','anchored','graded','weighed')
+      GROUP BY commodity
+      ORDER BY total_kg DESC
+    `);
+    const stockByCommodity = (stockByCommodityRes as any).rows ?? [];
+
+    // Intake counts by status
+    const intakesByStatusRes = await db.execute(sql`
+      SELECT status, COUNT(*) as count
+      FROM intakes WHERE warehouse_id = ${warehouseId}
+      GROUP BY status
+    `);
+    const intakesByStatusRows: any[] = (intakesByStatusRes as any).rows ?? [];
+
+    // Recent reconciliations
+    const reconciliationsRes = await db.execute(sql`
+      SELECT r.*, u.name as reconciled_by_name
+      FROM stock_reconciliations r
+      JOIN users u ON r.reconciled_by = u.id
+      WHERE r.warehouse_id = ${warehouseId}
+      ORDER BY r.created_at DESC LIMIT 5
+    `);
+    const reconciliationRows: any[] = (reconciliationsRes as any).rows ?? [];
+
+    // Receipts issued today
+    const todayReceiptsRes = await db.execute(sql`
+      SELECT COUNT(*) as count
+      FROM warehouse_receipts
+      WHERE warehouse_id = ${warehouseId}
+        AND DATE(date_issued) = CURRENT_DATE
+    `);
+    const todayReceiptsRows: any[] = (todayReceiptsRes as any).rows ?? [];
+
+    const capacity = Number(warehouse.capacity);
+    const currentStock = Number(warehouse.currentStock);
+    const available = Math.max(0, capacity - currentStock);
+    const utilizationPct = capacity > 0 ? Math.round((currentStock / capacity) * 100) : 0;
+
+    res.json({
+      warehouse: {
+        ...warehouse,
+        capacity,
+        currentStock,
+        utilizationPct,
+        operatorName: operator?.name ?? "Unknown",
+        organizationName: orgName,
+      },
+      capacity: { total: capacity, occupied: currentStock, available, utilizationPct },
+      stockByCommodity: stockByCommodity.map((r: any) => ({
+        commodity: r.commodity,
+        totalKg: Number(r.total_kg),
+        batchCount: Number(r.batch_count),
+      })),
+      intakesByStatus: Object.fromEntries(
+        intakesByStatusRows.map(r => [r.status, Number(r.count)])
+      ),
+      recentReconciliations: reconciliationRows,
+      todayReceipts: Number(todayReceiptsRows[0]?.count ?? 0),
+    });
+  } catch (err) { console.error(err); res.status(500).json({ error: "Internal server error" }); }
+});
+
+// GET /network-summary — multi-warehouse commodity distribution
+router.get("/network-summary", async (req, res) => {
+  try {
+    const warehouses = await db.select({
+      id: warehousesTable.id,
+      name: warehousesTable.name,
+      location: warehousesTable.location,
+      capacity: warehousesTable.capacity,
+      currentStock: warehousesTable.currentStock,
+      status: warehousesTable.status,
+      warehouseType: warehousesTable.warehouseType,
+    }).from(warehousesTable).where(eq(warehousesTable.status, "active"));
+
+    // Commodity distribution across all warehouses
+    const commodityMatrixRes = await db.execute(sql`
+      SELECT i.warehouse_id, i.commodity, SUM(i.weight_kg) as total_kg, COUNT(*) as batches
+      FROM intakes i
+      WHERE i.status IN ('verified','anchored','graded','weighed')
+      GROUP BY i.warehouse_id, i.commodity
+      ORDER BY i.commodity, total_kg DESC
+    `);
+    const commodityMatrixRows: any[] = (commodityMatrixRes as any).rows ?? [];
+
+    // Total stock by commodity
+    const totalByCommodityRes = await db.execute(sql`
+      SELECT commodity, SUM(weight_kg) as total_kg, COUNT(*) as batches
+      FROM intakes
+      WHERE status IN ('verified','anchored','graded','weighed')
+      GROUP BY commodity ORDER BY total_kg DESC
+    `);
+    const totalByCommodityRows: any[] = (totalByCommodityRes as any).rows ?? [];
+
+    // Status summary across network
+    const statusSummaryRes = await db.execute(sql`
+      SELECT status, COUNT(*) as count, SUM(weight_kg) as total_kg
+      FROM intakes GROUP BY status
+    `);
+    const statusSummaryRows: any[] = (statusSummaryRes as any).rows ?? [];
+
+    res.json({
+      warehouses: warehouses.map(w => ({
+        ...w,
+        capacity: Number(w.capacity),
+        currentStock: Number(w.currentStock),
+        utilizationPct: Number(w.capacity) > 0
+          ? Math.round((Number(w.currentStock) / Number(w.capacity)) * 100)
+          : 0,
+      })),
+      commodityMatrix: commodityMatrixRows.map(r => ({
+        warehouseId: r.warehouse_id,
+        commodity: r.commodity,
+        totalKg: Number(r.total_kg),
+        batches: Number(r.batches),
+      })),
+      totalByCommodity: totalByCommodityRows.map(r => ({
+        commodity: r.commodity,
+        totalKg: Number(r.total_kg),
+        batches: Number(r.batches),
+      })),
+      statusSummary: statusSummaryRows.map(r => ({
+        status: r.status,
+        count: Number(r.count),
+        totalKg: Number(r.total_kg ?? 0),
+      })),
+    });
+  } catch (err) { console.error(err); res.status(500).json({ error: "Internal server error" }); }
+});
+
+// GET /warehouses/:warehouseId/reconciliations
+router.get("/warehouses/:warehouseId/reconciliations", async (req, res) => {
+  try {
+    const result = await db.execute(sql`
+      SELECT r.*, 
+        u1.name as reconciled_by_name,
+        u2.name as approved_by_name
+      FROM stock_reconciliations r
+      JOIN users u1 ON r.reconciled_by = u1.id
+      LEFT JOIN users u2 ON r.approved_by = u2.id
+      WHERE r.warehouse_id = ${req.params.warehouseId}
+      ORDER BY r.created_at DESC
+    `);
+    const rows: any[] = (result as any).rows ?? [];
+    res.json({ reconciliations: rows });
+  } catch (err) { console.error(err); res.status(500).json({ error: "Internal server error" }); }
+});
+
+// POST /warehouses/:warehouseId/reconciliations
+router.post("/warehouses/:warehouseId/reconciliations", async (req, res) => {
+  try {
+    const { warehouseId } = req.params;
+    const { commodity, systemQty, physicalQty, remarks } = req.body;
+    const userId = req.user?.userId;
+    if (!commodity || systemQty == null || physicalQty == null || !userId) {
+      res.status(400).json({ error: "commodity, systemQty, physicalQty are required" }); return;
+    }
+    const variance = Number(physicalQty) - Number(systemQty);
+    const id = `REC-${Date.now().toString(36).toUpperCase()}`;
+    await db.execute(sql`
+      INSERT INTO stock_reconciliations (id, warehouse_id, commodity, system_qty, physical_qty, variance, status, remarks, reconciled_by)
+      VALUES (${id}, ${warehouseId}, ${commodity}, ${Number(systemQty)}, ${Number(physicalQty)}, ${variance}, 'pending', ${remarks ?? null}, ${userId})
+    `);
+    res.status(201).json({ id, warehouseId, commodity, systemQty, physicalQty, variance, status: "pending", remarks });
+  } catch (err) { console.error(err); res.status(500).json({ error: "Internal server error" }); }
+});
+
+// PATCH /warehouses/:warehouseId/reconciliations/:recId/approve
+router.patch("/warehouses/:warehouseId/reconciliations/:recId/approve", async (req, res) => {
+  try {
+    const { recId } = req.params;
+    const { action } = req.body; // "approve" | "reject"
+    const userId = req.user?.userId;
+    if (!action || !userId) { res.status(400).json({ error: "action is required" }); return; }
+    const newStatus = action === "approve" ? "approved" : "rejected";
+    await db.execute(sql`
+      UPDATE stock_reconciliations
+      SET status = ${newStatus}, approved_by = ${userId}, approved_at = now(), updated_at = now()
+      WHERE id = ${recId}
+    `);
+    res.json({ id: recId, status: newStatus });
+  } catch (err) { console.error(err); res.status(500).json({ error: "Internal server error" }); }
+});
+
 export default router;

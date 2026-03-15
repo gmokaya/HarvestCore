@@ -1,0 +1,632 @@
+Below is a **detailed design for the TokenHarvest Warehouse Management Module**. This module is the **operational control layer** for warehouses in the platform and supports:
+
+* warehouse dashboards
+* commodity intake workflows
+* stock reconciliation
+* capacity management
+* multi-warehouse inventory tracking
+
+It integrates directly with the **Inspection Module, Warehouse Receipt Module, Collateral Engine, Loan Engine, and User/Organization Hierarchy**.
+
+---
+
+# TokenHarvest Warehouse Management Module
+
+## 1. Purpose
+
+The **Warehouse Management Module** manages the full warehouse operations lifecycle for commodities stored under TokenHarvest.
+
+It ensures:
+
+* commodities are properly received and recorded
+* stock is traceable across warehouses
+* capacity is monitored in real time
+* reconciliations detect mismatches early
+* inventory supports financing and trading
+
+This module is essential because **warehouse data is the basis for receipts, tokenization, and collateralization**.
+
+---
+
+# 2. Core Functional Areas
+
+The module has five main areas:
+
+1. **Warehouse Dashboards**
+2. **Commodity Intake Workflows**
+3. **Stock Reconciliation**
+4. **Capacity Management**
+5. **Multi-Warehouse Inventory Tracking**
+
+---
+
+# 3. Warehouse Dashboards
+
+## Purpose
+
+Provide real-time visibility into warehouse operations.
+
+## Dashboard Types
+
+### A. Warehouse Operator Dashboard
+
+Used by warehouse managers and staff.
+
+Shows:
+
+* total stock in warehouse
+* stock by commodity
+* available capacity
+* occupied capacity
+* pending intakes
+* pending inspections
+* receipts issued today
+* locked collateral stock
+* expiring receipts
+
+### Example Widgets
+
+```text
+Total Capacity: 20,000 Tons
+Occupied Capacity: 14,500 Tons
+Available Capacity: 5,500 Tons
+
+Maize: 8,000 Tons
+Beans: 3,000 Tons
+Soybeans: 2,000 Tons
+Green Gram: 1,500 Tons
+```
+
+---
+
+### B. Organization Dashboard
+
+Used by warehouse operator organizations managing multiple warehouses.
+
+Shows:
+
+* total stock across all warehouses
+* warehouse-by-warehouse utilization
+* commodity distribution across locations
+* high-risk stock alerts
+* reconciliation exceptions
+
+---
+
+### C. Platform Oversight Dashboard
+
+Used by TokenHarvest operations and compliance teams.
+
+Shows:
+
+* all active warehouses
+* stock under financing
+* stock under dispute
+* capacity trends
+* warehouse performance metrics
+
+---
+
+# 4. Commodity Intake Workflows
+
+## Purpose
+
+Ensure every commodity entering a warehouse is consistently recorded, verified, and linked to ownership.
+
+## Intake Workflow
+
+```text
+Commodity Arrival
+      ↓
+Delivery Verification
+      ↓
+Weighing and Counting
+      ↓
+Commodity Intake Record
+      ↓
+Inspection Request
+      ↓
+Inspection Completion
+      ↓
+Warehouse Receipt Issuance
+      ↓
+Inventory Update
+```
+
+## Step-by-Step Design
+
+### Step 1: Commodity Arrival
+
+The commodity arrives at the warehouse.
+
+Data captured:
+
+* delivery reference
+* supplier / farmer ID
+* organization ID
+* warehouse ID
+* commodity type
+* expected quantity
+* transport details
+
+---
+
+### Step 2: Delivery Verification
+
+Warehouse intake officer verifies:
+
+* delivery note
+* supplier identity
+* booking reference
+* commodity category
+
+---
+
+### Step 3: Weighing and Counting
+
+System records:
+
+* gross weight
+* tare weight
+* net weight
+* number of bags / bulk quantity
+* packaging type
+
+---
+
+### Step 4: Intake Record Creation
+
+An intake record is created.
+
+Example:
+
+```text
+Intake ID: INT-2026-0081
+Warehouse: WH-KTL-001
+Commodity: White Maize
+Quantity: 50 Tons
+Packaging: 100kg Bags
+Owner: FRM-0092
+Status: Pending Inspection
+```
+
+---
+
+### Step 5: Inspection Trigger
+
+The module automatically creates an inspection request and links it to the intake batch.
+
+---
+
+### Step 6: Receipt Generation
+
+Once inspection passes, the system allows warehouse receipt issuance.
+
+---
+
+# 5. Commodity Intake Data Model
+
+## Required Fields
+
+* intake_id
+* warehouse_id
+* organization_id
+* owner_id
+* commodity_type
+* commodity_variety
+* quantity
+* unit_of_measure
+* packaging_type
+* lot/batch_number
+* date_received
+* intake_officer_id
+* status
+
+Optional:
+
+* truck_number
+* transporter_name
+* source_location
+* remarks
+
+---
+
+# 6. Stock Reconciliation
+
+## Purpose
+
+Ensure warehouse physical stock matches system stock and receipt-backed stock.
+
+## Reconciliation Types
+
+### A. Daily Operational Reconciliation
+
+Checks:
+
+* today’s intakes
+* today’s releases
+* current balance
+
+### B. Periodic Physical Reconciliation
+
+Checks:
+
+* physical bag count
+* physical weight
+* moisture/quality changes
+* discrepancies against system inventory
+
+### C. Financial/Collateral Reconciliation
+
+Checks:
+
+* inventory vs warehouse receipts
+* inventory vs tokenized receipts
+* inventory vs financed stock
+* inventory vs locked collateral
+
+---
+
+## Reconciliation Workflow
+
+```text
+System Inventory Snapshot
+      ↓
+Physical Count / Verification
+      ↓
+Variance Analysis
+      ↓
+Exception Report
+      ↓
+Approval / Adjustment
+```
+
+## Example Reconciliation Fields
+
+* reconciliation_id
+* warehouse_id
+* batch_id
+* system_quantity
+* physical_quantity
+* variance
+* reconciliation_date
+* reconciled_by
+* approved_by
+
+Example:
+
+```text
+Batch ID: BATCH-0092
+System Quantity: 50 Tons
+Physical Quantity: 49.5 Tons
+Variance: -0.5 Tons
+Status: Under Review
+```
+
+---
+
+# 7. Reconciliation Controls
+
+To prevent abuse:
+
+* reconciliation adjustments require approval
+* high-value variances trigger escalation
+* all adjustments logged in audit trail
+* financed stock cannot be adjusted without collateral review
+
+Approval roles may include:
+
+* Warehouse Manager
+* Operations Supervisor
+* Compliance Officer
+
+---
+
+# 8. Capacity Management
+
+## Purpose
+
+Track how much storage is available and prevent over-allocation.
+
+## Capacity Dimensions
+
+The system should track:
+
+* total warehouse capacity
+* available capacity
+* reserved capacity
+* occupied capacity
+* blocked/unusable capacity
+
+### Example
+
+```text
+Warehouse Capacity: 20,000 Tons
+Occupied: 14,500 Tons
+Reserved: 2,000 Tons
+Available: 3,500 Tons
+Blocked: 0
+```
+
+---
+
+## Capacity by Zone
+
+Within a warehouse, capacity can also be broken into:
+
+* silo / shed / bay / room / zone
+
+Example:
+
+```text
+Warehouse Kitale
+├ Bay A – Maize – 5,000 Tons
+├ Bay B – Beans – 2,000 Tons
+├ Bay C – Soybeans – 1,500 Tons
+```
+
+This supports precise storage allocation.
+
+---
+
+## Capacity Alerts
+
+The system should trigger alerts when:
+
+* warehouse reaches 80% utilization
+* warehouse reaches 95% utilization
+* a commodity zone is full
+* space is insufficient for a scheduled intake
+
+---
+
+# 9. Multi-Warehouse Inventory Tracking
+
+## Purpose
+
+Provide centralized visibility across all warehouses linked to an organization or network.
+
+## Views Required
+
+### A. Network Inventory View
+
+Shows all stock across all warehouses.
+
+Example:
+
+```text
+Kitale Warehouse – 8,000 Tons Maize
+Eldoret Warehouse – 3,500 Tons Beans
+Endebess Warehouse – 2,000 Tons Soybeans
+```
+
+---
+
+### B. Commodity Distribution View
+
+Shows where each commodity is stored.
+
+Example:
+
+```text
+White Maize
+- WH-KTL-001: 8,000 Tons
+- WH-ELD-002: 2,500 Tons
+- WH-END-003: 1,000 Tons
+```
+
+---
+
+### C. Ownership View
+
+Shows stock by owner across warehouses.
+
+Example:
+
+```text
+Farmer FRM-0092
+- Kitale Warehouse: 50 Tons White Maize
+- Eldoret Warehouse: 10 Tons Beans
+```
+
+---
+
+### D. Financed vs Free Stock View
+
+Shows:
+
+* stock under collateral lock
+* stock available for trading
+* stock pending inspection
+* stock under dispute
+
+---
+
+# 10. Inventory Status Model
+
+Each inventory batch should have a status.
+
+Possible statuses:
+
+```text
+Pending Intake
+Pending Inspection
+Approved
+Receipted
+Tokenized
+Collateral Locked
+Reserved for Trade
+Released
+Under Reconciliation
+Disputed
+```
+
+This allows every batch to be tracked operationally and financially.
+
+---
+
+# 11. Warehouse Management APIs
+
+## Core Endpoints
+
+### Warehouse Dashboard
+
+```http
+GET /warehouses/{warehouse_id}/dashboard
+```
+
+### Commodity Intake
+
+```http
+POST /warehouses/{warehouse_id}/intake
+GET /warehouses/{warehouse_id}/intake/{intake_id}
+```
+
+### Inventory
+
+```http
+GET /warehouses/{warehouse_id}/inventory
+GET /inventory/batch/{batch_id}
+```
+
+### Reconciliation
+
+```http
+POST /warehouses/{warehouse_id}/reconciliation
+POST /warehouses/{warehouse_id}/reconciliation/{id}/approve
+```
+
+### Capacity
+
+```http
+GET /warehouses/{warehouse_id}/capacity
+```
+
+### Multi-Warehouse Tracking
+
+```http
+GET /organizations/{organization_id}/warehouses/inventory
+```
+
+---
+
+# 12. Access Control
+
+Permissions must be enforced by:
+
+* organization_id
+* warehouse_id
+* role
+
+### Examples
+
+**Warehouse Intake Officer**
+
+* create intake records
+* view assigned warehouse stock
+
+**Warehouse Manager**
+
+* approve intake completion
+* manage reconciliation
+* view capacity dashboard
+
+**Organization Admin**
+
+* view all warehouses under the organization
+
+**TokenHarvest Admin**
+
+* view network-wide data, subject to platform oversight rules
+
+Mobile app API calls must enforce the same checks.
+
+---
+
+# 13. Mobile and Web Interfaces
+
+## Mobile App (Warehouse Staff)
+
+Main screens:
+
+* Today’s Intakes
+* Pending Inspections
+* Current Stock
+* Reconciliation Tasks
+* Capacity Snapshot
+
+## Web App (Warehouse Managers / Organizations)
+
+Main screens:
+
+* Warehouse dashboard
+* Intake management
+* Batch inventory table
+* Reconciliation center
+* Capacity map
+* Multi-warehouse analytics
+
+---
+
+# 14. Audit and Compliance
+
+Every operational action must be logged.
+
+Audit events:
+
+* intake created
+* batch updated
+* reconciliation performed
+* adjustment approved
+* capacity override created
+* stock released
+
+This is important for:
+
+* lender confidence
+* warehouse compliance
+* dispute resolution
+* blockchain-linked asset verification
+
+---
+
+# 15. Integration with Other Engines
+
+## Inspection Module
+
+Receives inspection requests from intake records.
+
+## Warehouse Receipt Module
+
+Issues DWRs only for approved intake batches.
+
+## Collateral Engine
+
+Locks inventory linked to financed receipts.
+
+## Loan Engine
+
+Uses inventory and receipt status to verify collateral.
+
+## Trading Engine
+
+Checks inventory availability before listing or settlement.
+
+## Finance Engine
+
+Uses reconciled stock and receipt status for exposure monitoring.
+
+---
+
+# 16. Strategic Value
+
+The Warehouse Management Module makes TokenHarvest operationally credible because it ensures:
+
+* inventory is real and traceable
+* receipts are backed by physical stock
+* financed assets can be monitored
+* warehouse networks can scale efficiently
+
+This module is what turns the platform from a digital concept into a **real warehouse-backed commodity infrastructure**.
+
+If you want, the next best step is to design the **database schema for the Warehouse Management Module**, including the key tables and relationships.
