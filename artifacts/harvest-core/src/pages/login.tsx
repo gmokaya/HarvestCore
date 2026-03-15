@@ -168,17 +168,47 @@ export default function LoginPage() {
             <p className="text-[10px] font-semibold uppercase tracking-widest mb-4" style={{ color: "rgba(255,255,255,0.25)" }}>
               Supported by
             </p>
-            <div className="flex items-start gap-4">
+            {/* Org identity */}
+            <div className="flex items-start gap-4 mb-5">
               <div className="flex-shrink-0 w-14 h-14 rounded-lg overflow-hidden bg-white flex items-center justify-center">
                 <img src="/knwpwa-logo.png" alt="KeNaWPWA Logo" className="w-full h-full object-contain" />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-bold leading-tight" style={{ color: "rgba(255,255,255,0.88)" }}>KeNaWPWA</p>
-                <p className="text-xs mt-0.5 mb-2" style={{ color: "#c7d7da" }}>Waste Pickers Welfare</p>
+                <p className="text-xs mt-0.5 mb-2" style={{ color: "#c7d7da" }}>Kenya National Waste Pickers Welfare Association</p>
                 <p className="text-xs leading-relaxed" style={{ color: "rgba(255,255,255,0.38)" }}>
                   The national voice of waste pickers in Kenya, representing 48,000+ workers building an inclusive, sustainable future.
                 </p>
               </div>
+            </div>
+
+            {/* Leadership */}
+            <p className="text-[10px] font-semibold uppercase tracking-widest mb-3" style={{ color: "rgba(255,255,255,0.2)" }}>
+              Leadership
+            </p>
+            <div className="grid grid-cols-2 gap-2">
+              {[
+                { role: "President",            name: "Brian Gisore"    },
+                { role: "Secretary General",    name: "Eunice Wanjiku"  },
+                { role: "National Secretary",   name: "Maulid Mwanyika" },
+                { role: "Treasurer",            name: "James Githae"    },
+                { role: "Vice-Chair",           name: "Rebecca Miyuga"  },
+                { role: "Vice-Secretary",       name: "Phanice Awor"    },
+                { role: "Organizing Secretary", name: "George Saitoti"  },
+              ].map(({ role, name }) => {
+                const initials = name.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase()
+                return (
+                  <div key={name} className="flex items-center gap-2 px-2.5 py-2 rounded-lg" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)" }}>
+                    <div className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-bold" style={{ background: "rgba(199,215,218,0.15)", color: "#c7d7da" }}>
+                      {initials}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-[10px] font-semibold truncate leading-tight" style={{ color: "rgba(255,255,255,0.75)" }}>{name}</p>
+                      <p className="text-[9px] truncate leading-tight" style={{ color: "rgba(255,255,255,0.3)" }}>{role}</p>
+                    </div>
+                  </div>
+                )
+              })}
             </div>
           </div>
 
