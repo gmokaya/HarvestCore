@@ -7,12 +7,16 @@ import { CreateListingBody, PlaceBidBody } from "@workspace/api-zod";
 const router = Router();
 
 const COMMODITY_PRICES = [
-  { commodity: "Maize", pricePerKg: 38.5, change24h: 0.8, changePercent24h: 2.12, volume24h: 142000 },
-  { commodity: "Coffee", pricePerKg: 620, change24h: -12, changePercent24h: -1.9, volume24h: 28000 },
-  { commodity: "Wheat", pricePerKg: 42, change24h: 1.2, changePercent24h: 2.94, volume24h: 95000 },
-  { commodity: "Rice", pricePerKg: 55, change24h: -0.5, changePercent24h: -0.9, volume24h: 67000 },
-  { commodity: "Sorghum", pricePerKg: 35, change24h: 0.3, changePercent24h: 0.87, volume24h: 43000 },
-  { commodity: "Beans", pricePerKg: 90, change24h: 2.1, changePercent24h: 2.39, volume24h: 31000 },
+  { commodity: "Maize",   pricePerKg: 38.5,  change24h: 0.8,   changePercent24h: 2.12,  volume24h: 142000 },
+  { commodity: "Coffee",  pricePerKg: 620,   change24h: -12,   changePercent24h: -1.9,  volume24h: 28000  },
+  { commodity: "Wheat",   pricePerKg: 42,    change24h: 1.2,   changePercent24h: 2.94,  volume24h: 95000  },
+  { commodity: "Rice",    pricePerKg: 55,    change24h: -0.5,  changePercent24h: -0.9,  volume24h: 67000  },
+  { commodity: "Sorghum", pricePerKg: 35,    change24h: 0.3,   changePercent24h: 0.87,  volume24h: 43000  },
+  { commodity: "Beans",   pricePerKg: 90,    change24h: 2.1,   changePercent24h: 2.39,  volume24h: 31000  },
+  { commodity: "Tea",     pricePerKg: 290,   change24h: 2.3,   changePercent24h: 0.8,   volume24h: 19500  },
+  { commodity: "Cotton",  pricePerKg: 115,   change24h: -1.8,  changePercent24h: -1.54, volume24h: 22000  },
+  { commodity: "Sesame",  pricePerKg: 185,   change24h: 4.2,   changePercent24h: 2.32,  volume24h: 11000  },
+  { commodity: "Millet",  pricePerKg: 30,    change24h: 0.5,   changePercent24h: 1.69,  volume24h: 38000  },
 ];
 
 router.get("/listings", async (req, res) => {

@@ -26,10 +26,16 @@ const STATS = [
 ];
 
 const COMMODITY_PRICES = [
-  { name: "Maize",  price: "38.50", unit: "KES/kg",  trend: "+2.1%" },
-  { name: "Coffee", price: "620",   unit: "KES/kg",  trend: "-1.9%" },
-  { name: "Wheat",  price: "42.00", unit: "KES/kg",  trend: "+2.9%" },
-  { name: "Tea",    price: "290",   unit: "KES/kg",  trend: "+0.8%" },
+  { name: "Maize",   price: "38.50", unit: "KES/kg", trend: "+2.1%"  },
+  { name: "Coffee",  price: "620.00", unit: "KES/kg", trend: "-1.9%" },
+  { name: "Wheat",   price: "42.00", unit: "KES/kg", trend: "+2.9%"  },
+  { name: "Rice",    price: "55.00", unit: "KES/kg", trend: "-0.9%"  },
+  { name: "Sorghum", price: "35.00", unit: "KES/kg", trend: "+0.9%"  },
+  { name: "Beans",   price: "90.00", unit: "KES/kg", trend: "+2.4%"  },
+  { name: "Tea",     price: "290.00", unit: "KES/kg", trend: "+0.8%" },
+  { name: "Cotton",  price: "115.00", unit: "KES/kg", trend: "-1.5%" },
+  { name: "Sesame",  price: "185.00", unit: "KES/kg", trend: "+2.3%" },
+  { name: "Millet",  price: "30.00", unit: "KES/kg", trend: "+1.7%"  },
 ];
 
 const QUICK_DEMO_ROLES = ["admin", "farmer", "trader", "collateral_manager", "processor", "lender"];
